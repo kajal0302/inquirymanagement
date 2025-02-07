@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375692166236",
+    "project_id": "inquirymanagement-90d7e",
+    "storage_bucket": "inquirymanagement-90d7e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375692166236:android:0620aefd8241519a7e5299",
+        "android_client_info": {
+          "package_name": "com.example.inquirymanagement"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXq9C-0Yhc86tV2nrvQHeqaSWndZHu11g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
