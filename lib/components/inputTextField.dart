@@ -1,48 +1,48 @@
 import 'package:flutter/material.dart';
-import '../../../common/color.dart';
-import '../../../common/size.dart';
 
-
-// widget for textField
 class InputTxt extends StatelessWidget {
   final Icon? prefixIcon;
   final String label;
   final String? Function(String?)? validator;
+  final TextEditingController controller;
+
   const InputTxt({
     super.key,
     this.prefixIcon,
     required this.label,
     required this.controller,
-    this.validator
+    this.validator,
   });
-
-  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 45,
-      child: TextFormField(
-        style: TextStyle(color:black),
-        validator: validator,
-        cursorColor: primaryColor,
-        controller: controller,
-        decoration: InputDecoration(
-          filled: true,
-            fillColor: white,
-            prefixIcon: prefixIcon,
-            focusedBorder: OutlineInputBorder(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            style: TextStyle(color: Colors.black),
+            validator: validator,
+            cursorColor: Colors.blue,
+            controller: controller,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: prefixIcon,
+              focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(50)
-            ),
-            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(50),
+              ),
+              border: OutlineInputBorder(
                 borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(50)
+                borderRadius: BorderRadius.circular(50),
+              ),
+              hintText: label,
             ),
-
-            hintText: label
-        ),
-
+          ),
+        ],
       ),
     );
   }

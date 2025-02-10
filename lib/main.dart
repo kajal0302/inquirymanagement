@@ -1,11 +1,18 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/splashScreen.dart';
+import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/notification_service.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
+
+  await Hive.initFlutter();
+  await Hive.openBox(loginPref);
+
   // Ensure that Firebase is initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,6 +36,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       home: splashScreenPage()
     );
   }
