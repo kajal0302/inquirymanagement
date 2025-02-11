@@ -5,13 +5,16 @@ import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/splashScreen.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/notification_service.dart';
-
 import 'firebase_options.dart';
+
+
+// Define the Hive box globally
+late Box userBox;
 
 void main() async {
 
   await Hive.initFlutter();
-  await Hive.openBox(loginPref);
+  userBox = await Hive.openBox(loginPref);  // Open a Hive box to store login data
 
   // Ensure that Firebase is initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();

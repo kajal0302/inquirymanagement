@@ -43,8 +43,13 @@ dependencies:
   logger: ^2.5.0
   device_info_plus: ^11.3.0
   hive_flutter: ^1.1.0
+  hive: ^2.2.3
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.14
   permission_handler: ^11.3.1
   url_launcher: ^6.3.1
+  shimmer: ^3.0.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

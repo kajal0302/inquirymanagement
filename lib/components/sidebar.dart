@@ -99,7 +99,6 @@ List<Widget> widgetSidebarMenu(BuildContext context) {
             // }
             break;
           case "Log Out":
-            Navigator.pop(context);
             showLogoutDialog(context);
             break;
 

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
+
+import '../../../components/appBar.dart';
 
 
 class NotificationPage extends StatefulWidget {
@@ -11,8 +15,20 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+              (Route<dynamic> route) => false, // This removes all the previous routes
+        );
+      },
+      child: Scaffold(
+        backgroundColor: white,
+        appBar: widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
 
+      ),
     );
   }
 }

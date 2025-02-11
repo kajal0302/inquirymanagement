@@ -52,15 +52,27 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
 }
 
 
-AppBar widgetAppbarForAboutPage(BuildContext context,String title , Widget destinationScreen){
+AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
-    title: Text(title,style: TextStyle(color: white,fontWeight: FontWeight.normal,fontSize: px20),),
-    leading: IconButton(onPressed: (){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>destinationScreen));
-    }, icon:Icon(Icons.arrow_back_outlined,size: px20)),
-
+    title: Text(
+      title,
+      style: TextStyle(color: white, fontWeight: FontWeight.normal, fontSize: px20),
+    ),
+    leading: IconButton(
+      onPressed: () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => destinationScreen));
+      },
+      icon: Icon(Icons.arrow_back_outlined, size: px20),
+    ),
+    actions: trailingIcons != null
+        ? trailingIcons.map((icon) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: icon,
+    )).toList()
+        : null,
   );
 }
 

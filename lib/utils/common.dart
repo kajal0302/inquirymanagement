@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+  import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import '../boxes.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 import '../components/alertBox.dart';
@@ -81,7 +80,7 @@ void showLogoutDialog(BuildContext context) {
       return AlertDialogBox(
         message: "Are you sure you want to logout?",
         onPress: () async{
-          await boxperson.clear();
+          await userBox.clear();
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),

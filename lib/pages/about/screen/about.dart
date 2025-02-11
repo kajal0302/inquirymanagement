@@ -44,7 +44,7 @@ class _AboutPageState extends State<AboutPage> {
                   child: Center(
                     child: Image.asset(
                       aboutUsLogo, // Replace with your image path
-                      height: 80, // Adjust height as needed
+                      height: 65, // Adjust height as needed
                     ),
                   ),
                 ),
@@ -74,10 +74,10 @@ class _AboutPageState extends State<AboutPage> {
                       InkWell(
                         onTap: _launchURL,
                           child: Text("https://globalitinfosolution.com",style: TextStyle(color:blue),)),
-                      Center(child: Image.asset(
+
+                      Image.asset(
                         aboutUsOwnerImage,
-                        height: MediaQuery.of(context).size.height*0.4,
-                        width: MediaQuery.of(context).size.width*1,))
+                        width: MediaQuery.of(context).size.width*1,)
                     ],
                   ),
                 ),
