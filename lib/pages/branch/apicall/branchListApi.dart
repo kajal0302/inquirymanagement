@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:inquirymanagement/pages/branch/model/branchList.dart';
+import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 import '../../../common/text.dart';
 import '../../../utils/apicall/method.dart';

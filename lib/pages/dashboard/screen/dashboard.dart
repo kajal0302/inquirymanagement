@@ -6,7 +6,7 @@ import '../../../common/color.dart';
 import '../../../common/size.dart';
 import '../../../components/sidebar.dart';
 import '../../../utils/asset_paths.dart';
-import '../components/lists.dart';
+import '../../../components/lists.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

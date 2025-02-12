@@ -19,7 +19,8 @@ class DropDown extends StatefulWidget {
     required this.status,
     required this.lbl,
     this.controller,
-    this.onChanged, this.heightofSize = px20
+    this.onChanged,
+    this.heightofSize = px20
   });
 
   @override

@@ -1,14 +1,15 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/components/inputPasswordField.dart';
 import 'package:inquirymanagement/components/inputTextField.dart';
+import 'package:inquirymanagement/pages/branch/apicall/branchListApi.dart';
+import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/login/apicall/loginApi.dart';
+import 'package:inquirymanagement/pages/login/model/branch.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
-
 import '../../../common/size.dart';
 import '../../../components/button.dart';
 import '../../../main.dart';
@@ -205,14 +206,49 @@ class _LoginPageState extends State<LoginPage> {
       }
       else {
         try {
+
+          if(data.employeeDetail!.userType == "Admin"){
+            BranchListModel? branches = await fetchBranchListData(context);
+            if (branches != null && branches.branches!.isNotEmpty) {
+
+              // Get the first branch
+              var firstBranch = branches.branches!.first;
+
+              // Store the first branch details
+              userBox.put('branch_id', firstBranch.id);
+              userBox.put('branch_name', firstBranch.name);
+              userBox.put('branch_address', firstBranch.address);
+            }
+
+          }
+          else{
+            userBox.put('branch_id', data.employeeDetail!.branchId);
+          }
           userBox.put('id', data.employeeDetail!.id);
           userBox.put('name', data.employeeDetail!.name);
           userBox.put('username', data.employeeDetail!.username);
-          userBox.put('branch_id', data.employeeDetail!.branchId);
           userBox.put('image', data.employeeDetail!.image);
           userBox.put('user_type', data.employeeDetail!.userType);
           userBox.put('status', data.employeeDetail!.status);
-          userBox.put('branch', data.employeeDetail!.branch);
+
+          if (data.employeeDetail!.branch != null) {
+            // Check if branch is a List<Map<String, dynamic>>
+            if (data.employeeDetail!.branch is List<Map<String, dynamic>>) {
+              List<Branch> branches = (data.employeeDetail!.branch as List)
+                  .map((b) => Branch(
+                id: int.parse(b["id"]),
+                name: b["name"],
+                address: b["address"],
+              ))
+                  .toList();
+              userBox.put('branch', branches);
+            }
+            // If branch is already a List<Branch>, store it directly
+            else if (data.employeeDetail!.branch is List<Branch>) {
+              userBox.put('branch', data.employeeDetail!.branch);
+            }
+          }
+
 
           Navigator.pushReplacement(
             context,
@@ -220,6 +256,7 @@ class _LoginPageState extends State<LoginPage> {
           );
           callSnackBar(data.message.toString(), "success");
         } catch (e) {
+          print(e);
           callSnackBar('An error occurred: $e', "error");
         } finally {
           if (mounted) {

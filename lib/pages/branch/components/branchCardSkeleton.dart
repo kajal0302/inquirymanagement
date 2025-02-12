@@ -46,6 +46,7 @@ class BranchCardSkeleton extends StatelessWidget {
     );
   }
 
+
   Widget _buildSkeletonRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

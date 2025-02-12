@@ -4,6 +4,8 @@ import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import '../../../components/appBar.dart';
 import '../../../components/branchInputField.dart';
+import '../../../components/dropDown.dart';
+import '../../../components/lists.dart';
 
 class AddInquiryPage extends StatefulWidget {
   @override
@@ -157,11 +159,17 @@ class PersonalDetailsForm extends StatelessWidget {
                   floatingLabelColor: preIconFillColor,
                   controller: mobileNo,
                 ),
-                BranchInputTxt(
-                  label: "Reference By",
-                  textColor:  black,
-                  floatingLabelColor: preIconFillColor,
+                DropDown(
+                  key: Key('dropDown1'),
+                  preSelectedValue: reference.text.isNotEmpty
+                      ? (reference.text ?? '')
+                      : (referenceBy.isNotEmpty
+                      ? referenceBy.first
+                      : ''),
                   controller: reference,
+                  items: referenceBy,
+                  status: true,
+                  lbl: "Referenced By",
                 ),
                 BranchInputTxt(
                   label: "Feedback History",

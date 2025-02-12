@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/about/screen/about.dart';
+import 'package:inquirymanagement/pages/contact/screen/contactUs.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/login/screen/login.dart';
+import 'package:inquirymanagement/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 import '../utils/common.dart';
+import 'lists.dart';
+import 'package:share_plus/share_plus.dart';
+
 
 
 // Drawer Widget
@@ -34,6 +40,8 @@ Drawer widgetDrawer(BuildContext context){
 
 // widget for drawerHeader
 
+
+var userName = userBox.get('username');
 Widget widgetDrawerHeader(BuildContext context){
   return DrawerHeader(
       decoration: BoxDecoration(
@@ -49,11 +57,13 @@ Widget widgetDrawerHeader(BuildContext context){
             SizedBox(height: 20,),
             CircleAvatar(
               radius: 35,
-              backgroundImage: AssetImage('assets/images/user.png',), // Replace with your image path
-              backgroundColor: transparent, // Optional: Make background transparent
+              backgroundImage: userBox.get('image') != null && userBox.get('image') != ""
+                  ? NetworkImage(userBox.get('image'))
+                  : const AssetImage('assets/images/user.png') as ImageProvider,
+              backgroundColor: Colors.transparent,
             ),
             SizedBox(height: 5,),
-            TextWidget(labelAlignment:  Alignment.topLeft, label: "Global IT", labelClr: white, labelFontWeight: FontWeight.bold, labelFontSize: px22)
+            TextWidget(labelAlignment:  Alignment.topLeft, label: userName, labelClr: white, labelFontWeight: FontWeight.bold, labelFontSize: px22)
 
 
           ],
@@ -86,17 +96,22 @@ List<Widget> widgetSidebarMenu(BuildContext context) {
             );
             break;
           case "View on Map":
-            // launchUrl(Uri.parse());
+            launchUrl(Uri.parse(shareLink));
             break;
           case "Contact Us":
-            // makePhoneCall();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ContactUsPage(),
+              ),
+            );
             break;
           case "Share":
-            // if (ClientData().clientShare.isNotEmpty) {
-            //   Share.share(ClientData().clientShare);
-            // } else {
-            //   print("No content to share.");
-            // }
+            if (shareLink.isNotEmpty) {
+              Share.share(shareLink);
+            } else {
+              print("No content to share.");
+            }
             break;
           case "Log Out":
             showLogoutDialog(context);
@@ -129,15 +144,4 @@ List<Widget> widgetSidebarMenu(BuildContext context) {
 }
 
 
-// Method for logout
-
-// List of SideBar Menu Items
-Map<IconData, String> sideMenu = {
-  FontAwesomeIcons.house: "Home",
-  FontAwesomeIcons.users:"About Us",
-  FontAwesomeIcons.locationDot: "View on Map",
-  FontAwesomeIcons.phone:"Contact Us",
-  FontAwesomeIcons.share:"Share",
-  FontAwesomeIcons.rightFromBracket :"Log Out"
-};
 

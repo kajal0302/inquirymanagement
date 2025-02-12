@@ -119,3 +119,16 @@ Future<void> makePhoneCall(String phoneNumber) async {
   }
 }
 
+// Opens the default email client with pre-filled details
+Future<void> sendEmail({required String email}) async {
+  final Uri emailUri = Uri(
+    scheme: 'mailto',
+    path: email,
+  );
+
+  if (await canLaunchUrl(emailUri)) {
+    await launchUrl(emailUri);
+  } else {
+    throw Exception('Could not launch email client');
+  }
+}

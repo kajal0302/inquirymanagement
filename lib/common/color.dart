@@ -13,6 +13,7 @@ const lightBlueColor =  Color(0xFFC0FFFF);
 const colorAmber_900 =  Color(0xFFFF6F00);
 const preIconFillColor = Color(0xFFffa000);
 const colorBlackAlpha =  Color(0xaa000000);
+const colorThemeBlue = Color(0xFF0032fd);
 
 
 const grey_50 =  Color(0xFFfafafa);

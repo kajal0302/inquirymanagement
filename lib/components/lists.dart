@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/addInquiry.dart';
 
-import '../screen/dashboard.dart';
+import '../pages/dashboard/screen/dashboard.dart';
 
 
 // List for dashboard Cards Icon and Title
@@ -39,3 +39,19 @@ final List<Map<String, dynamic>> dashboardItems = [
     'page': DashboardPage()
   },
 ];
+
+
+// List of SideBar Menu Items
+Map<IconData, String> sideMenu = {
+  FontAwesomeIcons.house: "Home",
+  FontAwesomeIcons.users:"About Us",
+  FontAwesomeIcons.locationDot: "View on Map",
+  FontAwesomeIcons.phone:"Contact Us",
+  FontAwesomeIcons.share:"Share",
+  FontAwesomeIcons.rightFromBracket :"Log Out"
+};
+
+
+
+//List for reference field in Inquiry page
+const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];

@@ -8,6 +8,7 @@ class BranchInputTxt extends StatelessWidget {
   final Color floatingLabelColor;
   final String? Function(String?)? validator;
   final TextEditingController controller;
+  final int? maxLength;
   final TextInputType keyboardType; // Keyboard type for different inputs
   final int? maxLines; // Allows multi-line for address input
 
@@ -18,6 +19,7 @@ class BranchInputTxt extends StatelessWidget {
     required this.floatingLabelColor,
     required this.controller,
     this.validator,
+    this.maxLength,
     this.keyboardType = TextInputType.text, // Default is normal text input
     this.maxLines = 1, // Default is single-line
   });
@@ -37,6 +39,7 @@ class BranchInputTxt extends StatelessWidget {
             validator: validator,
             cursorColor: preIconFillColor,
             controller: controller,
+            maxLength: maxLength,
             keyboardType: keyboardType,
             maxLines: maxLines,
             decoration: InputDecoration(

@@ -25,10 +25,10 @@ class LoginUserModel {
 }
 
 class EmployeeDetail {
-  int? id;
+  String? id;
   String? name;
   String? username;
-  int? branchId;
+  String? branchId;
   String? image;
   String? userType;
   String? status;
@@ -46,13 +46,13 @@ class EmployeeDetail {
         this.branch});
 
   EmployeeDetail.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    username = json['username'];
-    branchId = json['branch_id'];
-    image = json['image'];
-    userType = json['user_type'];
-    status = json['status'];
+    id = json['id'].toString();
+    name = json['name'].toString();
+    username = json['username'].toString();
+    branchId = json['branch_id'].toString();
+    image = json['image'].toString();
+    userType = json['user_type'].toString();
+    status = json['status'].toString();
     // Fix: Initialize branch list properly
     if (json['branch'] != null) {
       branch = []; // Proper initialization

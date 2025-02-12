@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:inquirymanagement/common/text.dart';
+import 'package:inquirymanagement/pages/login/model/branch.dart';
 import 'package:inquirymanagement/pages/splashScreen.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/notification_service.dart';
@@ -14,6 +15,7 @@ late Box userBox;
 void main() async {
 
   await Hive.initFlutter();
+  Hive.registerAdapter(BranchAdapter()); // Register the adapter
   userBox = await Hive.openBox(loginPref);  // Open a Hive box to store login data
 
   // Ensure that Firebase is initialized before running the app
