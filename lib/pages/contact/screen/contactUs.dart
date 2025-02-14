@@ -44,114 +44,150 @@ class _ContactUsPageState extends State<ContactUsPage> {
       appBar: widgetAppbarForAboutPage(context, "Contact Us", DashboardPage()),
       body: SingleChildScrollView(
         child: isLoading ? ContactUsSkeleton() : Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(vertical: px20 , horizontal: px8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               //Email Section
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.mail, color: preIconFillColor,size: px30,),
-                  SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            if (email.isNotEmpty) {
-                              sendEmail(email: email);
-                            } else {
-                              throw 'Could not launch $email';
-                            }
-                          },
-                          child: Text(
-                            email,
-                            style: TextStyle(fontSize: px16, color: colorThemeBlue,decoration: TextDecoration.underline,decorationColor: colorThemeBlue),
-                          ),
-                        ),
-                        SizedBox(height: 20,),
-                        Divider(),
-                      ],
+              ContactCard(
+                icon: Icons.mail,
+                title: "Email",
+                content: GestureDetector(
+                  onTap: () async {
+                    if (email.isNotEmpty) {
+                      sendEmail(email: email);
+                    }
+                  },
+                  child: Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blueAccent,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
-                ],
+                ),
               ),
-
-              //Contact Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
+              SizedBox(height: 15),
+              // Contact Section
+              ContactCard(
+                icon: Icons.phone,
+                title: "Phone",
+                content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.phone, color: preIconFillColor,size: px30,),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            contact_1,
-                            style: TextStyle(fontSize: px15, color: colorBlackAlpha),
-                          ),
-                          Text(
-                            contact_2,
-                            style: TextStyle(fontSize: px15, color: colorBlackAlpha),
-                          ),
-                          SizedBox(height: 20,),
-                          Divider(),
-                        ],
-                      ),
-                    ),
+                    Text(contact_1, style: TextStyle(fontSize: px15,color: colorBlackAlpha)),
+                    Text(contact_2, style: TextStyle(fontSize: px15, color: colorBlackAlpha)),
                   ],
                 ),
               ),
-
+              SizedBox(height: 15),
               // Branch List Section
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Location Icon (only once)
-                  Icon(Icons.location_on, color: preIconFillColor, size: px30),
-                  SizedBox(width: 20),
-
                   // Branch List in Column (No Scroll)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var branch in branchList!.branches!) ...[
-                          // Branch Name
-                          Text(
-                  "${branch.name!.isNotEmpty ? branch.name! : "N/A"} Branch",
-                  style: TextStyle(fontSize: px16, fontWeight: FontWeight.bold, color: bv_primaryColor),
-                          ),
-                          SizedBox(height: 5),
+                  if (branchList != null && branchList!.branches!.isNotEmpty)
+                    Expanded(
+                      child: ContactCard(
+                        icon: Icons.location_on,
+                        title: "Our Branches",
+                        content: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (int i = 0; i < (branchList?.branches?.length ?? 0); i++) ...[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Branch Name
+                                    Text(
+                                      branchList!.branches![i].name?.isNotEmpty == true
+                                          ? "${branchList!.branches![i].name} Branch"
+                                          : "N/A Branch",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
 
-                          // Address
-                          Text(
-                            branch.address!.isNotEmpty ? branch.address! : "No Address Available",
-                            style: TextStyle(fontSize: px15, color: colorBlackAlpha),
-                          ),
+                                    // Address
+                                    Text(
+                                      branchList!.branches![i].address?.isNotEmpty == true
+                                          ? branchList!.branches![i].address!
+                                          : "No Address Available",
+                                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                                    ),
 
-                          Text(
-                            "Contact : +91 ${branch.contactNo!.isNotEmpty ? branch.contactNo! : "N/A"}",
-                            style: TextStyle(fontSize: px15, color: colorBlackAlpha),
+                                    // Contact Number
+                                    Text(
+                                      "Contact: +91 ${branchList!.branches![i].contactNo?.isNotEmpty == true ? branchList!.branches![i].contactNo! : "N/A"}",
+                                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+
+                                // Divider (Only if not last item)
+                                if (i != branchList!.branches!.length - 1)
+                                  Divider(thickness: 1, color: Colors.grey[300]),
+                              ],
+                            ],
                           ),
-                          SizedBox(height: 20),
-                          Divider(),
-                        ]
-                      ],
+                        ),
+                      ),
                     ),
-                  ),
+
                 ],
               )
-        
-        
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ContactCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget content;
+
+  ContactCard({required this.icon, required this.title, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 1,
+      child: Padding(
+        padding: EdgeInsets.all(15),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: preIconFillColor, size: 30),
+            SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  content,
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

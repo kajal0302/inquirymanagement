@@ -10,4 +10,7 @@ const loginUser = "loginemployee.php";
 const branchList = "branch_list.php";
 const addBranch = "post_branch.php";
 
+const feedbackList = "feedback_list.php";
+const addFeedback = "postfeedback.php";
+
 const notification = "missing_inquiry_report.php";
