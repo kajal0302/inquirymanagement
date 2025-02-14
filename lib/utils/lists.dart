@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/addInquiry.dart';
+import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
 
 import '../pages/dashboard/screen/dashboard.dart';
 
@@ -36,7 +37,7 @@ final List<Map<String, dynamic>> dashboardItems = [
   {
     "icon": Icons.person_add,
     "title": "User",
-    'page': DashboardPage()
+    'page': UserScreen()
   },
 ];
 

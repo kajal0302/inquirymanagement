@@ -51,6 +51,14 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
   );
 }
 
+AppBar buildAppBar(BuildContext context,String title, List<Widget> list) {
+  return AppBar(
+    backgroundColor: primaryColor,
+    foregroundColor: Colors.white,
+    title: Text(title),
+    actions: list,
+  );
+}
 
 AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
   return AppBar(

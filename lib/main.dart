@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:inquirymanagement/pages/users/provider/UserProvider.dart';
+import 'package:provider/provider.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/login/model/branch.dart';
 import 'package:inquirymanagement/pages/splashScreen.dart';
@@ -8,42 +10,41 @@ import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/notification_service.dart';
 import 'firebase_options.dart';
 
-
-// Define the Hive box globally
 late Box userBox;
 
-void main() async {
-
-  await Hive.initFlutter();
-  Hive.registerAdapter(BranchAdapter()); // Register the adapter
-  userBox = await Hive.openBox(loginPref);  // Open a Hive box to store login data
-
-  // Ensure that Firebase is initialized before running the app
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await Hive.initFlutter();
+  Hive.registerAdapter(BranchAdapter());
+  userBox = await Hive.openBox(loginPref);
+
   await NotificationService.initialize();
   NotificationService.handleForegroundNotifications();
 
-  // Run your app
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       scaffoldMessengerKey: scaffoldMessengerKey,
-      home: splashScreenPage()
+      debugShowCheckedModeBanner: false,
+      home: const splashScreenPage(),
     );
   }
 }
-

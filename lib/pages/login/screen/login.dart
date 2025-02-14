@@ -36,7 +36,6 @@ class _LoginPageState extends State<LoginPage> {
     requestPermission();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +88,8 @@ class _LoginPageState extends State<LoginPage> {
                                 label: "Username",
                                 controller: userName,
                                 validator: (value) {
-                                  if (_isSubmitting && (value == null || value.isEmpty)) {
+                                  if (_isSubmitting &&
+                                      (value == null || value.isEmpty)) {
                                     return 'Please enter username';
                                   }
                                   return null; // No error
@@ -106,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                                 label: "Password",
                                 password: pswd,
                                 validator: (value) {
-                                  if (_isSubmitting && (value == null || value.isEmpty)) {
+                                  if (_isSubmitting &&
+                                      (value == null || value.isEmpty)) {
                                     return 'Please enter password';
                                   }
                                   return null; // No error
@@ -177,7 +178,6 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
-
   }
 
   // method for login user
@@ -195,107 +195,94 @@ class _LoginPageState extends State<LoginPage> {
       // Simulate API Call
       await Future.delayed(const Duration(seconds: 2));
 
-      var data = await fetchData(username, password, token,context);
+      var data = await fetchData(username, password, token, context);
 
       if (data == null || data.status != success) {
         setState(() {
           isLoading = false;
         });
-        callSnackBar("No Record Found", "danger");
+        callSnackBar("No Record Found", danger);
         return;
-      }
-      else {
+      } else {
         try {
-
-          if(data.employeeDetail!.userType == "Admin"){
+          if (data.employeeDetail!.userType == adminUserType) {
             BranchListModel? branches = await fetchBranchListData(context);
             if (branches != null && branches.branches!.isNotEmpty) {
-
               // Get the first branch
               var firstBranch = branches.branches!.first;
 
               // Store the first branch details
-              userBox.put('branch_id', firstBranch.id);
-              userBox.put('branch_name', firstBranch.name);
-              userBox.put('branch_address', firstBranch.address);
+              userBox.put(branchIdStr, firstBranch.id);
+              userBox.put(branchNameStr, firstBranch.name);
+              userBox.put(branchAddressStr, firstBranch.address);
             }
-
+          } else {
+            userBox.put(branchIdStr, data.employeeDetail!.branchId);
           }
-          else{
-            userBox.put('branch_id', data.employeeDetail!.branchId);
-          }
-          userBox.put('id', data.employeeDetail!.id);
-          userBox.put('name', data.employeeDetail!.name);
-          userBox.put('username', data.employeeDetail!.username);
-          userBox.put('image', data.employeeDetail!.image);
-          userBox.put('user_type', data.employeeDetail!.userType);
-          userBox.put('status', data.employeeDetail!.status);
+          userBox.put(idStr, data.employeeDetail!.id);
+          userBox.put(nameStr, data.employeeDetail!.name);
+          userBox.put(usernameStr, data.employeeDetail!.username);
+          userBox.put(imageStr, data.employeeDetail!.image);
+          userBox.put(userTypeStr, data.employeeDetail!.userType);
+          userBox.put(statusStr, data.employeeDetail!.status);
 
           if (data.employeeDetail!.branch != null) {
             // Check if branch is a List<Map<String, dynamic>>
             if (data.employeeDetail!.branch is List<Map<String, dynamic>>) {
               List<Branch> branches = (data.employeeDetail!.branch as List)
                   .map((b) => Branch(
-                id: int.parse(b["id"]),
-                name: b["name"],
-                address: b["address"],
-              ))
+                        id: int.parse(b["id"]),
+                        name: b["name"],
+                        address: b["address"],
+                      ))
                   .toList();
-              userBox.put('branch', branches);
+              userBox.put(branchStr, branches);
             }
             // If branch is already a List<Branch>, store it directly
             else if (data.employeeDetail!.branch is List<Branch>) {
-              userBox.put('branch', data.employeeDetail!.branch);
+              userBox.put(branchStr, data.employeeDetail!.branch);
             }
           }
-
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DashboardPage()),
           );
-          callSnackBar(data.message.toString(), "success");
+          callSnackBar(data.message.toString(), success);
         } catch (e) {
           print(e);
-          callSnackBar('An error occurred: $e', "error");
+          callSnackBar('An error occurred: $e', danger);
         } finally {
           if (mounted) {
             setState(() {
-              isLoading = false; // Stop loading indicator in all cases
+              isLoading = false;
               _isSubmitting = false;
             });
           }
         }
       }
     } else {
-      // Validation failed, stop loading indicator
       setState(() {
         _isSubmitting = false;
-        isLoading = false; // Ensure isLoading is false if validation fails
+        isLoading = false;
       });
     }
   }
-
-
 }
-
-
 
 void requestPermission() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission(
-    alert: true, //Allows notifications to be displayed.
-    badge: true, //Allows app badge updates (unread notification count).
-    sound: true, //Allows notifications with sound.
-  ); //asks the user for permission to receive notifications.
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    // callSnackBar('User granted permission', "def");
-  } else {
-    callSnackBar('User declined or has not accept Notification permission', "def");
+  if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+    callSnackBar(
+        'User declined or has not accept Notification permission', "def");
   }
 }
-
 
 Future<String> getToken() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -303,21 +290,20 @@ Future<String> getToken() async {
   return token ?? "";
 }
 
-
 class TextWidget extends StatelessWidget {
   final Alignment labelAlignment;
   final String label;
   final Color labelClr;
   final FontWeight labelFontWeight;
   final double labelFontSize;
-  const TextWidget({
-    super.key,
-    required this.labelAlignment,
-    required this.label,
-    required this.labelClr,
-    required this.labelFontWeight,
-    required this.labelFontSize
-  });
+
+  const TextWidget(
+      {super.key,
+      required this.labelAlignment,
+      required this.label,
+      required this.labelClr,
+      required this.labelFontWeight,
+      required this.labelFontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +311,13 @@ class TextWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: Align(
         alignment: labelAlignment,
-          child: Text(label,style: TextStyle(fontWeight: labelFontWeight,fontSize: labelFontSize,color: labelClr),)
+        child: Text(
+          label,
+          style: TextStyle(
+              fontWeight: labelFontWeight,
+              fontSize: labelFontSize,
+              color: labelClr),
+        ),
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import '../../../components/appBar.dart';
 import '../../../components/branchInputField.dart';
 import '../../../components/dropDown.dart';
-import '../../../components/lists.dart';
+import '../../../utils/lists.dart';
 
 class AddInquiryPage extends StatefulWidget {
   @override

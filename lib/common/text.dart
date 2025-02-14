@@ -9,5 +9,21 @@ const founded = "2019";
 
 const noInternetStr="Please check internet connectivity";
 const success = "success";
+const danger = "danger";
+const appName = "Global IT Inquiry";
+
+const adminUserType = "Admin";
 
 const dataNotAvailable = "Data is Not Available";
+
+const branchIdStr = "branch_id";
+const branchNameStr = "branch_name";
+const branchAddressStr = "branch_address";
+const branchStr = "branch";
+
+const idStr = "id";
+const nameStr = "name";
+const usernameStr = "username";
+const imageStr = "image";
+const userTypeStr = "user_type";
+const statusStr = "status";

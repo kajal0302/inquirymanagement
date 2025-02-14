@@ -14,3 +14,5 @@ const feedbackList = "feedback_list.php";
 const addFeedback = "postfeedback.php";
 
 const notification = "missing_inquiry_report.php";
+
+const userUri = "userlist.php";

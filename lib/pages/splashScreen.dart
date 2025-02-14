@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:inquirymanagement/pages/login/screen/login.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 

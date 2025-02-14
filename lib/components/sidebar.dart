@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 import '../utils/common.dart';
-import 'lists.dart';
+import '../utils/lists.dart';
 import 'package:share_plus/share_plus.dart';
 
 
