@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
+import 'package:inquirymanagement/pages/notification/apicall/feedbackApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
@@ -9,6 +10,7 @@ import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
+import '../model/feedbackModel.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -24,6 +26,8 @@ class _NotificationPageState extends State<NotificationPage> {
   bool isLoadingMore = false; // For pagination loading indicator
   int page = 1; // Pagination starts from page 1
   final ScrollController _scrollController = ScrollController();
+  FeedbackModel? feedbackData;
+  TextEditingController feedbackController = TextEditingController();
 
   @override
   void initState() {
@@ -68,12 +72,24 @@ class _NotificationPageState extends State<NotificationPage> {
     super.dispose();
   }
 
+
+  // Method to load feedData
+  Future <void> loadFeedBackListData(String inquiryId ) async{
+    FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
+    if(mounted){
+      setState(() {
+        feedbackData = fetchedFeedbackListData;
+      });
+    }
+  }
+
   // FeedBack Dialog Box
-  void showFeedbackDialog(BuildContext context) {
+  void showFeedbackDialog(FeedbackModel? feedbackData,BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -103,42 +119,49 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // First Row (Starts from Right)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: feedbackData!.feedbacks!.length,
+                  itemBuilder: (context, index) {
+                    var feedbackItem = feedbackData.feedbacks![index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Text(
+                                      feedbackItem.createdAt!,
+                                      style: TextStyle(fontSize: px14, fontWeight: FontWeight.normal,color: primaryColor),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      feedbackItem.feedback!,
+                                      style: TextStyle(fontSize: px14,fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  "First Row Content",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  "Second Row Content",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ],
-                          )
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
                 Spacer(), // Pushes the floating button at last
                 Padding(
@@ -149,8 +172,10 @@ class _NotificationPageState extends State<NotificationPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50)
                       ),
-                      onPressed: () {},
-                      backgroundColor: preIconFillColor,
+                      onPressed: (){
+                        showAddFeedbackDialog(context);
+                      },
+                      backgroundColor: primaryColor,
                       child: const Icon(Icons.add, color: white),
                     ),
                   ),
@@ -162,6 +187,110 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
+
+
+  // Add FeedBack Dialog Box
+  void showAddFeedbackDialog(BuildContext context) {
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header with Background Color
+                Container(
+                  padding: EdgeInsets.all(15.0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: preIconFillColor, // Background Color
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(8.0),
+                      topLeft: Radius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    "Add Feedback",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Feedback TextField
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextField(
+                    controller: feedbackController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: "Type your feedback...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const Spacer(), // Pushes buttons to the bottom
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          String feedback = feedbackController.text.trim();
+                          if (feedback.isNotEmpty) {
+                            Navigator.pop(context); // Close dialog
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                        ),
+                        child: const Text("Add",style: TextStyle(color: white,fontWeight: FontWeight.bold,fontSize: px15),),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(px15),
+                            side: BorderSide(
+                              color: grey_500,
+                              width: 2,
+                            ),
+                          )
+                        ),
+                        child: const Text("Cancel",style: TextStyle(color: grey_500,fontWeight: FontWeight.bold,fontSize: px15)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
 
 
   @override
@@ -231,7 +360,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       ),
                       trailing: PopupMenuButton<String>(
                         color: white,
-                        onSelected: (value) {
+                        onSelected: (value) async{
                           if(value == "call"){
                             makePhoneCall(notification.contact);
                           }
@@ -239,7 +368,10 @@ class _NotificationPageState extends State<NotificationPage> {
 
                           }
                           else if(value == "feedback"){
-                            showFeedbackDialog(context);
+                            
+                            await loadFeedBackListData(notification.id.toString());
+                            showFeedbackDialog(feedbackData,context);
+
                           }
                           else if(value == "date"){
 
