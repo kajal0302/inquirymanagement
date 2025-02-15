@@ -55,3 +55,6 @@ Map<IconData, String> sideMenu = {
 
 //List for reference field in Inquiry page
 const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];
+
+//List for day field in Notification page
+const days=["After 2 days","After 7 days","After 15 days","After 1 month"];

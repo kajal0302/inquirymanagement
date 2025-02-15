@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/main.dart';
+import 'package:inquirymanagement/pages/branch/model/addBranchModel.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
+import 'package:inquirymanagement/pages/login/screen/login.dart';
 import 'package:inquirymanagement/pages/notification/apicall/feedbackApi.dart';
+import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
+import 'package:inquirymanagement/pages/notification/apicall/updateInquiryStatus.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
+import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
+import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
+import 'package:intl/intl.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
+import '../../../components/lists.dart';
+import '../apicall/postFeedbackApi.dart';
+import '../apicall/updateUpcomingDate.dart';
+import '../components/customDialogBox.dart';
 import '../model/feedbackModel.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -21,12 +33,15 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   String branchId = userBox.get('branch_id').toString();
+  String createdBy = userBox.get('id').toString();
   List<dynamic> notifications = []; // Stores all notifications
   bool isLoading = true;
   bool isLoadingMore = false; // For pagination loading indicator
   int page = 1; // Pagination starts from page 1
   final ScrollController _scrollController = ScrollController();
   FeedbackModel? feedbackData;
+  SuccessModel? addFeedback;
+  InquiryStatusModel? inquiryList;
   TextEditingController feedbackController = TextEditingController();
 
   @override
@@ -73,198 +88,226 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
 
-  // Method to load feedData
-  Future <void> loadFeedBackListData(String inquiryId ) async{
+  // Method to load feedback data
+  Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
     FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
     if(mounted){
       setState(() {
         feedbackData = fetchedFeedbackListData;
       });
     }
+    return fetchedFeedbackListData;
   }
 
+
+  // Method to add feedback data
+  Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
+    SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
+    if(mounted){
+      setState(() {
+        addFeedback = addFeedbackData;
+      });
+    }
+  }
+
+  // Method to update upcoming date
+  Future <void> updateUpcomingDate(String inquiryId,String date ) async{
+    SuccessModel? updatedDateData = await UpdateUpcomingDate(inquiryId, date,branchId,createdBy,context);
+    if(mounted){
+      setState(() {
+        addFeedback = updatedDateData;
+      });
+    }
+  }
+
+
+  // Method to update upcoming date
+  Future <void> loadInquiryStatusListData() async{
+    InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
+    if(mounted){
+      setState(() {
+        inquiryList = inquiryStatusList;
+      });
+    }
+  }
+
+
   // FeedBack Dialog Box
-  void showFeedbackDialog(FeedbackModel? feedbackData,BuildContext context) {
+  void showFeedbackDialog(FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height*0.6,
-            width: MediaQuery.of(context).size.width*0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header with Background Color
-                Container(
-                  padding: EdgeInsets.all(20.0),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: preIconFillColor, // Background Color
-                    borderRadius: BorderRadius.only(topRight: Radius.circular(8.0),topLeft: Radius.circular(8.0)),
-                  ),
-                  child: const Text(
-                    "FeedBack History",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: feedbackData!.feedbacks!.length,
-                  itemBuilder: (context, index) {
-                    var feedbackItem = feedbackData.feedbacks![index];
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: Text(
-                                      feedbackItem.createdAt!,
-                                      style: TextStyle(fontSize: px14, fontWeight: FontWeight.normal,color: primaryColor),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CustomDialog(
+              title: feedbackHistory,
+              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Column(
+                children: [
+                  // Scrollable Feedback List
+                  Expanded(
+                    child: feedbackData == null || feedbackData!.feedbacks == null || feedbackData!.feedbacks!.isEmpty
+                        ? const Center(child: Text(noFeedback))
+                        : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemCount: feedbackData!.feedbacks!.length,
+                      itemBuilder: (context, index) {
+                        var feedbackItem = feedbackData!.feedbacks![index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: Text(
+                                    feedbackItem.createdAt!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.normal,
+                                      color: primaryColor,
                                     ),
                                   ),
-                                  Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Text(
-                                      feedbackItem.feedback!,
-                                      style: TextStyle(fontSize: px14,fontWeight: FontWeight.bold),
+                                ),
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    feedbackItem.feedback!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                Spacer(), // Pushes the floating button at last
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: FloatingActionButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50)
-                      ),
-                      onPressed: (){
-                        showAddFeedbackDialog(context);
+                        );
                       },
-                      backgroundColor: primaryColor,
-                      child: const Icon(Icons.add, color: white),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+
+                  // Floating Button for Adding Feedback
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: FloatingActionButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        onPressed: () async {
+                          // Show add feedback dialog
+                          bool isAdded = await showAddFeedbackDialog(inquiryId, context);
+                          if (isAdded) {
+                            // Refresh feedback list after adding
+                            FeedbackModel? updatedData = await loadFeedBackListData(inquiryId);
+                            setState(() {
+                              feedbackData = updatedData;
+                            });
+                          }
+                        },
+                        backgroundColor: primaryColor,
+                        child: const Icon(Icons.add, color: white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
   }
 
 
-  // Add FeedBack Dialog Box
-  void showAddFeedbackDialog(BuildContext context) {
 
-    showDialog(
+  // Add Feedback Dialog Box
+  Future<bool> showAddFeedbackDialog(String inquiryId, BuildContext context) async {
+    TextEditingController feedbackController = TextEditingController();
+    bool isFeedbackAdded = false;
+
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header with Background Color
-                Container(
-                  padding: EdgeInsets.all(15.0),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: preIconFillColor, // Background Color
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(8.0),
-                      topLeft: Radius.circular(8.0),
+        return CustomDialog(
+          title: addFeedbackHeader,
+          height: MediaQuery.of(context).size.height * 0.4,
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              // Feedback TextField
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: TextField(
+                  controller: feedbackController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    hintText: "Type your feedback...",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  child: const Text(
-                    "Add Feedback",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Feedback TextField
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: TextField(
-                    controller: feedbackController,
-                    maxLines: 5,
-                    decoration: InputDecoration(
-                      hintText: "Type your feedback...",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: primaryColor,
+                        width: 2.0,
                       ),
                     ),
                   ),
                 ),
+              ),
 
-                const Spacer(), // Pushes buttons to the bottom
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
+              const Spacer(),
+
+              // Buttons Row
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: () async {
                           String feedback = feedbackController.text.trim();
-                          if (feedback.isNotEmpty) {
-                            Navigator.pop(context); // Close dialog
+                          if (feedback.isEmpty) {
+                            callSnackBar("Feedback can't be null", "danger");
+
                           }
+                          await addFeedbackData(inquiryId, feedback);
+                          isFeedbackAdded = true;
+                          Navigator.pop(context, isFeedbackAdded);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
+                          backgroundColor: bv_primaryDarkColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(px15),
+                          ),
                         ),
-                        child: const Text("Add",style: TextStyle(color: white,fontWeight: FontWeight.bold,fontSize: px15),),
+                        child: const Text(
+                          "Add",
+                          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+                        ),
                       ),
-                      ElevatedButton(
+                    ),
+                    SizedBox(
+                      width: 100,
+                      height: 45,
+                      child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, false);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: white,
@@ -274,20 +317,287 @@ class _NotificationPageState extends State<NotificationPage> {
                               color: grey_500,
                               width: 2,
                             ),
-                          )
+                          ),
                         ),
-                        child: const Text("Cancel",style: TextStyle(color: grey_500,fontWeight: FontWeight.bold,fontSize: px15)),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15),
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
     );
+    return isFeedbackAdded;
   }
+
+
+
+  // Add Notification Dialog Box
+  void showNotificationSettingsDialog(BuildContext context) {
+    TextEditingController date =TextEditingController();
+    int selectedOption = 3; // Default selection
+    String selectedOptionValue=days[selectedOption];
+    print("Selected: ${days[selectedOption]}");
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CustomDialog(
+              title: notificationSettings,
+              height: MediaQuery.of(context).size.height * 0.7,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      children:
+                      List.generate(days.length, (index) {
+                        return ListTile(
+                          title: TextWidget(labelAlignment: Alignment.topLeft, label: days[index], labelClr: black, labelFontWeight: FontWeight.normal, labelFontSize: px16),
+                          trailing: Radio<int>(
+                            value: index,
+                            groupValue: selectedOption,
+                            activeColor: green,
+                            onChanged: (int? value) {
+                              setState(() {
+                                selectedOption = value!;
+                                selectedOptionValue= days[selectedOption];
+                              });
+                            },
+                          ),
+                        );
+                      }),
+                    ),
+                    TextWidget(labelAlignment: Alignment.topLeft, label: "Select Notification End Date :", labelClr: black, labelFontWeight: FontWeight.bold, labelFontSize: px18),
+                    DateField(firstDate: DateTime.now(), lastDate: DateTime(2100, 1, 1), label: "dd-MM-yyyy", controller: date),
+                    Divider(color: grey_500,thickness: 2,)
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  // Add Upcoming Date Dialog Box
+  void showUpcomingDateDialog(String inquiryDate,String inquiryId,BuildContext context) {
+
+    DateFormat format = DateFormat("dd-MM-yyyy");
+    DateTime date = format.parse(inquiryDate);  // String to DateTime
+
+    DateTime selectedDate = date  ?? DateTime.now(); // Initialize with current date
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CustomDialog(
+              title: upcomingDateHeader,
+              height: MediaQuery.of(context).size.height * 0.3,
+              width: MediaQuery.of(context).size.width * 0.2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10,),
+                  // Date Selection
+                  InkWell(
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate:DateTime.now(),
+                        firstDate:DateTime.now(),
+                        lastDate: DateTime(2100),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.light().copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: preIconFillColor, // background of the date
+                                onPrimary: Colors.white,
+                                surface: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                              dialogBackgroundColor: Colors.white,
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: preIconFillColor,
+                                ),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+
+                      if (pickedDate != null && pickedDate != selectedDate) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.calendar_today, color: preIconFillColor),
+                          const SizedBox(width: 10),
+                          Text(
+                            DateFormat('dd-MM-yyyy').format(selectedDate), // Formatted Date
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30,),
+                  ElevatedButton(
+                    onPressed: ()  async{
+                      String  dateValue =  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
+                      await updateUpcomingDate(inquiryId,dateValue );
+                      Navigator.pop(context);
+                      callSnackBar(updationMessage, "success");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: bv_primaryDarkColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(px30),
+                      ),
+                    ),
+                    child: const Text(
+                      "UPDATE",
+                      style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  // Add Status Dialog Box
+  void showInquiryStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context) {
+        String selectedId = '';
+        String selectedName = '';
+        String selectedStatusId = '';
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CustomDialog(
+              title: "Select Inquiry Status",
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: inquiryList!.inquiryStatusList!.length,
+                        itemBuilder: (context, index) {
+                          var status = inquiryList.inquiryStatusList![index];
+                          bool isSelected = selectedId == status.id; // Check if selected
+
+                          return Card(
+                            color: Colors.white,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedId = status.id!;
+                                  selectedName = status.name!;
+                                  selectedStatusId = status.status!;
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(15),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                                      color: isSelected ? green : grey_500,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      status.name!,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: isSelected ? green : black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 45,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (selectedId.isEmpty) {
+                            callSnackBar("Please select a status", "danger");
+                            return;
+                          }
+                          await updateInquiryStatusData(
+                              selectedId, selectedStatusId, selectedName, branchId, createdBy, context);
+
+                          Navigator.pop(context);
+                          callSnackBar(updationMessage, "success");
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: bv_primaryDarkColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          "UPDATE",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
 
 
 
@@ -365,29 +675,55 @@ class _NotificationPageState extends State<NotificationPage> {
                             makePhoneCall(notification.contact);
                           }
                           else if(value == "settings"){
+                            showNotificationSettingsDialog(context);
 
                           }
                           else if(value == "feedback"){
-                            
+
+                            // Show loading indicator before fetching data
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false, // Prevent closing dialog manually
+                              builder: (context) {
+                                return const Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: grey_400,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                            // Load feedback data
                             await loadFeedBackListData(notification.id.toString());
-                            showFeedbackDialog(feedbackData,context);
+
+                            // Close the loading dialog
+                            Navigator.pop(context);
+
+                            // Show feedback dialog
+                            showFeedbackDialog(feedbackData,notification.id.toString(),context);
 
                           }
                           else if(value == "date"){
+                            showUpcomingDateDialog(notification.inquiryDate,notification.id.toString(),context);
 
                           }
                           else if(value == "status"){
 
-                          }
+                            // load status list
+                            await loadInquiryStatusListData();
+                            showInquiryStatusDialog(inquiryList,context);
 
-                          print("Selected action: $value");
+                          }
                         },
                         itemBuilder: (BuildContext context) => [
-                          PopupMenuItem<String>(value: 'call', child: Text('Call')),
-                          PopupMenuItem<String>(value: 'settings', child: Text('Notification Settings')),
-                          PopupMenuItem<String>(value: 'feedback', child: Text('Feedback History')),
-                          PopupMenuItem<String>(value: 'date', child: Text('Upcoming Date')),
-                          PopupMenuItem<String>(value: 'status', child: Text('Status')),
+                          PopupMenuItem<String>(value: 'call', child: Text(call)),
+                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                          PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
+                          PopupMenuItem<String>(value: 'status', child: Text(status)),
                         ],
                         icon: Icon(Icons.more_vert, color: Colors.black),
                       ),

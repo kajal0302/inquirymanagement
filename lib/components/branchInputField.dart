@@ -31,43 +31,38 @@ class BranchInputTxt extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            style: TextStyle(color: textColor),
-            validator: validator,
-            cursorColor: preIconFillColor,
-            controller: controller,
-            maxLength: maxLength,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 20,vertical: 10.0),
-              filled: true,
-              fillColor: Colors.white,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(borderRadius),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(borderRadius),
-              ),
-              labelText: label,
-                labelStyle: TextStyle(
-                    color: grey_500,
-                    fontSize: px18,
-                ),
-                floatingLabelStyle: TextStyle(
-                    color: floatingLabelColor,
-                    fontSize: px18,
-                  fontWeight: FontWeight.normal
-                ),
-              alignLabelWithHint: isMultiline
-            ),
+      child: TextFormField(
+        style: TextStyle(color: textColor),
+        validator: validator,
+        cursorColor: preIconFillColor,
+        controller: controller,
+        maxLength: maxLength,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20,vertical: 10.0),
+          filled: true,
+          fillColor: Colors.white,
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(borderRadius),
           ),
-        ],
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          labelText: label,
+            labelStyle: TextStyle(
+                color: grey_500,
+                fontSize: px18,
+            ),
+            floatingLabelStyle: TextStyle(
+                color: floatingLabelColor,
+                fontSize: px18,
+              fontWeight: FontWeight.normal
+            ),
+          alignLabelWithHint: isMultiline
+        ),
       ),
     );
   }
