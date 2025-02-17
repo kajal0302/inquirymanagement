@@ -18,7 +18,7 @@ class BranchPage extends StatefulWidget {
 
 class _BranchPageState extends State<BranchPage> {
   bool isLoading = true;
-  BranchListModel? branchList ;
+  BranchListModel? branchList;
 
   @override
   void initState() {

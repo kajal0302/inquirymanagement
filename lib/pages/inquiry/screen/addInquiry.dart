@@ -222,7 +222,11 @@ class InquiryDetailsForm extends StatelessWidget {
                   floatingLabelColor: preIconFillColor,
                   controller: selectBranch,
                 ),
-                DateField(firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Inquiry Date", controller: inquiryDate),
+                DateField(
+                    firstDate: DateTime(1980, 1, 1),
+                    lastDate: DateTime.now(),
+                    label: "Inquiry Date",
+                    controller: inquiryDate),
                 DateField(firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Upcoming Date", controller: upcomingDate),
                 BranchInputTxt(
                   label: "Select Sms Type",

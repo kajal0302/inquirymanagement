@@ -5,6 +5,7 @@ import '../common/size.dart';
 
 class DropDown extends StatefulWidget {
   final List<String>? items;
+  final List<Map<String, String>>? mapItems;
   final String? preSelectedValue;
   final bool status;
   final String lbl;
@@ -14,7 +15,8 @@ class DropDown extends StatefulWidget {
 
   const DropDown({
     super.key,
-    required this.items,
+    this.items,
+    this.mapItems,
     this.preSelectedValue,
     required this.status,
     required this.lbl,
@@ -41,7 +43,9 @@ class _DropDownState extends State<DropDown> {
   }
 
   void _setDropdownValue() {
-    if (widget.items != null && widget.items!.isNotEmpty) {
+    if (widget.mapItems != null && widget.mapItems!.isNotEmpty) {
+      dropdownValue = (widget.preSelectedValue ?? widget.mapItems!.first['id']!);
+    } else if (widget.items != null && widget.items!.isNotEmpty) {
       dropdownValue = (widget.preSelectedValue ?? widget.items!.first);
     } else {
       dropdownValue = "";
@@ -52,7 +56,7 @@ class _DropDownState extends State<DropDown> {
   void didUpdateWidget(covariant DropDown oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.items != widget.items || oldWidget.preSelectedValue != widget.preSelectedValue) {
+    if (oldWidget.mapItems != widget.mapItems || oldWidget.items != widget.items || oldWidget.preSelectedValue != widget.preSelectedValue) {
       _setDropdownValue();
 
       // Update the controller's text only if necessary
@@ -67,11 +71,10 @@ class _DropDownState extends State<DropDown> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: widget.heightofSize),
         DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(50), // Added border radius here
             border: Border.all(color: grey_300 ),
           ),
           child: DropdownButtonHideUnderline(
@@ -79,9 +82,11 @@ class _DropDownState extends State<DropDown> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: DropdownButton<String>(
                 style: TextStyle(color: black),
-                value: widget.items != null && widget.items!.isNotEmpty ? dropdownValue : null,
+                value: widget.mapItems != null && widget.mapItems!.isNotEmpty || widget.items != null && widget.items!.isNotEmpty
+                    ? dropdownValue
+                    : null,
                 icon: const Icon(Icons.arrow_drop_down),
-                onChanged: widget.status && widget.items!.isNotEmpty
+                onChanged: widget.status && (widget.mapItems != null && widget.mapItems!.isNotEmpty || widget.items != null && widget.items!.isNotEmpty)
                     ? (String? newValue) {
                   setState(() {
                     dropdownValue = newValue!;
@@ -96,7 +101,14 @@ class _DropDownState extends State<DropDown> {
                   });
                 }
                     : null,
-                items: widget.items?.map<DropdownMenuItem<String>>((String value) {
+                items: widget.mapItems != null
+                    ? widget.mapItems?.map<DropdownMenuItem<String>>((Map<String, String> item) {
+                  return DropdownMenuItem<String>(
+                    value: item['id'],
+                    child: Text(item['value']!),
+                  );
+                }).toList()
+                    : widget.items?.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),

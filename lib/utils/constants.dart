@@ -15,4 +15,7 @@ const addFeedback = "postfeedback.php";
 
 const notification = "missing_inquiry_report.php";
 
+const postInquiriesUri = "postinquiries.php";
+const postUserUri = "post_user.php";
+
 const userUri = "userlist.php";

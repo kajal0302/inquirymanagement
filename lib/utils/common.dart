@@ -29,7 +29,7 @@ void callSnackBar(String text, String type) {
     color = sfInfoColor;
     icon = Icons.info;
   }
-  if (type == "danger") {
+  if (type == "danger" || type == "error" || type == "fail") {
     color = sfDangColor;
     icon = Icons.warning;
   }

@@ -72,12 +72,12 @@ class ApiService {
     Map<String, String>? headers,
   }) async {
     final url = Uri.parse('$baseUrlInquiry$endpoint');
-    final jsonBody = jsonEncode(body);
+    final jsonBody = body;
 
     try {
       if (kDebugMode) {
         loggerNoStack.i('POST Request: $url');
-        loggerNoStack.i('POST Body: $jsonBody');
+        loggerNoStack.i('POST Body: ${jsonEncode(jsonBody)}');
       }
 
       final response = await client

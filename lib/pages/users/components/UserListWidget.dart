@@ -33,8 +33,9 @@ class UserListWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text("Designation : ${designation}",style: grey_heading_5,),
-            Text("User Type : ${type}",style: grey_heading_5,)
+            Text("Designation : ${designation}",style: grey_heading_4_5,),
+            Text("User Type : ${type}",style: grey_heading_4_5,)
+
           ],
         ),
         //<i class="fa-solid fa-ellipsis-vertical"></i>

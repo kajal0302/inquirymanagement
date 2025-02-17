@@ -1,0 +1,2 @@
+D:/dharmik/flutter/inquiryFlutter/inquirymanagement/android/app/.cxx/RelWithDebInfo/382ol112/x86/CMakeFiles/edit_cache.dir
+D:/dharmik/flutter/inquiryFlutter/inquirymanagement/android/app/.cxx/RelWithDebInfo/382ol112/x86/CMakeFiles/rebuild_cache.dir

@@ -11,6 +11,8 @@ const noInternetStr="Please check internet connectivity";
 const success = "success";
 const danger = "danger";
 const appName = "Global IT Inquiry";
+const userImageUri = "https://static.vecteezy.com/system/resources/previews/036/280/650/original/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg";
+
 
 const adminUserType = "Admin";
 

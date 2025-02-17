@@ -56,3 +56,6 @@ Map<IconData, String> sideMenu = {
 
 //List for reference field in Inquiry page
 const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];
+const genderList=["Male","Female"];
+const userRoleList=["Employee","Admin"];
+
