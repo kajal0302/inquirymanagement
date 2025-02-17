@@ -6,7 +6,7 @@ import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 
-Future<SuccessModel?> UpdateNotificationDay(String id,String day,String end_notification_date,String message_content,String created_by,String branch_id, BuildContext context) async {
+Future<SuccessModel?> UpdateNotificationDay(String id,String day,String upcoming_confirm_date,String message_content,String created_by,String branch_id, BuildContext context) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -20,7 +20,7 @@ Future<SuccessModel?> UpdateNotificationDay(String id,String day,String end_noti
     body: {
       'id': id,
       'day': day,
-      'end_notification_date': end_notification_date,
+      'upcoming_confirm_date': upcoming_confirm_date,
       'message_content': message_content,
       'created_by': created_by,
       'branch_id': branch_id,

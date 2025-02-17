@@ -10,6 +10,7 @@ class DateField extends StatefulWidget {
   final bool isEnabled;
   final String? Function(String?)? validator;
   final TextEditingController controller;
+  final bool showBottomBorder;
 
   const DateField({
     super.key,
@@ -19,6 +20,7 @@ class DateField extends StatefulWidget {
     required this.controller,
     this.isEnabled = true,
     this.validator,
+    this.showBottomBorder = false,
   });
 
   @override
@@ -26,6 +28,7 @@ class DateField extends StatefulWidget {
 }
 
 class _DateFieldState extends State<DateField> {
+  bool? isNotification=false;
   DateTime? _selectedDate;
 
   void _selectDate(BuildContext context) async {
@@ -74,7 +77,7 @@ class _DateFieldState extends State<DateField> {
           TextFormField(
             style: TextStyle(color: black),
             validator: widget.validator,
-            cursorColor: preIconFillColor,
+            cursorColor: primaryColor,
             controller: widget.controller,
             readOnly: true,
             enabled: widget.isEnabled,
@@ -82,14 +85,16 @@ class _DateFieldState extends State<DateField> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10.0),
               filled: true,
               fillColor: Colors.white,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(50.0),
-              ),
+              focusedBorder: widget.showBottomBorder
+                  ? UnderlineInputBorder(
+                borderSide: BorderSide(color: grey_500, width: 2),
+              )
+                  : InputBorder.none,
+              enabledBorder: widget.showBottomBorder
+                  ? UnderlineInputBorder(
+                borderSide: BorderSide(color: grey_500, width: 2),
+              )
+                  : InputBorder.none,
               labelText: widget.label,
               labelStyle: TextStyle(
                 color: grey_500,

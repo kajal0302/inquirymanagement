@@ -18,6 +18,7 @@ const updationMessage = "Record Updated Successfully";
 const loginPref = "LoginPrefrences";
 const call = "Call";
 const notificationSettings = "Notification Settings";
+const smsService = "SMS Service";
 const feedbackHistory = "Feedback History";
 const upcomingDate = "Upcoming Date";
 const status = "Status";

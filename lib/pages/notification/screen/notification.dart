@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/components/alertBox.dart';
 import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/model/addBranchModel.dart';
@@ -9,10 +10,12 @@ import 'package:inquirymanagement/pages/notification/apicall/feedbackApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/updateInquiryStatus.dart';
+import 'package:inquirymanagement/pages/notification/apicall/updateNotificationDay.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
 import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
 import 'package:inquirymanagement/utils/common.dart';
+import 'package:inquirymanagement/utils/constants.dart';
 import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 import 'package:intl/intl.dart';
 import '../../../common/size.dart';
@@ -283,7 +286,7 @@ class _NotificationPageState extends State<NotificationPage> {
                         onPressed: () async {
                           String feedback = feedbackController.text.trim();
                           if (feedback.isEmpty) {
-                            callSnackBar("Feedback can't be null", "danger");
+                            callSnackBar("Please Enter feedback", "danger");
 
                           }
                           await addFeedbackData(inquiryId, feedback);
@@ -338,12 +341,56 @@ class _NotificationPageState extends State<NotificationPage> {
 
 
 
+  //  Date Selection Method
+  void _selectDate(BuildContext context, TextEditingController controller) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100, 1, 1),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: preIconFillColor, // background of the date
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+            dialogBackgroundColor: Colors.white,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: preIconFillColor,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      final DateFormat formatter = DateFormat('yyyy-MM-dd');
+      controller.text = formatter.format(pickedDate);
+    }
+  }
+
+
   // Add Notification Dialog Box
-  void showNotificationSettingsDialog(BuildContext context) {
-    TextEditingController date =TextEditingController();
-    int selectedOption = 3; // Default selection
-    String selectedOptionValue=days[selectedOption];
-    print("Selected: ${days[selectedOption]}");
+  void showNotificationSettingsDialog(String inquiryId, String notificationDay,BuildContext context) {
+    TextEditingController dateController = TextEditingController();
+    TextEditingController dayController = TextEditingController();
+    // Get the index of notificationDay in days list
+    int selectedOption = days.indexOf(notificationDay);
+    if (selectedOption == -1) {
+      selectedOption = 3; // Default selection if notificationDay is not found
+    }
+    String selectedOptionValue = days[selectedOption];
+
+    //  assign values
+    dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    dayController.text = selectedOptionValue;;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -352,36 +399,134 @@ class _NotificationPageState extends State<NotificationPage> {
             return CustomDialog(
               title: notificationSettings,
               height: MediaQuery.of(context).size.height * 0.7,
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children:
-                      List.generate(days.length, (index) {
-                        return ListTile(
-                          title: TextWidget(labelAlignment: Alignment.topLeft, label: days[index], labelClr: black, labelFontWeight: FontWeight.normal, labelFontSize: px16),
-                          trailing: Radio<int>(
-                            value: index,
-                            groupValue: selectedOption,
-                            activeColor: green,
-                            onChanged: (int? value) {
-                              setState(() {
-                                selectedOption = value!;
-                                selectedOptionValue= days[selectedOption];
-                              });
-                            },
-                          ),
-                        );
-                      }),
-                    ),
-                    TextWidget(labelAlignment: Alignment.topLeft, label: "Select Notification End Date :", labelClr: black, labelFontWeight: FontWeight.bold, labelFontSize: px18),
-                    DateField(firstDate: DateTime.now(), lastDate: DateTime(2100, 1, 1), label: "dd-MM-yyyy", controller: date),
-                    Divider(color: grey_500,thickness: 2,)
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        children: List.generate(days.length, (index) {
+                          return ListTile(
+                            title: TextWidget(
+                              labelAlignment: Alignment.topLeft,
+                              label: days[index],
+                              labelClr: black,
+                              labelFontWeight: FontWeight.normal,
+                              labelFontSize: px16,
+                            ),
+                            trailing: Radio<int>(
+                              value: index,
+                              groupValue: selectedOption,
+                              activeColor: preIconFillColor,
+                              onChanged: (int? value) {
+                                setState(() {
+                                  selectedOption = value!;
+                                  selectedOptionValue = days[selectedOption];
+                                  dayController.text=selectedOptionValue;
+                                });
+                              },
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: grey_500, width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextWidget(
+                              labelAlignment: Alignment.topLeft,
+                              label: "Select Notification End Date",
+                              labelClr: black,
+                              labelFontWeight: FontWeight.bold,
+                              labelFontSize: px18,
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DateField(
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100, 1, 1),
+                                    label: "dd-MM-yyyy",
+                                    controller: dateController,
+                                    showBottomBorder: true,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                IconButton(
+                                  icon: const Icon(Icons.calendar_today, color: preIconFillColor),
+                                  onPressed: () => _selectDate(context, dateController), // Also trigger date picker
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: 108,
+                              height: 42,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  String dayValue= dayController.text;
+                                  String dateValue = dateController.text;
+                                  Navigator.pop(context);
+                                  showMessageDialog(inquiryId,dayValue,dateValue,context);
+                  
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: bv_primaryDarkColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(px15),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "APPLY",
+                                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 108,
+                              height: 42,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(px15),
+                                    side: BorderSide(
+                                      color: grey_500,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "CANCEL",
+                                  style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -390,6 +535,114 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
+
+  // Add Message Dialog Box
+  Future<void> showMessageDialog(String inquiryId, String day,String date,BuildContext context) async {
+    TextEditingController messageController = TextEditingController();
+    bool isMessageAdded = false;
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          title: smsService,
+          height: 360,
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              // Feedback TextField
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: TextField(
+                  controller: messageController,
+                  maxLines: 5,
+                  maxLength: 119,
+                  decoration: InputDecoration(
+                    hintText: "Type your message here... (Maximum 119 characters allowed)",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: primaryColor,
+                        width: 2.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+              // Buttons Row
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: 120,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          AlertDialogBox(message: "Are you sure?",onPress: () async{
+                            String message = messageController.text.trim();
+                            if(message.isEmpty){
+                              callSnackBar("Please Enter message..", "danger");
+                            }
+                            await UpdateNotificationDay(inquiryId , day, date, message, createdBy, branchId, context);
+                            isMessageAdded=true;
+                          },);
+
+
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: bv_primaryDarkColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(px15),
+                          ),
+                        ),
+                        child: const Text(
+                          "SEND SMS",
+                          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px13),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(px15),
+                            side: BorderSide(
+                              color: grey_500,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+
+                        child: const Text(
+                          "CANCEL",
+                          style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px13),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
 
   // Add Upcoming Date Dialog Box
@@ -539,7 +792,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                   children: [
                                     Icon(
                                       isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                                      color: isSelected ? green : grey_500,
+                                      color: isSelected ? preIconFillColor : grey_500,
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
@@ -547,7 +800,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
-                                        color: isSelected ? green : black,
+                                        color: isSelected ? preIconFillColor : black,
                                       ),
                                     ),
                                   ],
@@ -595,8 +848,6 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
-
-
 
 
 
@@ -675,7 +926,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             makePhoneCall(notification.contact);
                           }
                           else if(value == "settings"){
-                            showNotificationSettingsDialog(context);
+                            showNotificationSettingsDialog(notification.id.toString(),notification.notificationDay, context);
 
                           }
                           else if(value == "feedback"){
@@ -712,8 +963,27 @@ class _NotificationPageState extends State<NotificationPage> {
                           }
                           else if(value == "status"){
 
+                            // Show loading indicator before fetching data
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false, // Prevent closing dialog manually
+                              builder: (context) {
+                                return const Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: grey_400,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
                             // load status list
                             await loadInquiryStatusListData();
+
+                            // Close the loading dialog
+                            Navigator.pop(context);
                             showInquiryStatusDialog(inquiryList,context);
 
                           }

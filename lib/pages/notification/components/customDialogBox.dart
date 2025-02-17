@@ -18,7 +18,7 @@ class CustomDialog extends StatelessWidget {
       ),
       child: SizedBox(
         height: height ?? MediaQuery.of(context).size.height * 0.8,
-        width:  width ?? MediaQuery.of(context).size.width * 0.8,
+        width:  width ?? MediaQuery.of(context).size.width * 0.9,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
