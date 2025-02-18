@@ -113,7 +113,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
     ];
   }
 
-
   @override
   Widget build(BuildContext context) {
     final branchProvider = Provider.of<BranchProvider>(context);
@@ -128,6 +127,8 @@ class _AddUserScreenState extends State<AddUserScreen> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               key: _formKey,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ImageCamera(
                     image: profilePic,

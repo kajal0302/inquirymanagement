@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
-import 'package:inquirymanagement/pages/inquiry/screen/addInquiry.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
 
 import '../pages/dashboard/screen/dashboard.dart';

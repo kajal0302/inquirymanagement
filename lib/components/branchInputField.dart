@@ -12,6 +12,7 @@ class BranchInputTxt extends StatelessWidget {
   final TextEditingController controller;
   final int? maxLength;
   final bool isPwd;
+  final bool readOnly;
   final TextInputType keyboardType; // Keyboard type for different inputs
   final int? maxLines; // Allows multi-line for address input
 
@@ -24,6 +25,7 @@ class BranchInputTxt extends StatelessWidget {
     required this.controller,
     this.validator,
     this.maxLength,
+    this.readOnly = false,
     this.isPwd = false,
     this.keyboardType = TextInputType.text, // Default is normal text input
     this.maxLines = 1, // Default is single-line
@@ -39,6 +41,7 @@ class BranchInputTxt extends StatelessWidget {
       child: TextFormField(
         style: TextStyle(color: textColor),
         validator: validator,
+        readOnly: readOnly,
         cursorColor: preIconFillColor,
         controller: controller,
         maxLength: maxLength,

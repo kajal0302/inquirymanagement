@@ -28,8 +28,9 @@ class ApiService {
     required modelName Function(Map<String, dynamic>) fromJson,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
+    bool fromApi = false,
   }) async {
-    final url = Uri.parse('$baseUrlInquiry$endpoint').replace(
+    final url = Uri.parse('${fromApi ? apiUrl : baseUrlInquiry}$endpoint').replace(
       queryParameters: queryParameters?.map((k, v) => MapEntry(k, v.toString())),
     );
 

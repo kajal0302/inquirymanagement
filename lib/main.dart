@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:inquirymanagement/pages/course/provider/CourseProvider.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/pages/users/provider/UserProvider.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => BranchProvider()),
+        ChangeNotifierProvider(create: (_) => CourseProvider()),
       ],
       child: const MyApp(),
     ),

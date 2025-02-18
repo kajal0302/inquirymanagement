@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/users/apiCall/UserApi.dart';
 import 'package:inquirymanagement/pages/users/models/UserModel.dart';
-import 'package:inquirymanagement/utils/apicall/ApiService.dart';
-import 'package:inquirymanagement/utils/common.dart';
-import 'package:inquirymanagement/utils/constants.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel? _user;

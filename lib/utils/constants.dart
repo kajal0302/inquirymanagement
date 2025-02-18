@@ -19,3 +19,7 @@ const postInquiriesUri = "postinquiries.php";
 const postUserUri = "post_user.php";
 
 const userUri = "userlist.php";
+
+const apiUrl = "https://api.globalitians.com/globalit_courses_management/";
+const courseUri = "courses.php"+dbName;
+const dbName = "?cid=globalit";
