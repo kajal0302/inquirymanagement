@@ -10,12 +10,14 @@ import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/users/apiCall/UserApi.dart';
 import 'package:inquirymanagement/pages/users/components/StepOne.dart';
 import 'package:inquirymanagement/pages/users/components/StepTwo.dart';
+import 'package:inquirymanagement/pages/users/models/UserModel.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:provider/provider.dart';
 
 class AddUserScreen extends StatefulWidget {
-  const AddUserScreen({super.key});
+  final Users? user;
+  const AddUserScreen({super.key,this.user});
 
   @override
   _AddUserScreenState createState() => _AddUserScreenState();
@@ -23,6 +25,7 @@ class AddUserScreen extends StatefulWidget {
 
 class _AddUserScreenState extends State<AddUserScreen> {
   File? selectedFile;
+  String? slug;
   BranchListModel? branchList;
   TextEditingController fullName = TextEditingController();
   TextEditingController address = TextEditingController();
@@ -37,14 +40,41 @@ class _AddUserScreenState extends State<AddUserScreen> {
   TextEditingController selectBranch = TextEditingController();
   TextEditingController joiningDate = TextEditingController();
   TextEditingController userRole = TextEditingController();
+  String profilePic = userImageUri;
+  final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _formKey.currentState?.validate();
+    });
     Future.microtask(
       () => Provider.of<BranchProvider>(context, listen: false)
           .getBranch(context),
-    ); 
+    );
+    if(widget.user != null){
+      setData(widget.user!);
+    }
+  }
+
+  void setData(Users user){
+    fullName.text = user.name.toString();
+    address.text = user.address.toString();
+    mobileNo.text = user.mobileNo.toString();
+    emailId.text = user.email.toString();
+    designation.text = user.designation.toString();
+    birthDate.text = user.dob.toString();
+    gender.text = user.gender.toString();
+    username.text = user.username.toString();
+    password.text = user.pwd.toString();
+    confirmPassword.text = user.pwd.toString();
+    selectBranch.text = user.branchId.toString();
+    joiningDate.text = user.joiningDate.toString();
+    userRole.text = user.userType.toString();
+    profilePic = user.file ?? userImageUri;
+    slug = user.slug.toString();
   }
 
   void _onImagePicked(File file) {
@@ -53,7 +83,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     });
   }
 
-  List<Map> dynamicSteps(BranchProvider branchProvider) {
+  List<Map> dynamicSteps(BranchProvider branchProvider,bool isSubmitted) {
     return [
       {
         "title": "Personal Details",
@@ -64,7 +94,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
             emailId: emailId,
             designation: designation,
             birthDate: birthDate,
-            gender: gender),
+            gender: gender,
+            isSubmitted:isSubmitted
+        ),
       },
       {
         "title": "User Account Details",
@@ -75,12 +107,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
             selectBranch: selectBranch,
             joiningDate: joiningDate,
             userRole: userRole,
-            branchProvider: branchProvider),
+            branchProvider: branchProvider,
+            isSubmitted:isSubmitted),
       },
     ];
   }
 
-  String profilePic = userImageUri;
 
   @override
   Widget build(BuildContext context) {
@@ -88,57 +120,71 @@ class _AddUserScreenState extends State<AddUserScreen> {
     return Scaffold(
       appBar: buildAppBar(context, "Add User", []),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-            child: Column(
-              children: [
-                ImageCamera(
-                  image: profilePic,
-                  status: true,
-                  onImagePicked: _onImagePicked,
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: DynamicStepper(
-                    dynamicSteps: dynamicSteps(branchProvider),
-                    voidCallback: () async {
-                      final data = await postUsers(
-                          context,
-                          fullName.text,
-                          address.text,
-                          mobileNo.text,
-                          emailId.text,
-                          designation.text,
-                          birthDate.text,
-                          gender.text,
-                          username.text,
-                          password.text,
-                          selectBranch.text,
-                          joiningDate.text,
-                          userRole.text,
-                          "1",
-                          "",
-                          selectedFile);
-                      if (data == null) {
-                        callSnackBar("Unknown Error Accrued", danger);
-                        return;
-                      }
-
-                      callSnackBar(data.message ?? "Unknown Error Accrued", data.status ?? "def");
-                      if (data.status == success) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DashboardPage(),
-                          ),
-                        );
-                      }
-                    },
+            child: Form(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              key: _formKey,
+              child: Column(
+                children: [
+                  ImageCamera(
+                    image: profilePic,
+                    status: true,
+                    onImagePicked: _onImagePicked,
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: DynamicStepper(
+                      dynamicSteps: dynamicSteps(branchProvider,_isSubmitting,),
+                      voidCallback: () async {
+                        setState(() {
+                          _isSubmitting = true;
+                        });
+                        await Future.delayed(Duration(milliseconds: 50));
+                        if(! _formKey.currentState!.validate()){
+                          callSnackBar("All Fields Are Required", danger);
+                          return;
+                        }
+                        final data = await postUsers(
+                            context,
+                            fullName.text,
+                            address.text,
+                            mobileNo.text,
+                            emailId.text,
+                            designation.text,
+                            birthDate.text,
+                            gender.text,
+                            username.text,
+                            password.text,
+                            selectBranch.text,
+                            joiningDate.text,
+                            userRole.text,
+                            "1",
+                            slug ?? "",
+                            selectedFile);
+                        if (data == null) {
+                          callSnackBar("Unknown Error Accrued", danger);
+                          return;
+                        }
+
+                        callSnackBar(data.message ?? "Unknown Error Accrued", data.status ?? "def");
+
+                        if (data.status == success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DashboardPage(),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),

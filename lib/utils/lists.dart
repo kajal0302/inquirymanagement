@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/addInquiry.dart';
@@ -41,7 +42,6 @@ final List<Map<String, dynamic>> dashboardItems = [
   },
 ];
 
-
 // List of SideBar Menu Items
 Map<IconData, String> sideMenu = {
   FontAwesomeIcons.house: "Home",
@@ -52,10 +52,11 @@ Map<IconData, String> sideMenu = {
   FontAwesomeIcons.rightFromBracket :"Log Out"
 };
 
-
-
 //List for reference field in Inquiry page
 const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];
 const genderList=["Male","Female"];
 const userRoleList=["Employee","Admin"];
 
+bool EmailValidator(String val){
+  return RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(val.trim());
+}

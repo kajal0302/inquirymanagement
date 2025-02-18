@@ -64,7 +64,8 @@ Future<SuccessResponse?> postUsers(
   SuccessResponse? returnData;
 
   try {
-    returnData = await apiService.post<SuccessResponse>(
+    returnData = await apiService.postMedia<SuccessResponse>(
+        file: file,
         body: {
           "name": name,
           "address":address,
@@ -80,7 +81,6 @@ Future<SuccessResponse?> postUsers(
           "user_type":user_type,
           "created_by":created_by,
           if(slug != "") "slug":slug,
-          if(file != "" && file != null) "file":file,
         },
         endpoint: postUserUri,
         fromJson: (json) => SuccessResponse.fromJson(json));

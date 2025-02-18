@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:inquirymanagement/common/color.dart';
 import '../common/size.dart';
 
 class BranchInputTxt extends StatelessWidget {
   final String label;
   final Color textColor;
+  final String type;
   final Color floatingLabelColor;
   final String? Function(String?)? validator;
   final TextEditingController controller;
@@ -16,6 +18,7 @@ class BranchInputTxt extends StatelessWidget {
   const BranchInputTxt({
     super.key,
     required this.label,
+    this.type = "text",
     required this.textColor,
     required this.floatingLabelColor,
     required this.controller,
@@ -39,7 +42,7 @@ class BranchInputTxt extends StatelessWidget {
         cursorColor: preIconFillColor,
         controller: controller,
         maxLength: maxLength,
-        keyboardType: keyboardType,
+        keyboardType: _getKeyboardType(),
         maxLines: maxLines,
         obscureText: isPwd,
         decoration: InputDecoration(
@@ -67,4 +70,16 @@ class BranchInputTxt extends StatelessWidget {
       ),
     );
   }
+
+  TextInputType _getKeyboardType() {
+    switch (type) {
+      case "number":
+        return TextInputType.number;
+      case "email":
+        return TextInputType.emailAddress;
+      default:
+        return TextInputType.text;
+    }
+  }
+
 }

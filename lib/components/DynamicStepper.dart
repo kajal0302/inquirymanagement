@@ -46,8 +46,6 @@ class _DynamicStepperState extends State<DynamicStepper> {
               currentIndex += 1;
             } else {
               completedSteps[currentIndex] = true;
-              // Handle final submission
-              print("Form Submitted!");
             }
           });
         },

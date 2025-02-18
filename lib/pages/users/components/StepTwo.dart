@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/components/InputFieldPassword.dart';
 import 'package:inquirymanagement/components/branchInputField.dart';
 import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/components/dropDown.dart';
@@ -16,7 +17,8 @@ class StepTwo extends StatelessWidget {
       required this.selectBranch,
       required this.joiningDate,
       required this.userRole,
-      required this.branchProvider});
+      required this.branchProvider,
+      required this.isSubmitted});
 
   final TextEditingController username,
       password,
@@ -25,6 +27,7 @@ class StepTwo extends StatelessWidget {
       joiningDate,
       userRole;
 
+  final bool isSubmitted;
   final BranchProvider branchProvider;
 
   @override
@@ -37,25 +40,55 @@ class StepTwo extends StatelessWidget {
           label: "Username",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
+          maxLength: 50,
           controller: username,
+          validator: (value) {
+            return isSubmitted && (value == null || value.isEmpty)
+                ? 'Please Enter Username'
+                : null;
+          },
         ),
-        InputPasswordTxt(
+        InputFieldPassword(
           label: "Password",
-          password: password,
+          maxLength: 20,
+          textColor: Colors.black,
+          floatingLabelColor: preIconFillColor,
+          controller: password,
+          validator: (value) {
+            if(isSubmitted && (value == null || value.isEmpty)){
+              return 'Please Enter Password';
+            }else if(isSubmitted && (password.text.toString().length < 5)){
+              return 'Minimum Length Should be 5';
+            }
+            return null;
+          },
         ),
-        InputPasswordTxt(
+        InputFieldPassword(
           label: "Confirm Password",
-          password: confirmPassword,
+          maxLength: 20,
+          textColor: Colors.black,
+          floatingLabelColor: preIconFillColor,
+          controller: confirmPassword,
+          validator: (value) {
+            if(isSubmitted && (value == null || value.isEmpty)){
+              return 'Please Enter Confirm Password';
+            }else if(isSubmitted && (password.text.toString() != value)){
+              return 'Password And Confirm Password Did Not Match';
+            }
+            return null;
+          },
         ),
         DropDown(
           preSelectedValue: branchProvider.branch?.branches != null &&
-              branchProvider.branch!.branches!.any((b) => b.id.toString() == selectBranch.text)
+                  branchProvider.branch!.branches!
+                      .any((b) => b.id.toString() == selectBranch.text)
               ? selectBranch.text
-              : (branchProvider.branch != null && branchProvider.branch!.branches!.isNotEmpty
-              ? branchProvider.branch!.branches!.first.id.toString()
-              : null),
+              : (branchProvider.branch != null &&
+                      branchProvider.branch!.branches!.isNotEmpty
+                  ? branchProvider.branch!.branches!.first.id.toString()
+                  : null),
           controller: selectBranch,
-          mapItems: branchProvider.branch!.branches!
+          mapItems: branchProvider.branch?.branches!
               .map((b) => {"id": b.id.toString(), "value": b.name.toString()})
               .toSet() // Ensure uniqueness
               .toList(),
@@ -63,10 +96,16 @@ class StepTwo extends StatelessWidget {
           lbl: "Select Branch",
         ),
         DateField(
-            firstDate: DateTime(1980, 1, 1),
-            lastDate: DateTime.now(),
-            label: "Joining Date",
-            controller: joiningDate),
+          firstDate: DateTime(1980, 1, 1),
+          lastDate: DateTime.now(),
+          label: "Joining Date",
+          controller: joiningDate,
+          validator: (value) {
+            return isSubmitted && (value == null || value.isEmpty)
+                ? 'Please Enter Joining Date'
+                : null;
+          },
+        ),
         DropDown(
           preSelectedValue: userRole.text.isNotEmpty
               ? (userRole.text ?? '')

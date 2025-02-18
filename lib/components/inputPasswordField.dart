@@ -14,7 +14,7 @@ class InputPasswordTxt extends StatefulWidget {
       this.prefixIcon,
       required this.label,
       required this.password,
-      this.icon = false,
+      this.icon = true,
       this.validator});
 
   final TextEditingController password;

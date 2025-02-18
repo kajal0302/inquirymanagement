@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/style.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/main.dart';
@@ -71,7 +70,7 @@ class _UserScreenState extends State<UserScreen> {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddUserScreen(),
+                          builder: (context) => AddUserScreen(user:user),
                         ),
                       ),
                       child: UserListWidget(

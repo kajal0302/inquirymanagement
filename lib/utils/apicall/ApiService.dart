@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:inquirymanagement/utils/constants.dart';
@@ -102,6 +103,90 @@ class ApiService {
         throw ApiException(
           'POST failed (${response.statusCode}): ${response.body}',
           response.statusCode,
+        );
+      }
+    } on TimeoutException {
+      throw ApiException('Request timed out', 408);
+    } on http.ClientException catch (e) {
+      throw ApiException('Network error: $e', 0);
+    } catch (e) {
+      throw ApiException('Unexpected error: $e', 0);
+    }
+  }
+
+  // Generic POST method with Image support
+  Future<modelName?> postMedia<modelName>({
+    required String endpoint,
+    required Map<String, String> body,
+    required modelName Function(Map<String, dynamic>) fromJson,
+    File? file, // File to upload
+    String fileField = 'file', // Field name for the file (default: 'file')
+    Map<String, String>? headers,
+    int maxFileSizeMB = 2,
+  }) async {
+    final url = Uri.parse('$baseUrlInquiry$endpoint');
+
+    try {
+      if(file != null) {
+        final fileSizeInBytes = await file.length();
+        final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+        if (fileSizeInMB > maxFileSizeMB) {
+          throw ApiException(
+            'File size exceeds the maximum allowed size of $maxFileSizeMB MB',
+            413, // Payload Too Large
+          );
+        }
+      }
+
+      // Create a multipart request
+      final request = http.MultipartRequest('POST', url);
+
+      // Add headers
+      if (headers != null) {
+        request.headers.addAll(headers);
+      }
+
+      if(file!=null) {
+        // Add the file
+        final fileStream = http.ByteStream(file.openRead());
+        final fileLength = await file.length();
+        final multipartFile = http.MultipartFile(
+          fileField,
+          fileStream,
+          fileLength,
+          filename: file.path
+              .split('/')
+              .last, // Extract filename
+        );
+        request.files.add(multipartFile);
+      }
+
+      // Add form fields
+      request.fields.addAll(body);
+
+      if (kDebugMode) {
+        loggerNoStack.i('POST Media Request: $url');
+        loggerNoStack.i('POST Media Fields: $body');
+        loggerNoStack.i('POST Media File: ${file != null ? file.path : ""}');
+      }
+
+      // Send the request
+      final response = await request.send().timeout(const Duration(seconds: 30));
+
+      // Convert StreamedResponse to Response
+      final http.Response parsedResponse = await http.Response.fromStream(response);
+
+      if (kDebugMode) {
+        loggerNoStack.i('POST Media Response (${parsedResponse.statusCode}): ${parsedResponse.body}');
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = await compute(jsonDecode, parsedResponse.body);
+        return fromJson(jsonData);
+      } else {
+        throw ApiException(
+          'POST failed (${parsedResponse.statusCode}): ${parsedResponse.body}',
+          parsedResponse.statusCode,
         );
       }
     } on TimeoutException {
