@@ -15,7 +15,6 @@ import 'package:inquirymanagement/pages/notification/components/notificationCard
 import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
 import 'package:inquirymanagement/utils/common.dart';
-import 'package:inquirymanagement/utils/constants.dart';
 import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 import 'package:intl/intl.dart';
 import '../../../common/size.dart';
@@ -162,6 +161,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
+                              color: grey_100,
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -232,7 +232,6 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
 
-
   // Add Feedback Dialog Box
   Future<bool> showAddFeedbackDialog(String inquiryId, BuildContext context) async {
     TextEditingController feedbackController = TextEditingController();
@@ -256,6 +255,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   controller: feedbackController,
                   maxLines: 5,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: grey_100,
                     hintText: "Type your feedback...",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -435,7 +436,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: grey_100,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: grey_500, width: 1),
                         ),
@@ -559,6 +560,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   maxLines: 5,
                   maxLength: 119,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: grey_100,
                     hintText: "Type your message here... (Maximum 119 characters allowed)",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -585,16 +588,29 @@ class _NotificationPageState extends State<NotificationPage> {
                       width: 120,
                       height: 45,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          AlertDialogBox(message: "Are you sure?",onPress: () async{
-                            String message = messageController.text.trim();
-                            if(message.isEmpty){
-                              callSnackBar("Please Enter message..", "danger");
-                            }
-                            await UpdateNotificationDay(inquiryId , day, date, message, createdBy, branchId, context);
-                            isMessageAdded=true;
-                          },);
+                        onPressed: () {
+                          String message = messageController.text.trim();
+                          if (message.isEmpty) {
+                            callSnackBar("Please Enter message..", "danger");
+                          }
+                          else{
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialogBox(
+                                  message: "Are you sure?",
+                                  onPress: () async {
+                                      await UpdateNotificationDay(inquiryId, day, date, message, createdBy, branchId, context);
+                                      isMessageAdded = true;
+                                      callSnackBar(updationMessage, "success");
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
 
+
+                                  },
+                                );
+                              },
+                            );
+                          }
 
                         },
                         style: ElevatedButton.styleFrom(
@@ -852,8 +868,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -887,14 +901,13 @@ class _NotificationPageState extends State<NotificationPage> {
                     return isLoadingMore ? _buildLoadingIndicator() : SizedBox.shrink();
                   }
                   final notification = notifications[index];
-                  final contactNumber = notification.contact;
                   // Extract course names
                   String courseNames = notification.courses!.map((course) => course.name).join(", ");
                   return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    elevation: 8,
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(px18),
+                      borderRadius: BorderRadius.circular(px20),
                     ),
                     color: bv_secondaryLightColor3,
                     child: ListTile(
@@ -995,7 +1008,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
                           PopupMenuItem<String>(value: 'status', child: Text(status)),
                         ],
-                        icon: Icon(Icons.more_vert, color: Colors.black),
+                        icon: Icon(Icons.more_vert, color: black),
                       ),
                     ),
                   );

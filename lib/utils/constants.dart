@@ -24,4 +24,7 @@ const updateInquiryStatusList = "update_inquiry_status.php";
 const notification = "missing_inquiry_report.php";
 const inquiryStatusList = "inquiry_status_list.php";
 
+const inquiries = "inquiries.php";
+const inquiry = "Inquiry";
+
 

@@ -25,3 +25,4 @@ const status = "Status";
 const feedBackHistory = "FeedBack History";
 const addFeedbackHeader = "Add Feedback";
 const upcomingDateHeader = "Select upcoming Date";
+const convertStudent = "Convert as student";

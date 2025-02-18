@@ -40,16 +40,21 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
         ),
       ),
       IconButton(
-        onPressed: () => _showPopUpMenu(context),
+        onPressed: () => _showPopUpMenu("Settings", (value) {
+          if (value == 1) {
+            navigation(context);
+          }
+        }, context),
         icon: Icon(
           Icons.more_vert,
-          size: px22,
-          color:  black,
+          size: 22,
+          color: white,
         ),
       ),
     ],
   );
 }
+
 
 
 AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
@@ -78,29 +83,117 @@ AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget desti
 
 
 
-void _showPopUpMenu(BuildContext context) async{
-  //RenderBox: Represents a box in the render tree that has dimensions and can be positioned.
-  //Overlay: Used to draw widgets on top of others in a separate visual lay
-  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-  await showMenu<int> (
-      context: context,
-      position: RelativeRect.fromLTRB(
-        overlay.size.width , // Adjust this value for horizontal positioning
-        kToolbarHeight+25, // Position it below the AppBar
-        0,
-        0,
+AppBar widgetAppbarForInquiryReport(BuildContext context, String title, Widget destinationScreen, Function(int) onMenuSelected ) {
+  ValueNotifier<bool> isSearching = ValueNotifier(false);
+  TextEditingController searchController = TextEditingController();
+
+  return AppBar(
+    backgroundColor: bv_primaryColor,
+    iconTheme: IconThemeData(color: white),
+    title: ValueListenableBuilder<bool>(
+      valueListenable: isSearching,
+      builder: (context, searching, child) {
+        return searching
+            ? Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: searchController,
+                style: TextStyle(color: white),
+                decoration: InputDecoration(
+                  hintText: 'Type here to Search',
+                  hintStyle: TextStyle(color: white70),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.close, color: white),
+              onPressed: () {
+                isSearching.value = false;
+                searchController.clear();
+              },
+            ),
+          ],
+        )
+            : Text(
+          title,
+          style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.normal,
+              fontSize: 20),
+        );
+      },
+    ),
+    leading: IconButton(
+      onPressed: () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => destinationScreen));
+      },
+      icon: Icon(Icons.arrow_back_outlined, size: 20),
+    ),
+    actions: [
+      ValueListenableBuilder<bool>(
+        valueListenable: isSearching,
+        builder: (context, searching, child) {
+          return searching
+              ? SizedBox.shrink()
+              : IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              isSearching.value = true;
+            },
+          );
+        },
       ),
-      color: white,
-      items: <PopupMenuEntry<int>>[
-        PopupMenuItem(
-            value: 1,
-            child: Text("Settings",style: TextStyle(fontSize: px16,fontWeight: FontWeight.normal, color: black),)
+      IconButton(
+        onPressed: () => _showPopUpMenu("Find By Status", (value) {
+          if (value == 1) {
+            onMenuSelected(value);
+          }
+        }, context),
+        icon: Icon(
+          Icons.more_vert,
+          size: 22,
+          color: white,
         ),
-       ]
-  ).then((value){
-    if(value==1){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingPage()));
+      ),
+    ],
+  );
+}
+
+
+
+
+void _showPopUpMenu(String label, Function(int) onMenuSelected, BuildContext context) async {
+  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+  await showMenu<int>(
+    context: context,
+    position: RelativeRect.fromLTRB(
+      overlay.size.width, // Adjust this value for horizontal positioning
+      kToolbarHeight + 25, // Position it below the AppBar
+      0,
+      0,
+    ),
+    color: Colors.white,
+    items: <PopupMenuEntry<int>>[
+      PopupMenuItem(
+        value: 1,
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: black),
+        ),
+      ),
+    ],
+  ).then((value) {
+    if (value != null) {
+      onMenuSelected(value);
     }
   });
 }
+
+void navigation(BuildContext context) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingPage()));
+}
+
 

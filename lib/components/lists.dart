@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/addInquiry.dart';
+import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 
 import '../pages/dashboard/screen/dashboard.dart';
 
@@ -16,7 +17,7 @@ final List<Map<String, dynamic>> dashboardItems = [
   {
     "icon": FontAwesomeIcons.fileAlt,
     "title": "Inquiry Report",
-    'page': DashboardPage()
+    'page': InquiryReportPage()
   },
   {
     "icon": Icons.message_outlined,
