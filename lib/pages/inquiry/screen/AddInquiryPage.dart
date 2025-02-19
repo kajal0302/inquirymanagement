@@ -4,10 +4,15 @@ import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/components/DynamicStepper.dart';
 import 'package:inquirymanagement/components/ImageCamera.dart';
 import 'package:inquirymanagement/components/appBar.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/pages/course/provider/CourseProvider.dart';
+import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
+import 'package:inquirymanagement/pages/inquiry/apiCall/InquiryApi.dart';
+import 'package:inquirymanagement/pages/inquiry/apiCall/PartnerApi.dart';
 import 'package:inquirymanagement/pages/inquiry/components/StepOne.dart';
 import 'package:inquirymanagement/pages/inquiry/components/StepTwo.dart';
+import 'package:inquirymanagement/pages/inquiry/models/PartnerModel.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +28,8 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   String? slug;
   File? selectedFile;
   BranchListModel? branchList;
+  PartnerModel? partnerModel;
+  late String userId;
 
   final TextEditingController firstNameTextEditing = TextEditingController();
   final TextEditingController lastNameTextEditing = TextEditingController();
@@ -30,10 +37,12 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   final TextEditingController referenceByTextEditing = TextEditingController();
   final TextEditingController feedBackTextEditing = TextEditingController();
   final TextEditingController coursesTextEditing = TextEditingController();
+  final TextEditingController coursesIdsTextEditing = TextEditingController();
   final TextEditingController branchTextEditing = TextEditingController();
   final TextEditingController inquiryDateTextEditing = TextEditingController();
   final TextEditingController upcomingTextEditing = TextEditingController();
   final TextEditingController smsTextEditing = TextEditingController();
+  final TextEditingController partnerTextEditing = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
@@ -42,9 +51,18 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   @override
   void initState() {
     super.initState();
+    fetchData();
+    userId = userBox.get(idStr);
     Future.microtask(() {
       Provider.of<BranchProvider>(context, listen: false).getBranch(context);
       Provider.of<CourseProvider>(context, listen: false).getCourse(context);
+    });
+  }
+
+  Future<void> fetchData() async{
+    partnerModel =
+    await fetchPartner(context);
+    setState(() {
     });
   }
 
@@ -54,8 +72,8 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     });
   }
 
-  List<Map<String, dynamic>> dynamicSteps(
-      BranchProvider branchProvider, bool isSubmitted, CourseProvider courseProvider) {
+  List<Map<String, dynamic>> dynamicSteps(BranchProvider branchProvider,
+      bool isSubmitted, CourseProvider courseProvider) {
     return [
       {
         "title": "Personal Details",
@@ -65,6 +83,8 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
           mobileNo: mobileNoTextEditing,
           feedback: feedBackTextEditing,
           reference: referenceByTextEditing,
+          partner:partnerTextEditing,
+          partnerModel:partnerModel,
           isSubmitted: isSubmitted,
         ),
       },
@@ -72,6 +92,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
         "title": "Inquiry Details",
         "content": StepTwo(
           course: coursesTextEditing,
+          coursesId : coursesIdsTextEditing,
           branch: branchTextEditing,
           inquiryDate: inquiryDateTextEditing,
           selectBranch: branchTextEditing,
@@ -112,12 +133,9 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: DynamicStepper(
-                      dynamicSteps: dynamicSteps(branchProvider, _isSubmitting, courseProvider),
+                      dynamicSteps: dynamicSteps(
+                          branchProvider, _isSubmitting, courseProvider),
                       voidCallback: () async {
-                        if (!_formKey.currentState!.validate()) {
-                          callSnackBar("All Fields Are Required", danger);
-                          return;
-                        }
 
                         setState(() {
                           _isSubmitting = true;
@@ -125,10 +143,44 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
 
                         await Future.delayed(const Duration(milliseconds: 50));
 
-                        // Add form submission logic here
-                        // Example:
-                        // var response = await submitForm();
-                        // handleResponse(response);
+                        if (!_formKey.currentState!.validate()) {
+                          callSnackBar("All Fields Are Required", danger);
+                          return;
+                        }
+
+                        var response = await postInquiries(
+                            context,
+                            firstNameTextEditing.text,
+                            lastNameTextEditing.text,
+                            branchTextEditing.text,
+                            feedBackTextEditing.text,
+                            referenceByTextEditing.text,
+                            mobileNoTextEditing.text,
+                            partnerTextEditing.text,
+                            coursesIdsTextEditing.text,
+                            "0",
+                            "0",
+                            inquiryDateTextEditing.text,
+                            upcomingTextEditing.text,
+                            "1",
+                            userId);
+                        if (response == null) {
+                          callSnackBar("Unknown Error Accrued", danger);
+                          return;
+                        }
+
+                        callSnackBar(
+                            response.message ?? "Unknown Error Accrued",
+                            response.status ?? "def");
+
+                        if (response.status == success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DashboardPage(),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),

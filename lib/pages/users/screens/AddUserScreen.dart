@@ -4,7 +4,6 @@ import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/components/DynamicStepper.dart';
 import 'package:inquirymanagement/components/ImageCamera.dart';
 import 'package:inquirymanagement/components/appBar.dart';
-import 'package:inquirymanagement/pages/branch/apicall/branchListApi.dart';
 import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/users/apiCall/UserApi.dart';

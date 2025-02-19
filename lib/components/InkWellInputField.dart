@@ -18,12 +18,14 @@ class InkWellInputField extends StatelessWidget {
   final TextInputType keyboardType; // Keyboard type for different inputs
   final int? maxLines; // Allows multi-line for address input
   final BuildContext context;
+  final Function(CourseModel) onOkPressed;
   final CourseModel? courses;
 
   const InkWellInputField({
     super.key,
     required this.context,
     required this.label,
+    required this.onOkPressed,
     this.type = "text",
     required this.textColor,
     required this.floatingLabelColor,
@@ -42,14 +44,15 @@ class InkWellInputField extends StatelessWidget {
     double borderRadius = (maxLines != null && maxLines! > 1) ? 15.0 : 50.0;
     bool isMultiline = maxLines != null && maxLines! > 1; // Check if multiline
 
-    return InkWell(
-      onTap: ()=>showDynamicCheckboxDialog(context, courses),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: ()=>showDynamicCheckboxDialog(context,onOkPressed, courses),
         child: TextFormField(
           style: TextStyle(color: textColor),
           validator: validator,
           readOnly: readOnly,
+          enabled: false,
           cursorColor: preIconFillColor,
           controller: controller,
           maxLength: maxLength,

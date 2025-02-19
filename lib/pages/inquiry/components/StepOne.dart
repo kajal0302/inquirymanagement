@@ -2,25 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/branchInputField.dart';
 import 'package:inquirymanagement/components/dropDown.dart';
+import 'package:inquirymanagement/pages/inquiry/models/PartnerModel.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 
-class StepOne extends StatelessWidget {
-  const StepOne(
-      {super.key,
-      required this.firstName,
-      required this.lastName,
-      required this.mobileNo,
-      required this.feedback,
-      required this.reference,
-      required this.isSubmitted});
+class StepOne extends StatefulWidget {
+  const StepOne({
+    super.key,
+    required this.firstName,
+    required this.lastName,
+    required this.mobileNo,
+    required this.feedback,
+    required this.reference,
+    required this.partnerModel,
+    required this.partner,
+    required this.isSubmitted,
+  });
+
+  final PartnerModel? partnerModel;
 
   final TextEditingController firstName,
       lastName,
       mobileNo,
       feedback,
+      partner,
       reference;
 
   final bool isSubmitted;
+
+  @override
+  _StepOneState createState() => _StepOneState();
+}
+
+class _StepOneState extends State<StepOne> {
+  String? selectedReference;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedReference = widget.reference.text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +52,10 @@ class StepOne extends StatelessWidget {
           label: "First Name",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: firstName,
+          controller: widget.firstName,
           maxLength: 50,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter First Name'
                 : null;
           },
@@ -44,10 +64,10 @@ class StepOne extends StatelessWidget {
           label: "Last Name",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: lastName,
+          controller: widget.lastName,
           maxLength: 50,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Last Name'
                 : null;
           },
@@ -56,11 +76,11 @@ class StepOne extends StatelessWidget {
           label: "Mobile No.",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: mobileNo,
+          controller: widget.mobileNo,
           type: "number",
           maxLength: 10,
           validator: (value) {
-            if (isSubmitted && (value == null || value.isEmpty)) {
+            if (widget.isSubmitted && (value == null || value.isEmpty)) {
               return 'Please enter Mobile No.';
             } else if (value.toString().length < 10) {
               return 'Minimum Length Should be 10';
@@ -72,27 +92,53 @@ class StepOne extends StatelessWidget {
         ),
         DropDown(
           key: Key('dropDown1'),
-          preSelectedValue: reference.text.isNotEmpty
-              ? (reference.text ?? '')
+          preSelectedValue: selectedReference?.isNotEmpty == true
+              ? selectedReference
               : (referenceBy.isNotEmpty ? referenceBy.first : ''),
-          controller: reference,
+          controller: widget.reference,
           items: referenceBy,
           status: true,
           lbl: "Select Reference",
+          onChanged: (str) {
+            print(str);
+            setState(() {
+              selectedReference = str;
+              widget.reference.text = str; // Ensure controller updates
+            });
+          },
         ),
+        if (selectedReference == "Global IT Partner")
+          SizedBox(height: 8,),
+          DropDown(
+            preSelectedValue: widget.partnerModel?.partners != null &&
+                widget.partnerModel!.partners!
+                    .any((b) => b.id.toString() == widget.partner.text)
+                ? widget.partner.text
+                : (widget.partnerModel?.partners != null &&
+                widget.partnerModel!.partners!.isNotEmpty
+                ? widget.partnerModel?.partners!.first.id.toString()
+                : null),
+            controller: widget.partner,
+            mapItems: widget.partnerModel?.partners!
+                .map((b) =>
+            {"id": b.id.toString(), "value": b.partnerName.toString()})
+                .toSet()
+                .toList(),
+            status: true,
+            lbl: "Select Partner",
+          ),
         BranchInputTxt(
           label: "Feedback History",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: feedback,
+          controller: widget.feedback,
           maxLength: 50,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Feedback History'
                 : null;
           },
         ),
-
       ],
     );
   }

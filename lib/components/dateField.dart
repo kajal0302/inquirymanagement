@@ -68,45 +68,40 @@ class _DateFieldState extends State<DateField> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            style: TextStyle(color: black),
-            validator: widget.validator,
-            cursorColor: preIconFillColor,
-            controller: widget.controller,
-            readOnly: true,
-            enabled: widget.isEnabled,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10.0),
-              filled: true,
-              fillColor: Colors.white,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              labelText: widget.label,
-              labelStyle: TextStyle(
-                color: grey_500,
-                fontSize: px18,
-              ),
-              floatingLabelStyle: TextStyle(
-                color: preIconFillColor,
-                fontSize: px18,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            onTap: () {
-              FocusScope.of(context).requestFocus(FocusNode());
-              _selectDate(context);
-            },
+      child: TextFormField(
+        style: TextStyle(color: black),
+        validator: widget.validator,
+        cursorColor: preIconFillColor,
+        controller: widget.controller,
+        readOnly: true,
+        enabled: widget.isEnabled,
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10.0),
+          filled: true,
+          fillColor: Colors.white,
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(50.0),
           ),
-        ],
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(50.0),
+          ),
+          labelText: widget.label,
+          labelStyle: TextStyle(
+            color: grey_500,
+            fontSize: px18,
+          ),
+          floatingLabelStyle: TextStyle(
+            color: preIconFillColor,
+            fontSize: px18,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+          _selectDate(context);
+        },
       ),
     );
   }

@@ -5,7 +5,13 @@ import 'package:inquirymanagement/common/style.dart';
 class CourseListTile extends StatefulWidget {
   final String name;
   final bool status;
-  const CourseListTile({super.key,required this.name,required this.status});
+  final Function(bool) isChecked;
+
+  const CourseListTile(
+      {super.key,
+      required this.name,
+      required this.status,
+      required this.isChecked});
 
   @override
   State<CourseListTile> createState() => _CourseListTileState();
@@ -23,15 +29,16 @@ class _CourseListTileState extends State<CourseListTile> {
   void _toggleCheckbox() {
     setState(() {
       preCheckedValue = !preCheckedValue;
+      widget.isChecked(preCheckedValue);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: _toggleCheckbox, // Toggle checkbox on card tap
+      onTap: _toggleCheckbox,
       child: Card(
-        elevation: 9,
+        elevation: 3,
         color: bv_secondaryLightColor3,
         child: ListTile(
           leading: CircleAvatar(

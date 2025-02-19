@@ -88,8 +88,10 @@ class StepOne extends StatelessWidget {
               return 'Please enter Email Id';
             }else if(! EmailValidator(value ?? "")){
               return "Enter Valid EmailId";
+            }else{
+              return null;
             }
-            return null;
+
           },
         ),
         BranchInputTxt(

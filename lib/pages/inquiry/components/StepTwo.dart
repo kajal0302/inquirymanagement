@@ -12,6 +12,7 @@ class StepTwo extends StatelessWidget {
   const StepTwo(
       {super.key,
       required this.course,
+      required this.coursesId,
       required this.branch,
       required this.inquiryDate,
       required this.selectBranch,
@@ -22,6 +23,7 @@ class StepTwo extends StatelessWidget {
       required this.isSubmitted});
 
   final TextEditingController course,
+      coursesId,
       branch,
       inquiryDate,
       selectBranch,
@@ -38,6 +40,7 @@ class StepTwo extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+
         InkWellInputField(
           courses: courses,
           context: context,
@@ -46,13 +49,27 @@ class StepTwo extends StatelessWidget {
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
           controller: course,
-          maxLength: 50,
           validator: (value) {
             return isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Select Course'
                 : null;
           },
+          onOkPressed: (CourseModel updatedCourses) {
+            List<String?> selectedCourses = updatedCourses.courses!
+                .where((course) => course.isChecked == true)
+                .map((course) => course.name)
+                .toList();
+
+            List<String?> selectedCoursesId = updatedCourses.courses!
+                .where((course) => course.isChecked == true)
+                .map((course) => course.id.toString())
+                .toList();
+
+            course.text = selectedCourses.join(", ");
+            coursesId.text = selectedCoursesId.join(",");
+          },
         ),
+
         DropDown(
           preSelectedValue: branchProvider.branch?.branches != null &&
                   branchProvider.branch!.branches!
@@ -70,6 +87,7 @@ class StepTwo extends StatelessWidget {
           status: true,
           lbl: "Select Branch",
         ),
+
         DateField(
           firstDate: DateTime(1980, 1, 1),
           lastDate: DateTime.now(),
@@ -81,6 +99,7 @@ class StepTwo extends StatelessWidget {
                 : null;
           },
         ),
+
         DateField(
           firstDate: DateTime(1980, 1, 1),
           lastDate: DateTime.now(),
@@ -89,18 +108,6 @@ class StepTwo extends StatelessWidget {
           validator: (value) {
             return isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Upcoming Inquiry Date'
-                : null;
-          },
-        ),
-        BranchInputTxt(
-          label: "Select Sms Type",
-          textColor: Colors.black,
-          floatingLabelColor: preIconFillColor,
-          controller: smsType,
-          maxLength: 150,
-          validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
-                ? 'Please Select Sms'
                 : null;
           },
         ),
