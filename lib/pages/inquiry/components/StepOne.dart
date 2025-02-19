@@ -107,8 +107,9 @@ class _StepOneState extends State<StepOne> {
             });
           },
         ),
+
+        SizedBox(height: 8,),
         if (selectedReference == "Global IT Partner")
-          SizedBox(height: 8,),
           DropDown(
             preSelectedValue: widget.partnerModel?.partners != null &&
                 widget.partnerModel!.partners!
