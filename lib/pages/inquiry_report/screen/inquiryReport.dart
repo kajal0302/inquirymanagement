@@ -4,6 +4,7 @@ import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSke
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/constants.dart';
+import 'package:inquirymanagement/utils/lists.dart';
 import 'package:intl/intl.dart';
 
 import '../../../common/color.dart';
@@ -12,7 +13,6 @@ import '../../../common/text.dart';
 import '../../../components/alertBox.dart';
 import '../../../components/appBar.dart';
 import '../../../components/dateField.dart';
-import '../../../components/lists.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
