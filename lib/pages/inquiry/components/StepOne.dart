@@ -48,6 +48,7 @@ class _StepOneState extends State<StepOne> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+
         BranchInputTxt(
           label: "First Name",
           textColor: Colors.black,
@@ -60,6 +61,7 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
+
         BranchInputTxt(
           label: "Last Name",
           textColor: Colors.black,
@@ -72,6 +74,7 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
+
         BranchInputTxt(
           label: "Mobile No.",
           textColor: Colors.black,
@@ -90,6 +93,7 @@ class _StepOneState extends State<StepOne> {
             return null;
           },
         ),
+
         DropDown(
           key: Key('dropDown1'),
           preSelectedValue: selectedReference?.isNotEmpty == true
@@ -128,6 +132,7 @@ class _StepOneState extends State<StepOne> {
             status: true,
             lbl: "Select Partner",
           ),
+
         BranchInputTxt(
           label: "Feedback History",
           textColor: Colors.black,
@@ -140,6 +145,7 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
+
       ],
     );
   }
