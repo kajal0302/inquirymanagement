@@ -20,7 +20,7 @@ import 'package:intl/intl.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
-import '../../../components/lists.dart';
+import '../../../utils/lists.dart';
 import '../apicall/postFeedbackApi.dart';
 import '../apicall/updateUpcomingDate.dart';
 import '../components/customDialogBox.dart';
