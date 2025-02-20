@@ -59,3 +59,6 @@ const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Gl
 
 //List for day field in Notification page
 const days=["After 2 days","After 7 days","After 15 days","After 1 month"];
+
+//List for gender
+const gender=["Male","Female"];

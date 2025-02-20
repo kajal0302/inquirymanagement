@@ -29,7 +29,9 @@ import '../../notification/apicall/updateNotificationDay.dart';
 import '../../notification/components/customDialogBox.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
+import '../../students/screen/StudentForm.dart';
 import '../apicall/inquiryFilterApi.dart';
+import '../apicall/inquirySearchFilter.dart';
 
 class InquiryReportPage extends StatefulWidget {
   const InquiryReportPage({super.key});
@@ -47,6 +49,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   SuccessModel? addFeedback;
   InquiryStatusModel? inquiryList;
   InquiryModel? filteredInquiryData;
+  InquiryModel? inquirySearchedData;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -71,6 +74,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     print(_selectedDay);
   }
 
+  // Method for range selection
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
     setState(() {
       _rangeStart = start;
@@ -107,6 +111,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     return fetchedFeedbackListData;
   }
 
+
   // Method to add feedback data
   Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
     SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
@@ -128,6 +133,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     print(inquiryList);
   }
+
+
 
   // FeedBack Dialog Box
   void showFeedbackDialog(FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
@@ -805,7 +812,22 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForInquiryReport(context, "Inquiry Report", DashboardPage(),handleMenuSelection),
+      appBar: widgetAppbarForInquiryReport(
+        context,
+        "Inquiry Report",
+        DashboardPage(),
+            (menuValue) {
+          handleMenuSelection(menuValue);
+        },
+            (searchQuery) async {
+          InquiryModel? result = await inquirySearchFilter(null, searchQuery, context);
+          if (result != null) {
+            setState(() {
+              inquiryData = result;
+            });
+          }
+        },
+      ),
       body: Column(
         children: [
           isLoading
@@ -888,7 +910,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
                         }
                         else if(value == "student"){
-
+                          Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm()));
                         }
                       },
                       itemBuilder: (BuildContext context) => [
@@ -905,7 +927,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             ),
           )
               : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 170),
             child: Center(
               child: Text(
                 dataNotAvailable,
