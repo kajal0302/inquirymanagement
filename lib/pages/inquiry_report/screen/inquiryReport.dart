@@ -4,6 +4,7 @@ import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSke
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/constants.dart';
+import 'package:inquirymanagement/utils/lists.dart';
 import 'package:intl/intl.dart';
 
 import '../../../common/color.dart';
