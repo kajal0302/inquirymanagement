@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 import 'package:intl/intl.dart';
-
+import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/alertBox.dart';
 import '../../../components/appBar.dart';
+import '../../../components/customCalender.dart';
 import '../../../components/dateField.dart';
 import '../../../components/lists.dart';
 import '../../../main.dart';
@@ -27,6 +29,7 @@ import '../../notification/apicall/updateNotificationDay.dart';
 import '../../notification/components/customDialogBox.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
+import '../apicall/inquiryFilterApi.dart';
 
 class InquiryReportPage extends StatefulWidget {
   const InquiryReportPage({super.key});
@@ -39,15 +42,45 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   String branchId = userBox.get('branch_id').toString();
   String createdBy = userBox.get('id').toString();
   bool isLoading = true;
-  InquiryModel? inquriyData;
+  InquiryModel? inquiryData;
   FeedbackModel? feedbackData;
   SuccessModel? addFeedback;
   InquiryStatusModel? inquiryList;
+  InquiryModel? filteredInquiryData;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
+  String? startDateString;
+  String? endDateString;
 
   @override
   void initState() {
     super.initState();
+    _selectedDay = _focusedDay;
     loadinquiryData();
+  }
+
+// Method for Day Selection
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+    });
+    print(_selectedDay);
+  }
+
+  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
+    setState(() {
+      _rangeStart = start;
+      _rangeEnd = end;
+      _focusedDay = focusedDay;
+
+      startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
+      endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
+    });
+
   }
 
 
@@ -56,11 +89,12 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     InquiryModel? fetchedInquiryListData = await fetchInquiryData(branchId, inquiry, context);
     if(mounted){
       setState(() {
-        inquriyData = fetchedInquiryListData;
+        inquiryData = fetchedInquiryListData;
       });
     }
     isLoading=false;
   }
+
 
   // Method to load feedback data
   Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
@@ -748,6 +782,25 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
   }
 
+
+  // Updating Filtered Data
+  void fetchFilteredInquiryData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+        null, startDateString, endDateString, branchId, null, context
+    );
+
+
+    setState(() {
+      inquiryData = fetchedFilteredInquiryData;
+      isLoading = false;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -762,12 +815,12 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               itemBuilder: (context, index) => const InquiryCardSkeleton(),
             ),
           )
-              : (inquriyData!.inquiries!.isNotEmpty)
+              : (inquiryData!.inquiries!.isNotEmpty && inquiryData != null)
               ? Expanded(
             child: ListView.builder(
-              itemCount: inquriyData!.inquiries!.length,
+              itemCount: inquiryData!.inquiries!.length,
               itemBuilder: (context, index) {
-                final inquiry = inquriyData!.inquiries![index];
+                final inquiry = inquiryData!.inquiries![index];
                 // Extract course names
                 String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
                 return Card(
@@ -852,13 +905,111 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             ),
           )
               : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 200),
             child: Center(
               child: Text(
                 dataNotAvailable,
                 style: TextStyle(color: black),
               ),
             ),
+          ),
+        ],
+      ),
+      floatingActionButton: SpeedDial(
+        overlayColor: black,
+        overlayOpacity: 0.5,
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        spaceBetweenChildren: 0.1,
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: preIconFillColor,
+        iconTheme: IconThemeData(
+          color: black,
+          size: px25
+        ),
+        children: [
+          SpeedDialChild(
+            backgroundColor: preIconFillColor,
+            child: Icon(Icons.calendar_month),
+            onTap: (){
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Header Section
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: preIconFillColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'Select Date Range',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: white,
+                            ),
+                          ),
+                        ),
+
+                        // Calender Section
+                        Align(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: 600,
+                            height: 400,
+                            child: CustomCalendar(
+                              initialFormat: _calendarFormat,
+                              initialFocusedDay: _focusedDay,
+                              initialSelectedDay: _selectedDay,
+                              initialRangeStart: _rangeStart,
+                              initialRangeEnd: _rangeEnd,
+                              onDaySelected: _onDaySelected,
+                              onRangeSelected: _onRangeSelected,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            setState(() {
+                              isLoading = true;
+                            });
+                            if (mounted) {
+                              setState(() {
+                                fetchFilteredInquiryData();
+                              });
+                            }
+                          },
+                          child: const Text(
+                            "OK",
+                            style: TextStyle(color: black, fontSize: px16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+          ),
+          SpeedDialChild(
+              backgroundColor: preIconFillColor,
+              child: Icon(Icons.filter_list),
+              onTap: ()=>print("Calender Icon")
           ),
         ],
       ),

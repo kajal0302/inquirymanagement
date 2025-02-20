@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:intl/intl.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 import '../components/alertBox.dart';
@@ -71,6 +72,12 @@ Future <bool> checkConnection() async{
   return result;
 
 }
+
+// Method for date format
+  String? formatDate(DateTime? date) {
+    if (date == null) return null;
+    return DateFormat('dd-MM-yyyy').format(date);
+  }
 
 // Method for logout
 void showLogoutDialog(BuildContext context) {

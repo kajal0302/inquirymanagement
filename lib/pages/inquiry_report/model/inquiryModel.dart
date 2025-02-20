@@ -60,7 +60,7 @@ class Inquiries {
         this.courses});
 
   Inquiries.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id'].toString();
     slug = json['slug'];
     smsContent = json['sms_content'];
     fname = json['fname'];
