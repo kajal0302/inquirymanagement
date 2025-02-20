@@ -24,6 +24,7 @@ const notification = "missing_inquiry_report.php";
 const inquiryStatusList = "inquiry_status_list.php";
 
 const inquiries = "inquiries.php";
+const filterInquiry = "inquiry_filter.php";  // have to pass a parameter for status
 const inquiry = "Inquiry";
 
 

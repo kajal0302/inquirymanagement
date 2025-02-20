@@ -6,3 +6,4 @@ const defaultUserImage = "assets/images/user_image.png";
 const dashboardBackgroundImg = "assets/images/dashboardBgImg.png";
 const aboutUsLogo = "assets/images/logo_about_us.png";
 const aboutUsOwnerImage = "assets/images/owner.png";
+const logoutImg = "assets/images/logoutIcon.png";
