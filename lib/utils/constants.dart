@@ -10,10 +10,22 @@ const loginUser = "loginemployee.php";
 const branchList = "branch_list.php";
 const addBranch = "post_branch.php";
 
+const updateNotificationDay = "updatenotificationday.php";
+
+const updateUpcomingDate = "update_upcoming_date.php";
+
+const updateInquiryStatusList = "update_inquiry_status.php";
+
 const feedbackList = "feedback_list.php";
 const addFeedback = "postfeedback.php";
 
 const notification = "missing_inquiry_report.php";
+
+const inquiryStatusList = "inquiry_status_list.php";
+
+const inquiries = "inquiries.php";
+const inquiry = "Inquiry";
+
 
 const postInquiriesUri = "postinquiries.php";
 const postUserUri = "post_user.php";

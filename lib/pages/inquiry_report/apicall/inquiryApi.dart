@@ -1,32 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
-import 'package:inquirymanagement/utils/constants.dart';
 import '../../../common/text.dart';
 import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';
+import '../../../utils/constants.dart';
+import '../model/inquiryModel.dart';
 
-Future<BranchListModel?> fetchBranchListData(BuildContext context) async {
+
+Future<InquiryModel?> fetchInquiryData(String branch_id, String status, BuildContext context) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
   }
 
   final ApiService apiService = ApiService();
-  BranchListModel? returnData;
+  InquiryModel? returnData;
 
-  await apiService.get<BranchListModel>(
-    endpoint: branchList,
-    fromJson: (json) => BranchListModel.fromJson(json),
-    onSuccess: (data) {
+  await apiService.post<InquiryModel>(
+    endpoint: inquiries,
+    body: {
+      'branch_id': branch_id,
+      'status': status,
+    },
+    fromJson: InquiryModel.fromJson,
+    onSuccess: (user) {
       if (kDebugMode) {
-        print('Data Fetched Successfully: ${data.status} ${data.message}');
+        print('Data Fetched Successfully: ${user.status} ${user.message}');
       }
-      returnData = data;
+      returnData = user;
     },
     onError: (errorMessage) {
       if (kDebugMode) {
-        print('Error in Fetching Data: $errorMessage');
+        print('Error in Fetching Data : $errorMessage');
       }
       returnData = null;
       callSnackBar(errorMessage,"danger");

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
-import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
+import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 
 import '../pages/dashboard/screen/dashboard.dart';
 
@@ -17,7 +18,7 @@ final List<Map<String, dynamic>> dashboardItems = [
   {
     "icon": FontAwesomeIcons.fileAlt,
     "title": "Inquiry Report",
-    'page': DashboardPage()
+    'page': InquiryReportPage()
   },
   {
     "icon": Icons.message_outlined,
@@ -53,6 +54,7 @@ Map<IconData, String> sideMenu = {
 
 //List for reference field in Inquiry page
 const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];
+const days=["After 2 days","After 7 days","After 15 days","After 1 month"];
 const genderList=["Male","Female"];
 const userRoleList=["Employee","Admin"];
 

@@ -1,94 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:inquirymanagement/common/color.dart';
-import 'package:inquirymanagement/components/alertBox.dart';
-import 'package:inquirymanagement/components/dateField.dart';
-import 'package:inquirymanagement/main.dart';
-import 'package:inquirymanagement/pages/branch/model/addBranchModel.dart';
-import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
-import 'package:inquirymanagement/pages/login/screen/login.dart';
-import 'package:inquirymanagement/pages/notification/apicall/feedbackApi.dart';
-import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
-import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
-import 'package:inquirymanagement/pages/notification/apicall/updateInquiryStatus.dart';
-import 'package:inquirymanagement/pages/notification/apicall/updateNotificationDay.dart';
-import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
-import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
-import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
-import 'package:inquirymanagement/utils/common.dart';
-import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
+import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
+import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
+import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
+import 'package:inquirymanagement/utils/asset_paths.dart';
+import 'package:inquirymanagement/utils/constants.dart';
 import 'package:intl/intl.dart';
+
+import '../../../common/color.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
+import '../../../components/alertBox.dart';
 import '../../../components/appBar.dart';
+import '../../../components/dateField.dart';
 import '../../../components/lists.dart';
-import '../apicall/postFeedbackApi.dart';
-import '../apicall/updateUpcomingDate.dart';
-import '../components/customDialogBox.dart';
-import '../model/feedbackModel.dart';
+import '../../../main.dart';
+import '../../../utils/common.dart';
+import '../../../utils/urlLauncherMethods.dart';
+import '../../branch/model/addBranchModel.dart';
+import '../../dashboard/screen/dashboard.dart';
+import '../../login/screen/login.dart';
+import '../../notification/apicall/feedbackApi.dart';
+import '../../notification/apicall/inquiryStatusListApi.dart';
+import '../../notification/apicall/postFeedbackApi.dart';
+import '../../notification/apicall/updateInquiryStatus.dart';
+import '../../notification/apicall/updateNotificationDay.dart';
+import '../../notification/components/customDialogBox.dart';
+import '../../notification/model/feedbackModel.dart';
+import '../../notification/model/inquiryStatusListModel.dart';
 
-class NotificationPage extends StatefulWidget {
-  const NotificationPage({super.key});
+class InquiryReportPage extends StatefulWidget {
+  const InquiryReportPage({super.key});
 
   @override
-  State<NotificationPage> createState() => _NotificationPageState();
+  State<InquiryReportPage> createState() => _InquiryReportPageState();
 }
 
-class _NotificationPageState extends State<NotificationPage> {
+class _InquiryReportPageState extends State<InquiryReportPage> {
   String branchId = userBox.get('branch_id').toString();
   String createdBy = userBox.get('id').toString();
-  List<dynamic> notifications = []; // Stores all notifications
   bool isLoading = true;
-  bool isLoadingMore = false; // For pagination loading indicator
-  int page = 1; // Pagination starts from page 1
-  final ScrollController _scrollController = ScrollController();
+  InquiryModel? inquriyData;
   FeedbackModel? feedbackData;
   SuccessModel? addFeedback;
   InquiryStatusModel? inquiryList;
-  TextEditingController feedbackController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    loadNotificationData();
-    _scrollController.addListener(_onScroll);
+    loadinquiryData();
   }
 
-  // Method to load notification data (Initial & Pagination)
-  Future<void> loadNotificationData({bool isPagination = false}) async {
-    if (isPagination) {
-      if (isLoadingMore) return; // Prevent multiple API calls
-      setState(() => isLoadingMore = true);
-    } else {
-      setState(() => isLoading = true);
-    }
 
-    NotificationModel? fetchedNotificationData = await fetchNotificationData(branchId, context);
-
-    if (mounted) {
+  // Method to load inquiry data
+  Future <InquiryModel?> loadinquiryData( ) async{
+    InquiryModel? fetchedInquiryListData = await fetchInquiryData(branchId, inquiry, context);
+    if(mounted){
       setState(() {
-        if (fetchedNotificationData != null && fetchedNotificationData.inquiries!.isNotEmpty) {
-          notifications.addAll(fetchedNotificationData.inquiries!);
-          page++; // Increase page number for next request
-        }
-        isLoading = false;
-        isLoadingMore = false;
+        inquriyData = fetchedInquiryListData;
       });
     }
+    isLoading=false;
   }
-
-  // Detect when user scrolls to the bottom
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      loadNotificationData(isPagination: true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
 
   // Method to load feedback data
   Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
@@ -101,7 +73,6 @@ class _NotificationPageState extends State<NotificationPage> {
     return fetchedFeedbackListData;
   }
 
-
   // Method to add feedback data
   Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
     SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
@@ -113,17 +84,6 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   // Method to update upcoming date
-  Future <void> updateUpcomingDate(String inquiryId,String date ) async{
-    SuccessModel? updatedDateData = await UpdateUpcomingDate(inquiryId, date,branchId,createdBy,context);
-    if(mounted){
-      setState(() {
-        addFeedback = updatedDateData;
-      });
-    }
-  }
-
-
-  // Method to update upcoming date
   Future <void> loadInquiryStatusListData() async{
     InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
     if(mounted){
@@ -131,8 +91,9 @@ class _NotificationPageState extends State<NotificationPage> {
         inquiryList = inquiryStatusList;
       });
     }
-  }
 
+    print(inquiryList);
+  }
 
   // FeedBack Dialog Box
   void showFeedbackDialog(FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
@@ -230,7 +191,6 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
-
 
   // Add Feedback Dialog Box
   Future<bool> showAddFeedbackDialog(String inquiryId, BuildContext context) async {
@@ -376,7 +336,6 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-
   // Add Notification Dialog Box
   void showNotificationSettingsDialog(String inquiryId, String notificationDay,BuildContext context) {
     TextEditingController dateController = TextEditingController();
@@ -486,7 +445,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                   String dateValue = dateController.text;
                                   Navigator.pop(context);
                                   showMessageDialog(inquiryId,dayValue,dateValue,context);
-                  
+
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: bv_primaryDarkColor,
@@ -600,10 +559,10 @@ class _NotificationPageState extends State<NotificationPage> {
                                 return AlertDialogBox(
                                   message: "Are you sure?",
                                   onPress: () async {
-                                      await UpdateNotificationDay(inquiryId, day, date, message, createdBy, branchId, context);
-                                      isMessageAdded = true;
-                                      callSnackBar(updationMessage, "success");
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
+                                    await UpdateNotificationDay(inquiryId, day, date, message, createdBy, branchId, context);
+                                    isMessageAdded = true;
+                                    callSnackBar(updationMessage, "success");
+                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
 
 
                                   },
@@ -659,383 +618,250 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
+  // Add Status Dialog Box
+  void showInquiryStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context) {
+      String selectedId = '';
+      String selectedName = '';
+      String selectedStatusId = '';
 
-
-  // Add Upcoming Date Dialog Box
-  void showUpcomingDateDialog(String inquiryDate,String inquiryId,BuildContext context) {
-
-    DateFormat format = DateFormat("dd-MM-yyyy");
-    DateTime date = format.parse(inquiryDate);  // String to DateTime
-
-    DateTime selectedDate = date  ?? DateTime.now(); // Initialize with current date
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CustomDialog(
-              title: upcomingDateHeader,
-              height: MediaQuery.of(context).size.height * 0.3,
-              width: MediaQuery.of(context).size.width * 0.2,
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return CustomDialog(
+            title: "Status",
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10,),
-                  // Date Selection
-                  InkWell(
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate:DateTime.now(),
-                        firstDate:DateTime.now(),
-                        lastDate: DateTime(2100),
-                        builder: (BuildContext context, Widget? child) {
-                          return Theme(
-                            data: ThemeData.light().copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: preIconFillColor, // background of the date
-                                onPrimary: Colors.white,
-                                surface: Colors.white,
-                                onSurface: Colors.black,
-                              ),
-                              dialogBackgroundColor: Colors.white,
-                              textButtonTheme: TextButtonThemeData(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: preIconFillColor,
-                                ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: inquiryList!.inquiryStatusList!.length,
+                      itemBuilder: (context, index) {
+                        var status = inquiryList.inquiryStatusList![index];
+                        bool isSelected = selectedId == status.id; // Check if selected
+
+                        return Card(
+                          color: Colors.white,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedId = status.id!;
+                                selectedName = status.name!;
+                                selectedStatusId = status.status!;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(15),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                                    color: isSelected ? preIconFillColor : grey_500,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    status.name!,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected ? preIconFillColor : black,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: child!,
-                          );
-                        },
-                      );
-
-                      if (pickedDate != null && pickedDate != selectedDate) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.calendar_today, color: preIconFillColor),
-                          const SizedBox(width: 10),
-                          Text(
-                            DateFormat('dd-MM-yyyy').format(selectedDate), // Formatted Date
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
-                  SizedBox(height: 30,),
-                  ElevatedButton(
-                    onPressed: ()  async{
-                      String  dateValue =  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
-                      await updateUpcomingDate(inquiryId,dateValue );
-                      Navigator.pop(context);
-                      callSnackBar(updationMessage, "success");
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: bv_primaryDarkColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(px30),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 45,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (selectedId.isEmpty) {
+                          callSnackBar("Please select a status", "danger");
+                          return;
+                        }
+                        await updateInquiryStatusData(
+                            selectedId, selectedStatusId, selectedName, branchId, createdBy, context);
+
+                        Navigator.pop(context);
+                        callSnackBar(updationMessage, "success");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: bv_primaryDarkColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      "UPDATE",
-                      style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+                      child: const Text(
+                        "FIND",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
                     ),
                   ),
                 ],
               ),
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      );
+    },
     );
   }
 
 
-  // Add Status Dialog Box
-  void showInquiryStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
-    showDialog(context: context, builder: (BuildContext context) {
-        String selectedId = '';
-        String selectedName = '';
-        String selectedStatusId = '';
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CustomDialog(
-              title: "Select Inquiry Status",
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: inquiryList!.inquiryStatusList!.length,
-                        itemBuilder: (context, index) {
-                          var status = inquiryList.inquiryStatusList![index];
-                          bool isSelected = selectedId == status.id; // Check if selected
-
-                          return Card(
-                            color: Colors.white,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedId = status.id!;
-                                  selectedName = status.name!;
-                                  selectedStatusId = status.status!;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(15),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                                      color: isSelected ? preIconFillColor : grey_500,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      status.name!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected ? preIconFillColor : black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 45,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (selectedId.isEmpty) {
-                            callSnackBar("Please select a status", "danger");
-                            return;
-                          }
-                          await updateInquiryStatusData(
-                              selectedId, selectedStatusId, selectedName, branchId, createdBy, context);
-
-                          Navigator.pop(context);
-                          callSnackBar(updationMessage, "success");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: bv_primaryDarkColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Text(
-                          "UPDATE",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+// Handle Menu Selection
+  void handleMenuSelection(int value) async{
+    // Show loading indicator before fetching data
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing dialog manually
+      builder: (context) {
+        return const Dialog(
+          backgroundColor: Colors.transparent,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: grey_400,
+              strokeWidth: 2.0,
+            ),
+          ),
         );
       },
     );
+    // load status list
+    await loadInquiryStatusListData();
+
+    // Close the loading dialog
+    Navigator.pop(context);
+    showInquiryStatusDialog(inquiryList,context);
+
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => DashboardPage()),
-              (Route<dynamic> route) => false, // Removes all previous routes
-        );
-      },
-      child: Scaffold(
-        backgroundColor: white,
-        appBar: widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
-        body: Column(
-          children: [
-            isLoading
-                ? Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) => const NotificationCardSkeleton(),
-              ),
-            )
-                : (notifications.isNotEmpty)
-                ? Expanded(
-              child: ListView.builder(
-                controller: _scrollController, // Attach scroll controller
-                itemCount: notifications.length + 1, // Add extra item for loader
-                itemBuilder: (context, index) {
-                  if (index == notifications.length) {
-                    return isLoadingMore ? _buildLoadingIndicator() : SizedBox.shrink();
-                  }
-                  final notification = notifications[index];
-                  // Extract course names
-                  String courseNames = notification.courses!.map((course) => course.name).join(", ");
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(px20),
-                    ),
-                    color: bv_secondaryLightColor3,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                      leading: Icon(
-                        Icons.notifications,
-                        color: preIconFillColor,
-                      ),
-                      title: Text(
-                        "${notification.fname} ${notification.lname}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: black,
-                        ),
-                      ),
-                      subtitle: Text(
-                        courseNames,
-                        style: TextStyle(
-                          fontSize: px14,
-                          fontWeight: FontWeight.bold,
-                          color: colorBlackAlpha,
-                        ),
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        color: white,
-                        onSelected: (value) async{
-                          if(value == "call"){
-                            makePhoneCall(notification.contact);
-                          }
-                          else if(value == "settings"){
-                            showNotificationSettingsDialog(notification.id.toString(),notification.notificationDay, context);
-
-                          }
-                          else if(value == "feedback"){
-
-                            // Show loading indicator before fetching data
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false, // Prevent closing dialog manually
-                              builder: (context) {
-                                return const Dialog(
-                                  backgroundColor: Colors.transparent,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: grey_400,
-                                      strokeWidth: 2.0,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                            // Load feedback data
-                            await loadFeedBackListData(notification.id.toString());
-
-                            // Close the loading dialog
-                            Navigator.pop(context);
-
-                            // Show feedback dialog
-                            showFeedbackDialog(feedbackData,notification.id.toString(),context);
-
-                          }
-                          else if(value == "date"){
-                            showUpcomingDateDialog(notification.inquiryDate,notification.id.toString(),context);
-
-                          }
-                          else if(value == "status"){
-
-                            // Show loading indicator before fetching data
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false, // Prevent closing dialog manually
-                              builder: (context) {
-                                return const Dialog(
-                                  backgroundColor: Colors.transparent,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: grey_400,
-                                      strokeWidth: 2.0,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                            // load status list
-                            await loadInquiryStatusListData();
-
-                            // Close the loading dialog
-                            Navigator.pop(context);
-                            showInquiryStatusDialog(inquiryList,context);
-
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => [
-                          PopupMenuItem<String>(value: 'call', child: Text(call)),
-                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                          PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
-                          PopupMenuItem<String>(value: 'status', child: Text(status)),
-                        ],
-                        icon: Icon(Icons.more_vert, color: black),
+    return Scaffold(
+      backgroundColor: white,
+      appBar: widgetAppbarForInquiryReport(context, "Inquiry Report", DashboardPage(),handleMenuSelection),
+      body: Column(
+        children: [
+          isLoading
+              ? Expanded(
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) => const InquiryCardSkeleton(),
+            ),
+          )
+              : (inquriyData!.inquiries!.isNotEmpty)
+              ? Expanded(
+            child: ListView.builder(
+              itemCount: inquriyData!.inquiries!.length,
+              itemBuilder: (context, index) {
+                final inquiry = inquriyData!.inquiries![index];
+                // Extract course names
+                String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(px20),
+                  ),
+                  color: bv_secondaryLightColor3,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                    leading: Image.asset(userImg,height: 50,width: 50,),
+                    title: Text(
+                      "${inquiry.fname} ${inquiry.lname}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: black,
                       ),
                     ),
-                  );
-                },
-              ),
-            )
-                : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: Center(
-                child: Text(
-                  dataNotAvailable,
-                  style: TextStyle(color: black),
-                ),
+                    subtitle: Text(
+                      courseNames,
+                      style: TextStyle(
+                        fontSize: px14,
+                        fontWeight: FontWeight.bold,
+                        color: colorBlackAlpha,
+                      ),
+                    ),
+                    trailing: PopupMenuButton<String>(
+                      color: white,
+                      onSelected: (value) async{
+                        if(value == "call"){
+                          makePhoneCall(inquiry.contact!);
+                        }
+                        else if(value == "feedback"){
+
+                          // Show loading indicator before fetching data
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false, // Prevent closing dialog manually
+                            builder: (context) {
+                              return const Dialog(
+                                backgroundColor: Colors.transparent,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: grey_400,
+                                    strokeWidth: 2.0,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                          // Load feedback data
+                          await loadFeedBackListData(inquiry.id.toString());
+
+                          // Close the loading dialog
+                          Navigator.pop(context);
+
+                          // Show feedback dialog
+                          showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
+
+                        }
+                        else if(value == "settings"){
+                          showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
+
+                        }
+                        else if(value == "student"){
+
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem<String>(value: 'call', child: Text(call)),
+                        PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                        PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                        PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
+                      ],
+                      icon: Icon(Icons.more_vert, color: black),
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+              : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Center(
+              child: Text(
+                dataNotAvailable,
+                style: TextStyle(color: black),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-
-  }
-
-  // Loading Indicator
-  Widget _buildLoadingIndicator() {
-    return Padding(
-      padding: EdgeInsets.all(10.0),
-      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

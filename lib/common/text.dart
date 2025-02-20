@@ -9,14 +9,14 @@ const founded = "2019";
 
 const noInternetStr="Please check internet connectivity";
 const success = "success";
+
+const dataNotAvailable = "Data is Not Available";
 const danger = "danger";
 const appName = "Global IT Inquiry";
 const userImageUri = "https://static.vecteezy.com/system/resources/previews/036/280/650/original/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg";
 
 
 const adminUserType = "Admin";
-
-const dataNotAvailable = "Data is Not Available";
 
 const branchIdStr = "branch_id";
 const branchNameStr = "branch_name";
@@ -29,3 +29,19 @@ const usernameStr = "username";
 const imageStr = "image";
 const userTypeStr = "user_type";
 const statusStr = "status";
+
+const noFeedback = "No feedback available";
+const updationMessage = "Record Updated Successfully";
+
+
+const loginPref = "LoginPrefrences";
+const call = "Call";
+const notificationSettings = "Notification Settings";
+const smsService = "SMS Service";
+const feedbackHistory = "Feedback History";
+const upcomingDate = "Upcoming Date";
+const status = "Status";
+const feedBackHistory = "FeedBack History";
+const addFeedbackHeader = "Add Feedback";
+const upcomingDateHeader = "Select upcoming Date";
+const convertStudent = "Convert as student";
