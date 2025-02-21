@@ -27,6 +27,8 @@ const inquiries = "inquiries.php";
 const filterInquiry = "inquiry_filter.php";  // have to pass a parameter for status
 const inquiry = "Inquiry";
 
+const branch = "branches.php";
+
 
 const postInquiriesUri = "postinquiries.php";
 const postUserUri = "post_user.php";
