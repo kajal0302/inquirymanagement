@@ -101,21 +101,14 @@ class _DateFieldState extends State<DateField> {
           labelText: widget.label,
           labelStyle: TextStyle(
             color: grey_500,
-            fontSize: px18,
+            fontSize: px15,
           ),
-          // focusedBorder: OutlineInputBorder(
-          //   borderSide: BorderSide.none,
-          //   borderRadius: BorderRadius.circular(50.0),
-          // ),
+
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(50.0),
           ),
-          // labelText: widget.label,
-          // labelStyle: TextStyle(
-          //   color: grey_500,
-          //   fontSize: px18,
-          // ),
+
           floatingLabelStyle: TextStyle(
             color: preIconFillColor,
             fontSize: px18,

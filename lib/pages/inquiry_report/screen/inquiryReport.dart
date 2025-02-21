@@ -17,7 +17,6 @@ import '../../../components/customCalender.dart';
 import '../../../components/dateField.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
-import '../../../utils/lists.dart';
 import '../../../utils/urlLauncherMethods.dart';
 import '../../branch/model/addBranchModel.dart';
 import '../../dashboard/screen/dashboard.dart';
@@ -911,7 +910,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
                         }
                         else if(value == "student"){
-                          Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm()));
+                          Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm(
+                            id: inquiry.id,
+                            fname: inquiry.fname,
+                            lname: inquiry.lname,
+                          )));
                         }
                       },
                       itemBuilder: (BuildContext context) => [

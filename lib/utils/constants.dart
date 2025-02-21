@@ -39,3 +39,6 @@ const partnerUri = "partner.php";
 const apiUrl = "https://api.globalitians.com/globalit_courses_management/";
 const courseUri = "courses.php"+dbName;
 const dbName = "?cid=globalit";
+
+const branchUri = "batches.php"+dbName;
+const batchUri = "batches.php"+dbName;

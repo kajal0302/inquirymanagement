@@ -58,7 +58,6 @@ class _DynamicStepperState extends State<DynamicStepper> {
         steps: widget.dynamicSteps.asMap().entries.map((entry) {
           int stepIndex = entry.key;
           Map stepData = entry.value;
-
           return Step(
             title: Text(
               stepData["title"] ?? 'Step ${stepIndex + 1}',
