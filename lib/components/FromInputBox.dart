@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:inquirymanagement/common/color.dart';
-
 import '../common/size.dart';
 
 class FormInputBox extends StatelessWidget {

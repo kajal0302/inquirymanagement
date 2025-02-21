@@ -89,12 +89,18 @@ class _DateFieldState extends State<DateField> {
                   ? UnderlineInputBorder(
                 borderSide: BorderSide(color: grey_500, width: 2),
               )
-                  : InputBorder.none,
+                  :  OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(50),
+              ),
               enabledBorder: widget.showBottomBorder
                   ? UnderlineInputBorder(
                 borderSide: BorderSide(color: grey_500, width: 2),
               )
-                  : InputBorder.none,
+                  :  OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(50),
+              ),
               labelText: widget.label,
               labelStyle: TextStyle(
                 color: grey_500,

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/components/appBar.dart';
+import 'package:inquirymanagement/components/branchInputField.dart';
+import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
+import 'package:inquirymanagement/utils/asset_paths.dart';
 import '../../../common/size.dart';
-import '../../../components/DateFieldWidget.dart';
 import '../../../components/DynamicStepper.dart';
 import '../../../components/FromInputBox.dart';
 import '../../../components/buttonField.dart';
 import '../../../components/dropDown.dart';
 import '../../../components/lists.dart';
 import '../models/StudentModel.dart';
+import 'package:inquirymanagement/components/dateField.dart';
 
 bool checkSubmit = false;
 final _personalDetailsFormKey = GlobalKey<FormState>();
@@ -40,6 +44,7 @@ class _StudentFromState extends State<StudentForm> {
   TextEditingController emailController = TextEditingController();
   TextEditingController birthController = TextEditingController();
   TextEditingController genderController = TextEditingController();
+  TextEditingController branchController = TextEditingController();
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -49,12 +54,6 @@ class _StudentFromState extends State<StudentForm> {
   TextEditingController parentMobileController = TextEditingController();
   TextEditingController parentAddressController = TextEditingController();
 
-  TextEditingController discountController = TextEditingController();
-  TextEditingController batchController = TextEditingController();
-  TextEditingController subjectController = TextEditingController();
-  TextEditingController standardController = TextEditingController();
-  TextEditingController joinDateController = TextEditingController();
-  TextEditingController refController = TextEditingController();
 
 
   @override
@@ -82,6 +81,7 @@ class _StudentFromState extends State<StudentForm> {
           emailController: emailController,
           birthController: birthController,
           genderController: genderController,
+
           isEdit: isEdit,
         )
       },
@@ -104,25 +104,6 @@ class _StudentFromState extends State<StudentForm> {
           parentAddressController: parentAddressController,
           isEdit: isEdit,
         )
-      },
-      {
-        "title": "Standard Details",
-        "content": StandardDetails(
-          formKey: _standardDetailsFormKey,
-            subjectController: subjectController,
-            discountController: discountController,
-            joinDateController: joinDateController,
-            standardList: standardList,
-            standardController: standardController,
-            refController: refController,
-            batchController: batchController,
-            // batchesData: [],
-            // subjectData: [],
-            callBackFun: () {
-
-            },
-            isEdit: isEdit,
-            add: widget.id == null ? true : false)
       },
     ];
   }
@@ -165,13 +146,26 @@ class _StudentFromState extends State<StudentForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: AppBar(title: Text("Student Form"),),
+      appBar: widgetAppbarForAboutPage(context, "Inquiry Demo", InquiryReportPage()),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
             child: Column(
               children: [
+                // Profile Image Below AppBar
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: userImg != null
+                          ? AssetImage(userImg)
+                          : AssetImage(userImg),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: DynamicStepper(dynamicSteps: dynamicSteps()),
@@ -280,7 +274,7 @@ class _StudentFromState extends State<StudentForm> {
             },
 
 
-            btnLbl: "Sumnit",
+            btnLbl: "Add Students",
             btnClr: primaryColor,
             btnFontWeigth: FontWeight.bold,
           ),
@@ -290,168 +284,9 @@ class _StudentFromState extends State<StudentForm> {
   }
 }
 
-class StandardDetails extends StatelessWidget {
-  final GlobalKey<FormState> formKey;
-  final TextEditingController discountController;
-  final TextEditingController batchController;
-  final TextEditingController refController;
-  final List<String> standardList;
-  final TextEditingController joinDateController;
-  final TextEditingController standardController;
-  final TextEditingController subjectController;
-  final Function() callBackFun;
-  bool isEdit, add;
-
-  StandardDetails(
-      {
-        super.key,
-        required this.formKey,
-      required this.subjectController,
-      required this.discountController,
-      required this.standardList,
-      required this.refController,
-      required this.joinDateController,
-      required this.standardController,
-      required this.batchController,
-      required this.callBackFun,
-      required this.isEdit,
-      required this.add});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      color: white,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              FormInputBox(
-                title: "Discount",
-                textEditingController: discountController,
-                type: "number",
-                maxLength: 6,
-                status: isEdit,
-                validator: (value) {
-                  if (checkSubmit && (value == null || value.isEmpty)) {
-                    return"Please Enter Discount";
-                  }
-                  return null;
-                },
-              ),
-              InkWell(
-                onTap: () {
-                  // if (isEdit && batchesData!.batches != null) {
-                  //   showDynamicCheckboxDialog(context, batchesData, () {
-                  //     String checkedBatches = batchesData!.batches!
-                  //         .where((batch) => batch.isChecked == true)
-                  //         .map((batch) => batch.name)
-                  //         .join(', ');
-                  //     batchController.text = checkedBatches;
-                  //   });
-                  // }
-                },
-                child: FormInputBox(
-                  boolStatus: true,
-                  title: "Batches",
-                  textEditingController: batchController,
-                  type: "text",
-                  status: !isEdit,
-                ),
-              ),
-              standardList.isNotEmpty
-                  ? add
-                  ? DropDown(
-                  onChanged: (selectedStandard) {
-                    standardController.text = selectedStandard;
-                    subjectController.text = "";
-                    callBackFun();
-                  },
-                  preSelectedValue: standardController.text.isNotEmpty &&
-                      standardList.contains(standardController.text)
-                      ? standardController.text
-                      : (standardList.isNotEmpty ? standardList.first : ''),
-                  lbl: "Select Standard",
-                  status: isEdit,
-                  items: standardList,
-                  controller: standardController)
-                  : DropDown(
-                  onChanged: (selectedStandard) {
-                    standardController.text = selectedStandard;
-                    subjectController.text = "";
-                    callBackFun();
-                  },
-                  lbl: "Select Standard",
-                  status: isEdit,
-                  preSelectedValue: standardController.text.isNotEmpty &&
-                      standardList.contains(standardController.text)
-                      ? standardController.text
-                      : (standardList.isNotEmpty ? standardList.first : ''),
-                  items: standardList,
-                  controller: standardController)
-                  : const DropDown(
-                lbl: "Select Standard",
-                status: false,
-                items: [],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-          InkWell(
-            onTap: () {
-              // if (isEdit && subjectData?.courses != null) {
-              //   showSubjectCheckboxDialog(context, subjectData, () {
-              //     // Collect only selected courses and update the controller text
-              //     String checkedSubjects = subjectData!.courses!
-              //         .where((course) => course.isChecked == true)
-              //         .map((course) => course.name ?? '')
-              //         .join(', ');
-              //     subjectController.text = checkedSubjects;
-              //
-              //   });
-              // }
-            },
-            child: FormInputBox(
-              boolStatus: true,
-              title: "Subjects",
-              textEditingController: subjectController,
-              type: "text",
-              status: !isEdit,
-            ),
-          ),
-              DateField(
-                controller: joinDateController,
-                txtFieldHeigth: px55,
-                txtFieldInSideLabel: "Joining Date",
-                firstDate: DateTime(1980, 1, 1),
-                lastDate: DateTime.now(),
-                status: isEdit,
-                validator: (value) {
-                  if (checkSubmit && (value == null || value.isEmpty)) {
-                    return "Please Enter Joining Date";
-                  }
-                  return null;
-                },
-              ),
-              DropDown(
-                preSelectedValue: refController.text.isNotEmpty ? (refController.text ?? '') : (referenceBy.isNotEmpty ? referenceBy.first : ''),
-                controller:refController,
-                items:referenceBy,
-                status: isEdit, lbl: "Referenced By",),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class ParentDetails extends StatelessWidget {
-  ParentDetails(
-      {super.key,
-        required this.formKey,
+  ParentDetails({super.key,
+      required this.formKey,
       required this.parentNameController,
       required this.parentMobileController,
       required this.parentAddressController,
@@ -467,53 +302,61 @@ class ParentDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      color: white,
+      color: bv_secondaryLightColor3,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Form(
           key: formKey,
           child: Column(
             children: [
-              FormInputBox(
-                title: "Parent's Name",
-                textEditingController: parentNameController,
-                maxLength: 40,
-                type: "text",
-                status: isEdit,
-                validator: (value) {
-                  if (checkSubmit && (value == null || value.isEmpty)) {
-                    return "Please Enter Parent Name";
-                  }
-                  return null;
-                },
-
+              BranchInputTxt(
+                  label:  "Parent's Name",
+                  textColor: black,
+                  floatingLabelColor: preIconFillColor,
+                  controller: parentNameController,
+                  maxLength: 40,
+                  validator: (value) {
+                    if (checkSubmit && (value == null || value.isEmpty)) {
+                      return "Please Enter Parent Name";
+                    }
+                    return null;
+                  },
               ),
-              FormInputBox(
-                title: "Parent's Mobile",
-                textEditingController: parentMobileController,
-                type: "number",
-                maxLength: 10,
-                status: isEdit,
+              BranchInputTxt(
+                  label: "Parent's Mobile",
+                  keyboardType: TextInputType.number,
+                  textColor: black,
+                  floatingLabelColor: preIconFillColor,
+                  controller: parentMobileController,
                 validator: (value) {
                   if (checkSubmit) {
-                    if (value == null || value.isEmpty) {
-                      return "Please Enter Parent Mobile No.";
-                    } else if (value.length < 6) {
-                      return "Mobile No. should be minimum 10";
+                    String trimmedValue = value?.trim() ?? "";
+
+                    if (trimmedValue.isEmpty) {
+                      return 'Please enter your mobile number';
+                    }
+                    if (trimmedValue.length != 10) {
+                      return 'Mobile number must be exactly 10 digits';
+                    }
+                    if (!RegExp(r'^[0-9]+$').hasMatch(trimmedValue)) {
+                      return 'Please enter a valid numeric mobile number';
                     }
                   }
-                  return null; // No validation errors before clicking submit
+                  return null; // No error
                 },
               ),
-              FormInputBox(
-                title: "Address",
-                textEditingController: parentAddressController,
-                status: isEdit,
+              BranchInputTxt(
+                label: "Address",
+                textColor:  black,
+                floatingLabelColor:preIconFillColor,
+                controller: parentAddressController,
+                maxLines: 5,
+                keyboardType: TextInputType.streetAddress,
                 validator: (value) {
                   if (checkSubmit && (value == null || value.isEmpty)) {
-                    return"Please Enter Address";
+                    return 'Please enter address';
                   }
-                  return null;
+                  return null; // No error
                 },
               ),
             ],
@@ -532,10 +375,8 @@ class UsernameAndPassword extends StatelessWidget {
   bool isEdit;
 
 
-  UsernameAndPassword(
-      {
-        super.key,
-        required this.formKey,
+  UsernameAndPassword({super.key,
+      required this.formKey,
       required this.usernameController,
       required this.passwordController,
       required this.confirmController,
@@ -545,30 +386,32 @@ class UsernameAndPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      color: white,
+      color: bv_secondaryLightColor3,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Form(
           key: formKey,
           child: Column(
             children: [
-              FormInputBox(
-                title: "Username",
-                textEditingController: usernameController,
+              BranchInputTxt(
+                label:  "Username",
+                textColor: black,
+                floatingLabelColor: preIconFillColor,
+                controller: usernameController,
                 maxLength: 40,
-                type: "text",
-                status: isEdit,
                 validator: (value) {
                   if (checkSubmit && (value == null || value.isEmpty)) {
-                    return "Please Enter Username";
+                    return "Please enter username";
                   }
                   return null;
                 },
               ),
-              FormInputBox(
-                title: "Password",
-                textEditingController: passwordController,
-                status: isEdit,
+
+              BranchInputTxt(
+                label:  "Password",
+                textColor: black,
+                floatingLabelColor: preIconFillColor,
+                controller: passwordController,
                 validator: (value) {
                   if (checkSubmit) {
                     if (value == null || value.isEmpty) {
@@ -579,12 +422,13 @@ class UsernameAndPassword extends StatelessWidget {
                   }
                   return null; // No validation errors before clicking submit
                 },
-
               ),
-              FormInputBox(
-                title: "Confirm Password",
-                textEditingController: confirmController,
-                status: isEdit,
+
+              BranchInputTxt(
+                label:  "Confirm Password",
+                textColor: black,
+                floatingLabelColor: preIconFillColor,
+                controller: confirmController,
                 validator: (value) {
                   if (checkSubmit) {
                     if (value == null || value.isEmpty) {
@@ -594,7 +438,6 @@ class UsernameAndPassword extends StatelessWidget {
                       return "Your password don't match. Please try again.";
                     }
                   }
-
                   return null;
                 },
               ),
@@ -634,123 +477,86 @@ class PersonalDetails extends StatelessWidget {
     return SingleChildScrollView(
       child: Card(
         elevation: 4,
-        color: white,
+        color: bv_secondaryLightColor3,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Form(
             key: formKey,
             child: Column(
               children: [
-                FormInputBox(
-                  title: "First Name",
-                  textEditingController: firstnameController,
+                BranchInputTxt(
+                  label:  "First Name",
+                  textColor: black,
+                  floatingLabelColor: preIconFillColor,
+                  controller: firstnameController,
                   maxLength: 40,
-                  type: "text",
-                  status: isEdit,
                   validator: (value) {
                     if (checkSubmit && (value == null || value.isEmpty)) {
-                      return "Please Enter First Name";
+                      return "Please enter first name";
                     }
                     return null;
                   },
                 ),
-                FormInputBox(
-                    title: "Last Name",
-                    maxLength: 40,
-                    textEditingController: lastnameController,
-                    type: "text",
-                    validator: (value) {
-                      if (checkSubmit && (value == null || value.isEmpty)) {
-                        return "Please Enter Last Name";
-                      }
-                      return null;
-                    },
-                    status: isEdit),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FormInputBox(
-                        title: "Mobile Number",
-                        textEditingController: mobileController,
-                        type: "number",
-                        maxLength: 10,
-                        status: isEdit,
-                        validator: (value) {
-                          if (checkSubmit) {
-                            if (value == null || value.isEmpty) {
-                              return "Please Enter Phone Number";
-                            } else if (value.length != 10) {
-                              return "Phone Number Length Should be 10";
-                            }
-                          }
-                          return null;
-                        },
-
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    InkWell(
-                      onTap: () {
-                        whatsappController.text = mobileController.text;
-                      },
-                      child: const Icon(
-                        FontAwesomeIcons.whatsapp,
-                        color: green,
-                      ),
-                    )
-                  ],
-                ),
-                FormInputBox(
-                  title: "Whatsapp Number",
-                  textEditingController: whatsappController,
-                  type: "number",
-                  maxLength: 10,
-                  status: isEdit,
+                BranchInputTxt(
+                  label:  "Last Name",
+                  textColor: black,
+                  floatingLabelColor: preIconFillColor,
+                  controller: lastnameController,
+                  maxLength: 40,
                   validator: (value) {
                     if (checkSubmit && (value == null || value.isEmpty)) {
-                      return "Please Enter Whatsapp No.";
+                      return "Please enter last name";
                     }
                     return null;
                   },
                 ),
-                FormInputBox(
-                  title: "Email",
-                  maxLength: 50,
-                  textEditingController: emailController,
+                BranchInputTxt(
+                  label: "Parent's Mobile",
+                  keyboardType: TextInputType.number,
+                  textColor: black,
+                  floatingLabelColor: preIconFillColor,
+                  controller:mobileController ,
                   validator: (value) {
                     if (checkSubmit) {
-                      if (value == null || value.isEmpty) {
-                        return "Please Enter Email";
-                      } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return "Please Enter a Valid Email";
+                      String trimmedValue = value?.trim() ?? "";
+
+                      if (trimmedValue.isEmpty) {
+                        return 'Please enter your mobile number';
+                      }
+                      if (trimmedValue.length != 10) {
+                        return 'Mobile number must be exactly 10 digits';
+                      }
+                      if (!RegExp(r'^[0-9]+$').hasMatch(trimmedValue)) {
+                        return 'Please enter a valid numeric mobile number';
                       }
                     }
-                    return null;
+                    return null; // No error
+                  },
+                ),
+                BranchInputTxt(
+                  label: "Email",
+                  textColor:  black,
+                  floatingLabelColor: preIconFillColor,
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (checkSubmit) {
+                      //If value is null, it defaults to an empty string ("").
+                      String trimmedValue = value?.trim() ?? "";
+                      if (trimmedValue.isEmpty) {
+                        return 'Please enter branch email';
+                      }
+                      // Regular expression for validating an email
+                      if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                          .hasMatch(trimmedValue)) {
+                        return 'Please enter a valid email address';
+                      }
+                    }
+                    return null; // No error
                   },
 
-                  onChanged: (value) {
-                    if (RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      checkSubmit = true;
-                    } else {
-                      checkSubmit = false;
-                    }
-                  },
-                  status: isEdit,
                 ),
-                DateField(
-                  validator: (value) {
-                    if (checkSubmit && (value == null || value.isEmpty)){
-                      return "Please Enter Birth Date";
-                    }
-                    return null;
-                  },
-                  controller: birthController,
-                  status: isEdit,
-                  txtFieldHeigth: px55,
-                  txtFieldInSideLabel: "Birth Date",
-                  firstDate: DateTime(1980, 1, 1),
-                  lastDate: DateTime.now(),
-                ),
+                DateField(firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Birth Date", controller:birthController ),
                 DropDown(
                   preSelectedValue: genderController.text.isNotEmpty ? (genderController.text ?? '') : (gender.isNotEmpty ? gender.first : ''),
                   controller:genderController,
