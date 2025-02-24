@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
+import 'package:inquirymanagement/pages/sms/screen/sms.dart';
 import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 
@@ -23,7 +24,7 @@ final List<Map<String, dynamic>> dashboardItems = [
   {
     "icon": Icons.message_outlined,
     "title": "SMS Service",
-    'page': DashboardPage()
+    'page': SmsPage()
   },
   {
     "icon": Icons.calendar_today_outlined,

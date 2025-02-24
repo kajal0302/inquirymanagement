@@ -110,7 +110,7 @@ class _DateFieldState extends State<DateField> {
           ),
 
           floatingLabelStyle: TextStyle(
-            color: preIconFillColor,
+            color: black,
             fontSize: px18,
             fontWeight: FontWeight.normal,
           ),

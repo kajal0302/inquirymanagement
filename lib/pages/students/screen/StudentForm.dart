@@ -1,28 +1,41 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/appBar.dart';
-import 'package:inquirymanagement/components/branchInputField.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/students/apicall/batchListApi.dart';
-import 'package:inquirymanagement/pages/students/apicall/branchListApi.dart';
 import 'package:inquirymanagement/pages/students/models/batchListModel.dart';
-import 'package:inquirymanagement/pages/students/models/branchListModel.dart';
+import 'package:inquirymanagement/pages/students/models/courseListModel.dart';
+import 'package:inquirymanagement/pages/students/models/partnerListModel.dart';
+import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
+import 'package:inquirymanagement/pages/students/provider/categoryProvider.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
+import 'package:provider/provider.dart';
 import '../../../components/DynamicStepper.dart';
 import '../../../components/buttonField.dart';
-import '../../../components/dropDown.dart';
-import '../../../utils/lists.dart';
-import 'package:inquirymanagement/components/dateField.dart';
+import '../apicall/courseListApi.dart';
+import '../apicall/partnerListModel.dart';
+import '../components/courseDetails.dart';
+import '../components/createUsernamePassword.dart';
+import '../components/installmentDetails.dart';
+import '../components/parentDetails.dart';
+import '../components/personalDetails.dart';
 
-bool checkSubmit = false;
+bool _isSubmitting = false;
 final _personalDetailsFormKey = GlobalKey<FormState>();
 final _usernamePasswordFormKey = GlobalKey<FormState>();
 final _parentsDetailsFormKey = GlobalKey<FormState>();
 final _courseDetailsFormKey = GlobalKey<FormState>();
 final _installmentDetailsFormKey = GlobalKey<FormState>();
-List<String> branchItem = [];
-List<String> branchIdItem = [];
+
+List<String> batchItems = [];
+List batchIds = [];
+List<String> selectedBatchItems = [];
+List<String> courseItem = [];
+List<Map<String, dynamic>> courseItems = [];
+List courseIds = [];
+List<String> partnerItems = [];
+List partnerIds = [];
+String? categoryId;
 
 
 class StudentForm extends StatefulWidget {
@@ -37,9 +50,7 @@ class StudentForm extends StatefulWidget {
 }
 
 class _StudentFromState extends State<StudentForm> {
-  String? cid, branchId, login_Id, categoryId;
   bool isEdit = true;
-  File? selectedFile;
   bool isLoading=true;
 
   TextEditingController firstnameController = TextEditingController();
@@ -75,49 +86,99 @@ class _StudentFromState extends State<StudentForm> {
   void initState() {
     super.initState();
     isEdit = widget.id == null;
-    if (widget.id != null) {
-      loadstudentBranchListData();
-      // loadstudentBatchListData();
-    }
+    Future.microtask(() async {
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+
+      await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
+      await categoryProvider.getCategory(context);
+
+      if (categoryProvider.category != null &&
+          categoryProvider.category!.categories != null &&
+          categoryProvider.category!.categories!.isNotEmpty) {
+        categoryId = categoryProvider.category!.categories!.first.id.toString();
+        await loadstudentCourseListData();
+      }
+
+    });
+    loadstudentBatchListData();
+    loadstudentPartnerListData();
+
   }
 
 
 
-  // Method to load BranchList
-  Future<void> loadstudentBranchListData() async {
-    StudentBranchListModel? fetchedBranchListData = await fetchStudentBranchListData(context);
+  // Method to load BatchList
+  Future<void> loadstudentBatchListData() async {
+    StudentBatchListModel? fetchedBatchListData = await fetchStudentBatchListData(context);
     setState(() {
-      if (fetchedBranchListData != null &&
-          fetchedBranchListData.branches != null &&
-          fetchedBranchListData.branches!.isNotEmpty) {
-        branchItem =
-            fetchedBranchListData.branches!.map((item) => item.name ?? '').toList();
-        branchIdItem = fetchedBranchListData.branches!
+      if (fetchedBatchListData != null && fetchedBatchListData.batches != null &&
+          fetchedBatchListData.batches!.isNotEmpty)
+      {
+        batchItems =
+            fetchedBatchListData.batches!.map((item) => item.name ?? '').toList();
+        batchIds = fetchedBatchListData.batches!
             .map((item) => item.id.toString() ?? '')
             .toList();
-      } else {
-        branchItem = [];
+
+      } else
+      {
+        batchItems = [];
       }
       isLoading = false;
     });
   }
 
-  // // Method to load BatchList
-  // Future<void> loadstudentBatchListData() async {
-  //   StudentBatchListModel? fetchedBatchListData = await fetchStudentBatchListData(context);
-  //   setState(() {
-  //     if (fetchedBatchListData != null &&
-  //         fetchedBatchListData.batches != null &&
-  //         fetchedBatchListData.batches!.isNotEmpty) {
-  //     } else {
-  //       branchItem = [];
-  //     }
-  //     isLoading = false;
-  //   });
-  // }
+
+  // Method to load Course List Data
+  Future<void> loadstudentCourseListData() async {
+    StudentCourseListModel? fetchedCourseListData = await fetchStudentCourseListData(context,categoryId.toString());
+    setState(() {
+      if (fetchedCourseListData != null && fetchedCourseListData.courses != null &&
+          fetchedCourseListData.courses!.isNotEmpty)
+      {
+        courseItems = fetchedCourseListData.courses!.map((item) => {
+          "id": item.id.toString(),
+          "value": item.name ?? '',
+        }).toList();
+
+        courseIds = fetchedCourseListData.courses!
+            .map((item) => item.id.toString() ?? '')
+            .toList();
+
+      } else
+      {
+        courseItems = [];
+      }
+    });
+  }
 
 
-  List<Map> dynamicSteps() {
+  // Method to load PartnerList
+  Future<void> loadstudentPartnerListData() async {
+    StudentPartnerListModel? fetchedPartnerListData = await fetchPartnerListData(context);
+    setState(() {
+      if (fetchedPartnerListData != null && fetchedPartnerListData.partners != null &&
+          fetchedPartnerListData.partners!.isNotEmpty)
+      {
+        partnerItems =
+            fetchedPartnerListData.partners!.map((item) => item.partnerName ?? '').toList();
+        partnerIds = fetchedPartnerListData.partners!
+            .map((item) => item.id.toString() ?? '')
+            .toList();
+
+      } else
+      {
+        partnerItems = [];
+      }
+      isLoading = false;
+    });
+  }
+
+
+
+
+
+  List<Map> dynamicSteps(StudentBranchProvider branchProvider,CategoryProvider categoryProvider, bool isSubmitted) {
     return [
       {
         "title": "Personal Details",
@@ -131,7 +192,9 @@ class _StudentFromState extends State<StudentForm> {
           birthController: birthController,
           genderController: genderController,
           branchController: branchController,
+          studentBranchProvider: branchProvider,
           isEdit: isEdit,
+          isSubmitted: _isSubmitting,
         )
       },
       {
@@ -142,6 +205,8 @@ class _StudentFromState extends State<StudentForm> {
           passwordController: passwordController,
           confirmController: confirmController,
           isEdit: isEdit,
+          isSubmitted: _isSubmitting,
+
         )
       },
       {
@@ -152,6 +217,7 @@ class _StudentFromState extends State<StudentForm> {
           parentMobileController: parentMobileController,
           parentAddressController: parentAddressController,
           isEdit: isEdit,
+          isSubmitted: _isSubmitting,
         )
       },
       {
@@ -161,6 +227,7 @@ class _StudentFromState extends State<StudentForm> {
           batchController: batchController,
           categoryController: categoryController,
           courseController: courseController,
+          categoryProvider: categoryProvider,
           isEdit: isEdit,
         )
       },
@@ -215,6 +282,8 @@ class _StudentFromState extends State<StudentForm> {
 
   @override
   Widget build(BuildContext context) {
+    final branchProvider = Provider.of<StudentBranchProvider>(context);
+    final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
       appBar: widgetAppbarForAboutPage(context, "${widget.fname} ${widget.lname}", InquiryReportPage()),
@@ -235,7 +304,11 @@ class _StudentFromState extends State<StudentForm> {
                 const SizedBox(height: 5),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
-                  child: DynamicStepper(dynamicSteps: dynamicSteps(), voidCallback: () {  },),
+                  child: DynamicStepper(
+                    dynamicSteps: dynamicSteps(branchProvider,categoryProvider,_isSubmitting,),
+                    voidCallback: () {
+
+                    },),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -249,16 +322,16 @@ class _StudentFromState extends State<StudentForm> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
           child: button(
             btnHeight: 50,
-            btnWidth: MediaQuery.of(context).size.width,
+            btnWidth: 300,
             onClick: () async {
               setState(() {
-                checkSubmit = true;
+                _isSubmitting = true;
               });
               bool isPersonalDetailsFormValid = _personalDetailsFormKey.currentState!.validate();
               bool isUsernamePasswordFormValid = _usernamePasswordFormKey.currentState!.validate() ;
               bool isParentsDetailsFormValid = _parentsDetailsFormKey.currentState!.validate();
               bool isCourseDetailsFormValid = _courseDetailsFormKey.currentState?.validate() ?? false;
-              bool isInstallementDetailsFormValid = _installmentDetailsFormKey.currentState?.validate() ?? false;
+              bool isInstallmentDetailsFormValid = _installmentDetailsFormKey.currentState?.validate() ?? false;
 
               //Message according to forms
               List<String> invalidForms = [];
@@ -267,7 +340,7 @@ class _StudentFromState extends State<StudentForm> {
               if (!isUsernamePasswordFormValid) invalidForms.add("Username & Password Form");
               if (!isParentsDetailsFormValid) invalidForms.add("Parents Details Form");
               if (!isCourseDetailsFormValid) invalidForms.add("Course Details Form");
-              if (!isInstallementDetailsFormValid) invalidForms.add("Installment Details Form");
+              if (!isInstallmentDetailsFormValid) invalidForms.add("Installment Details Form");
 
               // Proceed only if all forms are valid
               // if (invalidForms.isEmpty) {
@@ -348,355 +421,6 @@ class _StudentFromState extends State<StudentForm> {
       ),
     );
   }
-}
-
-
-// Installment Details Section
-class InstallmentDetails extends StatelessWidget {
-  InstallmentDetails({super.key,
-    required this.formKey,
-    required this.discountController,
-    required this.installmentTypeController,
-    required this.joiningDateController,
-    required this.referenceByController,
-    required this.partnerController,
-    required this.isEdit});
-
-  final GlobalKey<FormState> formKey;
-  bool isEdit;
-  final TextEditingController discountController;
-  final TextEditingController installmentTypeController;
-  final TextEditingController joiningDateController;
-  final TextEditingController referenceByController;
-  final TextEditingController partnerController;
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-        ],
-      ),
-    );
-  }
-}
-
-// Course Details Section
-class CourseDetails extends StatelessWidget {
-  CourseDetails({super.key,
-    required this.formKey,
-    required this.batchController,
-    required this.categoryController,
-    required this.courseController,
-    required this.isEdit});
-
-  final GlobalKey<FormState> formKey;
-  bool isEdit;
-  final TextEditingController batchController;
-  final TextEditingController categoryController;
-  final TextEditingController courseController;
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-
-        ],
-      ),
-    );
-  }
-}
-
-// Parents Details Section
-class ParentDetails extends StatelessWidget {
-  ParentDetails({super.key,
-      required this.formKey,
-      required this.parentNameController,
-      required this.parentMobileController,
-      required this.parentAddressController,
-      required this.isEdit});
-
-  final GlobalKey<FormState> formKey;
-  bool isEdit;
-  final TextEditingController parentNameController;
-  final TextEditingController parentMobileController;
-  final TextEditingController parentAddressController;
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-          BranchInputTxt(
-              label:  "Parent's Name",
-              textColor: black,
-              floatingLabelColor: preIconFillColor,
-              controller: parentNameController,
-              maxLength: 40,
-              validator: (value) {
-                if (checkSubmit && (value == null || value.isEmpty)) {
-                  return "Please Enter Parent Name";
-                }
-                return null;
-              },
-          ),
-          BranchInputTxt(
-              label: "Parent's Mobile",
-              keyboardType: TextInputType.number,
-              textColor: black,
-              floatingLabelColor: preIconFillColor,
-              controller: parentMobileController,
-            validator: (value) {
-              if (checkSubmit) {
-                String trimmedValue = value?.trim() ?? "";
-
-                if (trimmedValue.isEmpty) {
-                  return 'Please enter your mobile number';
-                }
-                if (trimmedValue.length != 10) {
-                  return 'Mobile number must be exactly 10 digits';
-                }
-                if (!RegExp(r'^[0-9]+$').hasMatch(trimmedValue)) {
-                  return 'Please enter a valid numeric mobile number';
-                }
-              }
-              return null; // No error
-            },
-          ),
-          BranchInputTxt(
-            label: "Address",
-            textColor:  black,
-            floatingLabelColor:preIconFillColor,
-            controller: parentAddressController,
-            maxLines: 3,
-            keyboardType: TextInputType.streetAddress,
-            validator: (value) {
-              if (checkSubmit && (value == null || value.isEmpty)) {
-                return 'Please enter address';
-              }
-              return null; // No error
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Username & Password Details Section
-class UsernameAndPassword extends StatelessWidget {
-  final GlobalKey<FormState> formKey;
-  final TextEditingController usernameController;
-  final TextEditingController passwordController;
-  final TextEditingController confirmController;
-  bool isEdit;
-
-
-  UsernameAndPassword({super.key,
-      required this.formKey,
-      required this.usernameController,
-      required this.passwordController,
-      required this.confirmController,
-      required this.isEdit});
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-          BranchInputTxt(
-            label:  "Username",
-            textColor: black,
-            floatingLabelColor: preIconFillColor,
-            controller: usernameController,
-            maxLength: 40,
-            validator: (value) {
-              if (checkSubmit && (value == null || value.isEmpty)) {
-                return "Please enter username";
-              }
-              return null;
-            },
-          ),
-
-          BranchInputTxt(
-            label:  "Password",
-            textColor: black,
-            floatingLabelColor: preIconFillColor,
-            controller: passwordController,
-            validator: (value) {
-              if (checkSubmit) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter a password";
-                } else if (value.length < 6) {
-                  return "Password must be at least 6 characters long";
-                }
-              }
-              return null; // No validation errors before clicking submit
-            },
-          ),
-
-          BranchInputTxt(
-            label:  "Confirm Password",
-            textColor: black,
-            floatingLabelColor: preIconFillColor,
-            controller: confirmController,
-            validator: (value) {
-              if (checkSubmit) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter a password";
-                }
-                if (value != passwordController.text) {
-                  return "Your password don't match. Please try again.";
-                }
-              }
-              return null;
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-// Personal Details Section
-class PersonalDetails extends StatelessWidget {
-  PersonalDetails({
-    super.key,
-    required this.formKey,
-    required this.firstnameController,
-    required this.lastnameController,
-    required this.mobileController,
-    required this.whatsappController,
-    required this.emailController,
-    required this.birthController,
-    required this.genderController,
-    required this.branchController,
-    required this.isEdit,
-  });
-  final GlobalKey<FormState> formKey;
-  final TextEditingController firstnameController;
-  final TextEditingController lastnameController;
-  final TextEditingController mobileController;
-  final TextEditingController whatsappController;
-  final TextEditingController emailController;
-  final TextEditingController birthController;
-  final TextEditingController genderController;
-  final TextEditingController branchController;
-  bool isEdit;
-
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: [
-            BranchInputTxt(
-              label:  "First Name",
-              textColor: black,
-              floatingLabelColor: preIconFillColor,
-              controller: firstnameController,
-              maxLength: 40,
-              validator: (value) {
-                if (checkSubmit && (value == null || value.isEmpty)) {
-                  return "Please enter first name";
-                }
-                return null;
-              },
-            ),
-            BranchInputTxt(
-              label:  "Last Name",
-              textColor: black,
-              floatingLabelColor: preIconFillColor,
-              controller: lastnameController,
-              maxLength: 40,
-              validator: (value) {
-                if (checkSubmit && (value == null || value.isEmpty)) {
-                  return "Please enter last name";
-                }
-                return null;
-              },
-            ),
-            BranchInputTxt(
-              label: "Parent's Mobile",
-              keyboardType: TextInputType.number,
-              textColor: black,
-              floatingLabelColor: preIconFillColor,
-              controller:mobileController ,
-              validator: (value) {
-                if (checkSubmit) {
-                  String trimmedValue = value?.trim() ?? "";
-
-                  if (trimmedValue.isEmpty) {
-                    return 'Please enter your mobile number';
-                  }
-                  if (trimmedValue.length != 10) {
-                    return 'Mobile number must be exactly 10 digits';
-                  }
-                  if (!RegExp(r'^[0-9]+$').hasMatch(trimmedValue)) {
-                    return 'Please enter a valid numeric mobile number';
-                  }
-                }
-                return null; // No error
-              },
-            ),
-            BranchInputTxt(
-              label: "Email",
-              textColor:  black,
-              floatingLabelColor: preIconFillColor,
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (checkSubmit) {
-                  //If value is null, it defaults to an empty string ("").
-                  String trimmedValue = value?.trim() ?? "";
-                  if (trimmedValue.isEmpty) {
-                    return 'Please enter branch email';
-                  }
-                  // Regular expression for validating an email
-                  if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-                      .hasMatch(trimmedValue)) {
-                    return 'Please enter a valid email address';
-                  }
-                }
-                return null;
-              },
-
-            ),
-            DateField(firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Birth Date", controller:birthController ),
-            DropDown(
-              preSelectedValue: genderController.text.isNotEmpty ? (genderController.text ?? '') : (genderList.isNotEmpty ? genderList.first : ''),
-              controller:genderController,
-              items:genderList,
-              status: true,
-                lbl: "Select Gender"),
-            SizedBox(height: 10,),
-            DropDown(
-              preSelectedValue: branchController.text.isNotEmpty &&
-                  branchItem.contains(branchController.text)
-                  ? branchController.text
-                  : (branchItem.isNotEmpty ? branchItem.first : ''),
-              controller: branchController,
-              items: branchItem,
-              status: true,
-              lbl: "Select Branch",
-              onChanged: (str) {
-                print(str);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
 }
 
 

@@ -14,6 +14,7 @@ import '../../../common/text.dart';
 import '../../../components/alertBox.dart';
 import '../../../components/appBar.dart';
 import '../../../components/customCalender.dart';
+import '../../../components/customDialog.dart';
 import '../../../components/dateField.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
@@ -71,7 +72,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       _selectedDay = selectedDay;
       _focusedDay = focusedDay;
     });
-    print(_selectedDay);
   }
 
   // Method for range selection
@@ -604,8 +604,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                     isMessageAdded = true;
                                     callSnackBar(updationMessage, "success");
                                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
-
-
                                   },
                                 );
                               },
@@ -941,103 +939,85 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           ),
         ],
       ),
-      floatingActionButton: SpeedDial(
-        overlayColor: black,
-        overlayOpacity: 0.5,
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        spaceBetweenChildren: 0.1,
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: preIconFillColor,
-        iconTheme: IconThemeData(
-          color: black,
-          size: px25
-        ),
-        children: [
-          SpeedDialChild(
-            backgroundColor: preIconFillColor,
-            child: Icon(Icons.calendar_month),
-            onTap: (){
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+      floatingActionButton: CustomSpeedDial(
+        onCalendarTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: preIconFillColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Select Date Range',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Header Section
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: preIconFillColor,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'Select Date Range',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: white,
-                            ),
-                          ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 600,
+                        height: 400,
+                        child: CustomCalendar(
+                          initialFormat: _calendarFormat,
+                          initialFocusedDay: _focusedDay,
+                          initialSelectedDay: _selectedDay,
+                          initialRangeStart: _rangeStart,
+                          initialRangeEnd: _rangeEnd,
+                          onDaySelected: _onDaySelected,
+                          onRangeSelected: _onRangeSelected,
                         ),
-
-                        // Calender Section
-                        Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: 600,
-                            height: 400,
-                            child: CustomCalendar(
-                              initialFormat: _calendarFormat,
-                              initialFocusedDay: _focusedDay,
-                              initialSelectedDay: _selectedDay,
-                              initialRangeStart: _rangeStart,
-                              initialRangeEnd: _rangeEnd,
-                              onDaySelected: _onDaySelected,
-                              onRangeSelected: _onRangeSelected,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            setState(() {
-                              isLoading = true;
-                            });
-                            if (mounted) {
-                              setState(() {
-                                fetchFilteredInquiryData();
-                              });
-                            }
-                          },
-                          child: const Text(
-                            "OK",
-                            style: TextStyle(color: black, fontSize: px16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-
-                      ],
+                      ),
                     ),
-                  );
-                },
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          isLoading = true;
+                        });
+                        if (mounted) {
+                          setState(() {
+                            fetchFilteredInquiryData();
+                          });
+                        }
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
-            }
-          ),
-          SpeedDialChild(
-              backgroundColor: preIconFillColor,
-              child: Icon(Icons.filter_list),
-              onTap: ()=>print("Calender Icon")
-          ),
-        ],
+            },
+          );
+        },
+        onFilterTap: () => print("Filter Icon Pressed"),
+        backgroundColor: preIconFillColor,
+        iconColor: Colors.black,
+        iconSize: 25.0,
       ),
     );
   }

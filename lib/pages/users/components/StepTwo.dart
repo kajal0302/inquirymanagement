@@ -4,7 +4,6 @@ import 'package:inquirymanagement/components/InputFieldPassword.dart';
 import 'package:inquirymanagement/components/branchInputField.dart';
 import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/components/dropDown.dart';
-import 'package:inquirymanagement/components/inputPasswordField.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 
