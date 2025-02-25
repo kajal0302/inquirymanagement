@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/style.dart';
+import 'package:inquirymanagement/utils/common.dart';
+
+bool isCourseSelected = false; // Track course selection
 
 class DynamicStepper extends StatefulWidget {
   final List<Map> dynamicSteps;
   final VoidCallback voidCallback;
+  final bool enforceCourseSelection;
 
   const DynamicStepper({
     super.key,
     required this.dynamicSteps,
-    required this.voidCallback
+    required this.voidCallback,
+    this.enforceCourseSelection = false,
   });
 
   @override
@@ -40,6 +45,11 @@ class _DynamicStepperState extends State<DynamicStepper> {
           }
         },
         onStepContinue: () {
+          // Check if course selection is enforced and the current step is the course selection step
+          if (widget.enforceCourseSelection && currentIndex == 3 && !isCourseSelected) {
+           callSnackBar("Please select a course before proceeding.", "info");
+            return;
+          }
           setState(() {
             if (currentIndex < widget.dynamicSteps.length - 1) {
               completedSteps[currentIndex] = true;
@@ -49,7 +59,15 @@ class _DynamicStepperState extends State<DynamicStepper> {
             }
           });
         },
+
+
         onStepTapped: (int step) {
+          // Prevent moving forward by tapping if it's step 3 and no course is selected
+          if (widget.enforceCourseSelection && step > 3 && !isCourseSelected) {
+            callSnackBar("Please select a course before proceeding.", "info");
+            return;
+          }
+
           setState(() {
             currentIndex = step;
           });

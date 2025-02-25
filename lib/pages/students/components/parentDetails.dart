@@ -9,12 +9,10 @@ class ParentDetails extends StatelessWidget {
     required this.parentNameController,
     required this.parentMobileController,
     required this.parentAddressController,
-    required this.isEdit,
     required this.isSubmitted
   });
 
   final GlobalKey<FormState> formKey;
-  bool isEdit;
   final TextEditingController parentNameController;
   final TextEditingController parentMobileController;
   final TextEditingController parentAddressController;
@@ -41,8 +39,9 @@ class ParentDetails extends StatelessWidget {
           ),
           BranchInputTxt(
             label: "Parent's Mobile",
-            keyboardType: TextInputType.number,
+            type: "number",
             textColor: black,
+            maxLength: 10,
             floatingLabelColor: preIconFillColor,
             controller: parentMobileController,
             validator: (value) {
@@ -68,7 +67,6 @@ class ParentDetails extends StatelessWidget {
             floatingLabelColor:preIconFillColor,
             controller: parentAddressController,
             maxLines: 3,
-            keyboardType: TextInputType.streetAddress,
             validator: (value) {
               if (isSubmitted && (value == null || value.isEmpty)) {
                 return 'Please enter address';

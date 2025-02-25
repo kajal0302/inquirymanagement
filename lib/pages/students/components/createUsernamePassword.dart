@@ -8,7 +8,6 @@ class UsernameAndPassword extends StatelessWidget {
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final TextEditingController confirmController;
-  bool isEdit;
   final bool isSubmitted;
 
 
@@ -17,7 +16,6 @@ class UsernameAndPassword extends StatelessWidget {
     required this.usernameController,
     required this.passwordController,
     required this.confirmController,
-    required this.isEdit,
     required this.isSubmitted
   });
 

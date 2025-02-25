@@ -66,14 +66,17 @@ class ApiService {
     }
   }
 
+
+
   // Generic POST method with JSON support
   Future<modelName?> post<modelName>({
     required String endpoint,
     required Map<String, dynamic> body,
     required modelName Function(Map<String, dynamic>) fromJson,
     Map<String, String>? headers,
+    bool fromApi = false,
   }) async {
-    final url = Uri.parse('$baseUrlInquiry$endpoint');
+    final url = Uri.parse('${fromApi ? apiUrl : baseUrlInquiry}$endpoint');
     final jsonBody = body;
 
     try {

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/appBar.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
+import 'package:inquirymanagement/pages/students/apicall/addStudentApi.dart';
 import 'package:inquirymanagement/pages/students/apicall/batchListApi.dart';
 import 'package:inquirymanagement/pages/students/models/batchListModel.dart';
-import 'package:inquirymanagement/pages/students/models/courseListModel.dart';
 import 'package:inquirymanagement/pages/students/models/partnerListModel.dart';
 import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
 import 'package:inquirymanagement/pages/students/provider/categoryProvider.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:provider/provider.dart';
+import '../../../common/text.dart';
 import '../../../components/DynamicStepper.dart';
-import '../../../components/buttonField.dart';
-import '../apicall/courseListApi.dart';
+import '../../../utils/common.dart';
 import '../apicall/partnerListModel.dart';
 import '../components/courseDetails.dart';
 import '../components/createUsernamePassword.dart';
@@ -37,7 +38,6 @@ List<String> partnerItems = [];
 List partnerIds = [];
 String? categoryId;
 
-
 class StudentForm extends StatefulWidget {
   final String? id;
   final String? fname;
@@ -50,8 +50,8 @@ class StudentForm extends StatefulWidget {
 }
 
 class _StudentFromState extends State<StudentForm> {
-  bool isEdit = true;
   bool isLoading=true;
+  bool isCourseSelected= false;
 
   TextEditingController firstnameController = TextEditingController();
   TextEditingController lastnameController = TextEditingController();
@@ -81,28 +81,18 @@ class _StudentFromState extends State<StudentForm> {
   TextEditingController partnerController = TextEditingController();
 
 
-
   @override
   void initState() {
     super.initState();
-    isEdit = widget.id == null;
-    Future.microtask(() async {
-      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
 
-      await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
-      await categoryProvider.getCategory(context);
-
-      if (categoryProvider.category != null &&
-          categoryProvider.category!.categories != null &&
-          categoryProvider.category!.categories!.isNotEmpty) {
-        categoryId = categoryProvider.category!.categories!.first.id.toString();
-        await loadstudentCourseListData();
-      }
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.microtask(() async {
+        await Provider.of<CategoryProvider>(context, listen: false).getCategory(context);
+        await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
+        loadstudentBatchListData();
+        loadstudentPartnerListData();
+      });
     });
-    loadstudentBatchListData();
-    loadstudentPartnerListData();
-
   }
 
 
@@ -119,7 +109,6 @@ class _StudentFromState extends State<StudentForm> {
         batchIds = fetchedBatchListData.batches!
             .map((item) => item.id.toString() ?? '')
             .toList();
-
       } else
       {
         batchItems = [];
@@ -127,31 +116,6 @@ class _StudentFromState extends State<StudentForm> {
       isLoading = false;
     });
   }
-
-
-  // Method to load Course List Data
-  Future<void> loadstudentCourseListData() async {
-    StudentCourseListModel? fetchedCourseListData = await fetchStudentCourseListData(context,categoryId.toString());
-    setState(() {
-      if (fetchedCourseListData != null && fetchedCourseListData.courses != null &&
-          fetchedCourseListData.courses!.isNotEmpty)
-      {
-        courseItems = fetchedCourseListData.courses!.map((item) => {
-          "id": item.id.toString(),
-          "value": item.name ?? '',
-        }).toList();
-
-        courseIds = fetchedCourseListData.courses!
-            .map((item) => item.id.toString() ?? '')
-            .toList();
-
-      } else
-      {
-        courseItems = [];
-      }
-    });
-  }
-
 
   // Method to load PartnerList
   Future<void> loadstudentPartnerListData() async {
@@ -176,8 +140,6 @@ class _StudentFromState extends State<StudentForm> {
 
 
 
-
-
   List<Map> dynamicSteps(StudentBranchProvider branchProvider,CategoryProvider categoryProvider, bool isSubmitted) {
     return [
       {
@@ -193,7 +155,6 @@ class _StudentFromState extends State<StudentForm> {
           genderController: genderController,
           branchController: branchController,
           studentBranchProvider: branchProvider,
-          isEdit: isEdit,
           isSubmitted: _isSubmitting,
         )
       },
@@ -204,7 +165,6 @@ class _StudentFromState extends State<StudentForm> {
           usernameController: usernameController,
           passwordController: passwordController,
           confirmController: confirmController,
-          isEdit: isEdit,
           isSubmitted: _isSubmitting,
 
         )
@@ -216,7 +176,6 @@ class _StudentFromState extends State<StudentForm> {
           parentNameController: parentNameController,
           parentMobileController: parentMobileController,
           parentAddressController: parentAddressController,
-          isEdit: isEdit,
           isSubmitted: _isSubmitting,
         )
       },
@@ -228,7 +187,11 @@ class _StudentFromState extends State<StudentForm> {
           categoryController: categoryController,
           courseController: courseController,
           categoryProvider: categoryProvider,
-          isEdit: isEdit,
+          onCourseSelected: (bool selected) {
+            setState(() {
+              isCourseSelected = selected;
+            });
+          },
         )
       },
       {
@@ -240,44 +203,10 @@ class _StudentFromState extends State<StudentForm> {
           joiningDateController: joiningDateController,
           referenceByController:referenceByController,
           partnerController:partnerController,
-          isEdit: isEdit,
         )
       },
     ];
   }
-
-
-
-  // void _loadStudentData() {
-  //   if (widget.student != null) {
-  //     Students? studentData = widget.student;
-  //     profilePic = studentData!.image.toString();
-  //     firstnameController.text = studentData.fname.toString();
-  //     lastnameController.text = studentData.lname.toString();
-  //     mobileController.text = studentData.mobileno.toString();
-  //     whatsappController.text = studentData.wamobileno.toString();
-  //     emailController.text = studentData.email.toString();
-  //     birthController.text = studentData.dob.toString();
-  //     genderController.text = studentData.gender.toString();
-  //
-  //     usernameController.text = studentData.username.toString();
-  //     passwordController.text = studentData.pwd.toString();
-  //     confirmController.text = studentData.pwd.toString();
-  //
-  //     parentNameController.text = studentData.parentname.toString();
-  //     parentMobileController.text = studentData.parentmobileno.toString();
-  //     parentAddressController.text = studentData.address.toString();
-  //
-  //     discountController.text = studentData.discount.toString();
-  //     batchController.text = studentData.batchName.toString();
-  //     subjectController.text = studentData.subjects.toString();
-  //     standardController.text = studentData.standardId.toString();
-  //     joinDateController.text = studentData.joiningDate.toString();
-  //     refController.text = studentData.reference.toString();
-  //
-  //   }
-  // }
-
 
 
   @override
@@ -306,9 +235,67 @@ class _StudentFromState extends State<StudentForm> {
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: DynamicStepper(
                     dynamicSteps: dynamicSteps(branchProvider,categoryProvider,_isSubmitting,),
-                    voidCallback: () {
+                    enforceCourseSelection: true,
+                    voidCallback: () async{
+                      setState(() {
+                        _isSubmitting = true;
+                      });
 
-                    },),
+                      bool isPersonalDetailsFormValid = _personalDetailsFormKey.currentState!.validate();
+                      bool isUsernamePasswordFormValid = _usernamePasswordFormKey.currentState!.validate() ;
+                      bool isParentsDetailsFormValid = _parentsDetailsFormKey.currentState!.validate();
+                      bool isCourseDetailsFormValid = _courseDetailsFormKey.currentState?.validate() ?? false;
+                      bool isInstallmentDetailsFormValid = _installmentDetailsFormKey.currentState?.validate() ?? false;
+
+                      //Message according to forms
+                      List<String> invalidForms = [];
+
+                      if (!isPersonalDetailsFormValid) invalidForms.add("Personal Details Form");
+                      if (!isUsernamePasswordFormValid) invalidForms.add("Username & Password Form");
+                      if (!isParentsDetailsFormValid) invalidForms.add("Parents Details Form");
+                      if (!isCourseDetailsFormValid) invalidForms.add("Course Details Form");
+                      if (!isInstallmentDetailsFormValid) invalidForms.add("Installment Details Form");
+
+                      // Proceed only if all forms are valid
+                      if (invalidForms.isEmpty) {
+
+                        var data = await createStudentData(
+                            context,
+                            userBox.get('id').toString(),
+                            firstnameController.text,
+                            lastnameController.text,
+                            mobileController.text,
+                            whatsappController.text,
+                            emailController.text,
+                            birthController.text,
+                            genderController.text,
+                            branchController.text,
+                            usernameController.text,
+                            passwordController.text,
+                            parentNameController.text,
+                            parentMobileController.text,
+                            parentAddressController.text,
+                            batchController.text,
+                            categoryController.text,
+                            courseController.text,
+                            discountController.text,
+                            joiningDateController.text,
+                            referenceByController.text, partnerController.text
+                        );
+
+                        // Handle the response from the submission
+                        if (data?.status == success) {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
+                          callSnackBar(data!.message.toString(), success);
+                        } else {
+                          callSnackBar(data!.message.toString(), "danger");
+                        }
+                      }  else {
+                        String errorMessage = "Please fix errors in the following forms: ${invalidForms.join(', ')}";
+                        callSnackBar(errorMessage, "danger");
+                      }
+                  },
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -316,213 +303,7 @@ class _StudentFromState extends State<StudentForm> {
           ),
         ),
       ),
-      bottomNavigationBar: Visibility(
-        visible: widget.id != null ? isEdit : true,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-          child: button(
-            btnHeight: 50,
-            btnWidth: 300,
-            onClick: () async {
-              setState(() {
-                _isSubmitting = true;
-              });
-              bool isPersonalDetailsFormValid = _personalDetailsFormKey.currentState!.validate();
-              bool isUsernamePasswordFormValid = _usernamePasswordFormKey.currentState!.validate() ;
-              bool isParentsDetailsFormValid = _parentsDetailsFormKey.currentState!.validate();
-              bool isCourseDetailsFormValid = _courseDetailsFormKey.currentState?.validate() ?? false;
-              bool isInstallmentDetailsFormValid = _installmentDetailsFormKey.currentState?.validate() ?? false;
-
-              //Message according to forms
-              List<String> invalidForms = [];
-
-              if (!isPersonalDetailsFormValid) invalidForms.add("Personal Details Form");
-              if (!isUsernamePasswordFormValid) invalidForms.add("Username & Password Form");
-              if (!isParentsDetailsFormValid) invalidForms.add("Parents Details Form");
-              if (!isCourseDetailsFormValid) invalidForms.add("Course Details Form");
-              if (!isInstallmentDetailsFormValid) invalidForms.add("Installment Details Form");
-
-              // Proceed only if all forms are valid
-              // if (invalidForms.isEmpty) {
-              //
-              //   int index = standardList.indexWhere((e) =>
-              //           e.toLowerCase() == standardController.text.toLowerCase());
-              //
-              //   // Assuming subjectData and batchData are not null
-              //   String subjectList = subjectData!.courses!
-              //       .where((batch) => batch.isChecked == true)
-              //       .map((batch) => batch.id)
-              //       .join(',') ?? '';
-              //
-              //   String checkedBatches = batchData!.batches!
-              //       .where((batch) => batch.isChecked == true)
-              //       .map((batch) => batch.id)
-              //       .join(',');
-              //
-              //   // Ensure that the selected batches and subjects are not empty
-              //   if (checkedBatches.isEmpty || subjectList.isEmpty) {
-              //     callSnackBar(
-              //       checkedBatches.isEmpty
-              //           ? "Batches cannot be empty"
-              //           : "Subject cannot be empty",
-              //       "danger",
-              //     );
-              //     return;
-              //   }
-              //
-              //   // Call your studentFormSubmit method with the required data
-              //   var data = await studentFormSubmit(
-              //     widget.id ?? "",
-              //     standardIdList[index],
-              //     subjectList,
-              //     parentNameController.text,
-              //     genderController.text,
-              //     checkedBatches,
-              //     discountController.text,
-              //     mobileController.text,
-              //     'Running',
-              //     refController.text,
-              //     passwordController.text,
-              //     lastnameController.text,
-              //     "",
-              //     branchId!,
-              //     whatsappController.text,
-              //     emailController.text,
-              //     login_Id!,
-              //     firstnameController.text,
-              //     joinDateController.text,
-              //     parentAddressController.text,
-              //     "",
-              //     parentMobileController.text,
-              //     birthController.text,
-              //     confirmController.text,
-              //     usernameController.text,
-              //     cid!,
-              //     selectedFile,
-              //   );
-              //
-              //   // Handle the response from the submission
-              //   if (data?.status == success) {
-              //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Student()));
-              //     callSnackBar(data!.message.toString(), success);
-              //   } else {
-              //     callSnackBar(data!.message.toString(), "danger");
-              //   }
-              // }  else {
-              //   String errorMessage = "Please fix errors in the following forms: ${invalidForms.join(', ')}";
-              //   callSnackBar(errorMessage, "danger");
-              // }
-            },
-            btnLbl: "Add Students",
-            btnClr: primaryColor,
-            btnFontWeigth: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 }
 
-
-//
-// Future<void> showDynamicCheckboxDialog(BuildContext context,
-//     BatchesModel? batches, VoidCallback onOkPressed) async {
-//   batches == null || batches.batches == null || batches.batches!.isEmpty;
-//
-//   return showDialog<void>(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: const Text('Batches'),
-//         content: StatefulBuilder(
-//           builder: (BuildContext context, StateSetter setState) {
-//             return SingleChildScrollView(
-//               child: SizedBox(
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Column(
-//                     children: batches!.batches!.map((batch) {
-//                   return CheckboxListTile(
-//                     title: Text(batch.name ?? ""),
-//                     value: batch.isChecked ?? false,
-//                     onChanged: (e) {
-//                       setState(() {
-//                         batch.isChecked = e!;
-//                       });
-//                     },
-//                   );
-//                 }).toList()),
-//               ),
-//             );
-//           },
-//         ),
-//         actions: <Widget>[
-//           TextButton(
-//             child: const Text('Cancel'),
-//             onPressed: () {
-//               Navigator.pop(context,true);
-//             },
-//           ),
-//           TextButton(
-//             child: const Text('OK'),
-//             onPressed: () {
-//               onOkPressed();
-//               Navigator.pop(context,true);
-//             },
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
-//
-// Future<void> showSubjectCheckboxDialog(BuildContext context,
-//     subjectModel? subjectData, VoidCallback onOkPressed) async {
-//   // subjectData == null || subjectData.courses == null || subjectData.courses!.isEmpty;
-//   if (subjectData == null || subjectData.courses == null || subjectData.courses!.isEmpty) {
-//     return;
-//   }
-//   return showDialog<void>(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: const Text('Subjects'),
-//         content: StatefulBuilder(
-//           builder: (BuildContext context, StateSetter setState) {
-//             return SingleChildScrollView(
-//               child: SizedBox(
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Column(
-//                     children: subjectData.courses!.map((course) {
-//                   return CheckboxListTile(
-//                     title: Text(course.name ?? ""),
-//                     value: course.isChecked ?? false,
-//                     onChanged: (bool? value) {
-//                       setState(() {
-//                         course.isChecked = value ?? false;
-//                       });
-//                     },
-//                   );
-//                 }).toList()),
-//               ),
-//             );
-//           },
-//         ),
-//         actions: <Widget>[
-//           TextButton(
-//             child: const Text('Cancel'),
-//             onPressed: () {
-//               Navigator.pop(context,true);
-//             },
-//           ),
-//           TextButton(
-//             child: const Text('OK'),
-//             onPressed: () {
-//               onOkPressed();
-//               Navigator.pop(context,true);
-//             },
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }

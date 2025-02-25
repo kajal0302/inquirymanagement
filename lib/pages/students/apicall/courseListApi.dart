@@ -18,6 +18,7 @@ Future<StudentCourseListModel?> fetchStudentCourseListData(BuildContext context 
   try {
     returnData = await apiService.post<StudentCourseListModel>(
         body: {"category_id": category_id},
+        fromApi: true,
         endpoint: courseUri,
         fromJson: (json) => StudentCourseListModel.fromJson(json));
   }on ApiException catch (e) {

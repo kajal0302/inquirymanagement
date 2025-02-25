@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:inquirymanagement/pages/login/screen/login.dart';
 import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
 import '../../../common/color.dart';
+import '../../../common/size.dart';
 import '../../../components/branchInputField.dart';
 import '../../../components/dateField.dart';
 import '../../../components/dropDown.dart';
@@ -19,7 +23,6 @@ class PersonalDetails extends StatelessWidget {
     required this.genderController,
     required this.branchController,
     required this.studentBranchProvider,
-    required this.isEdit,
     required this.isSubmitted
   });
   final GlobalKey<FormState> formKey;
@@ -31,7 +34,6 @@ class PersonalDetails extends StatelessWidget {
   final TextEditingController birthController;
   final TextEditingController genderController;
   final TextEditingController branchController;
-  bool isEdit;
   final bool isSubmitted;
   final StudentBranchProvider studentBranchProvider;
 
@@ -69,18 +71,61 @@ class PersonalDetails extends StatelessWidget {
                 return null;
               },
             ),
+            Row(
+              children: [
+                Expanded(
+                  child:
+                  BranchInputTxt(
+                    maxLength: 10,
+                    label: "Mobile Number",
+                    type: "number",
+                    textColor: black,
+                    floatingLabelColor: preIconFillColor,
+                    controller:mobileController ,
+                    validator: (value) {
+                      if (isSubmitted) {
+                        String trimmedValue = value?.trim() ?? "";
+
+                        if (trimmedValue.isEmpty) {
+                          return 'Please enter your mobile number';
+                        }
+                        if (trimmedValue.length != 10) {
+                          return 'Mobile number must be exactly 10 digits';
+                        }
+                        if (!RegExp(r'^[0-9]+$').hasMatch(trimmedValue)) {
+                          return 'Please enter a valid numeric mobile number';
+                        }
+                      }
+                      return null; // No error
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                InkWell(
+                  onTap: () {
+                    whatsappController.text = mobileController.text;
+                  },
+                  child: const Icon(
+                    FontAwesomeIcons.whatsapp,
+                    color: colorConfirm,
+                    size: px28,
+                  ),
+                )
+              ],
+            ),
             BranchInputTxt(
-              label: "Parent's Mobile",
-              keyboardType: TextInputType.number,
+              label: "Whatsapp Number",
+              type: "number",
               textColor: black,
+              maxLength: 10,
               floatingLabelColor: preIconFillColor,
-              controller:mobileController ,
+              controller:whatsappController ,
               validator: (value) {
                 if (isSubmitted) {
                   String trimmedValue = value?.trim() ?? "";
 
                   if (trimmedValue.isEmpty) {
-                    return 'Please enter your mobile number';
+                    return 'Please enter your whatsapp number';
                   }
                   if (trimmedValue.length != 10) {
                     return 'Mobile number must be exactly 10 digits';
@@ -97,7 +142,7 @@ class PersonalDetails extends StatelessWidget {
               textColor:  black,
               floatingLabelColor: preIconFillColor,
               controller: emailController,
-              keyboardType: TextInputType.emailAddress,
+              type: "email",
               validator: (value) {
                 if (isSubmitted) {
                   //If value is null, it defaults to an empty string ("").
@@ -123,6 +168,7 @@ class PersonalDetails extends StatelessWidget {
                 status: true,
                 lbl: "Select Gender"),
             SizedBox(height: 10,),
+            TextWidget(labelAlignment: Alignment.topLeft, label: "Select Branch", labelClr: black, labelFontWeight: FontWeight.normal, labelFontSize: px15),
             DropDown(
               preSelectedValue: (studentBranchProvider.branch?.branches != null &&
                   studentBranchProvider.branch!.branches!.any(

@@ -39,7 +39,7 @@ class Courses {
   Courses.fromJson(Map<String, dynamic> json) {
     id = json['id'].toString();
     name = json['name'].toString();
-    fees = json['fees'].toString();
+    fees = json['fees'] != null ? json['fees'].toString() : '0';
     duration = json['duration'].toString();
     image = json['image'];
   }

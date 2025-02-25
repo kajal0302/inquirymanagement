@@ -17,7 +17,6 @@ class InstallmentDetails extends StatefulWidget {
     required this.joiningDateController,
     required this.referenceByController,
     required this.partnerController,
-    required this.isEdit,
   });
 
   final TextEditingController discountController;
@@ -25,7 +24,6 @@ class InstallmentDetails extends StatefulWidget {
   final TextEditingController joiningDateController;
   final TextEditingController referenceByController;
   final TextEditingController partnerController;
-  bool isEdit;
   final GlobalKey<FormState> formKey;
 
   @override
@@ -33,8 +31,15 @@ class InstallmentDetails extends StatefulWidget {
 }
 
 class _InstallmentDetailsState extends State<InstallmentDetails> {
-  String? _selectedOption = '';
   final bool isSubmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -44,9 +49,9 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
           BranchInputTxt(
             label:  "Discount",
             textColor: black,
+            type: "number",
             floatingLabelColor: preIconFillColor,
             controller: widget.discountController,
-            maxLength: 40,
             validator: (value) {
               if (isSubmitted && (value == null || value.isEmpty)) {
                 return "Please enter discount";
@@ -54,48 +59,6 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
               return null;
             },
           ),
-          TextWidget(labelAlignment: Alignment.topLeft, label: "Installment Type", labelClr: black, labelFontWeight: FontWeight.bold, labelFontSize: px15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() => _selectedOption = 'installment');
-                },
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: 'installment',
-                      groupValue: _selectedOption,
-                      onChanged: (value) {
-                        setState(() => _selectedOption = value);
-                      },
-                    ),
-                    const Text('Installment'),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() => _selectedOption = 'amount');
-                },
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: 'amount',
-                      groupValue: _selectedOption,
-                      onChanged: (value) {
-                        setState(() => _selectedOption = value);
-
-                      },
-                    ),
-                    const Text('Amount'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 5,),
           DateField(
               firstDate: DateTime(1980, 1, 1),
               lastDate: DateTime.now(),
@@ -112,26 +75,35 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
             items: referenceBy,
             status: true,
             lbl: "Reference By",
-            onChanged: (str) {
-              print(str);
-            },
           ),
           SizedBox(height: 10,),
-          // DropDown(
-          //   preSelectedValue: widget.partnerController.text.isNotEmpty &&
-          //       partnerItems.contains(widget.partnerController.text)
-          //       ? widget.partnerController.text
-          //       : (partnerItems.isNotEmpty ? partnerItems.first : ''),
-          //   controller: widget.partnerController,
-          //   items: partnerItems,
-          //   status: true,
-          //   lbl: "Select Partner",
-          //   onChanged: (str) {
-          //     print(str);
-          //   },
-          // ),
+          if (widget.referenceByController.text.isNotEmpty) ...[
+            TextWidget(
+              labelAlignment: Alignment.topLeft,
+              label: "Select Partner",
+              labelClr: black,
+              labelFontWeight: FontWeight.normal,
+              labelFontSize: px15,
+            ),
+            SizedBox(height: 3),
+            DropDown(
+              preSelectedValue: widget.partnerController.text.isNotEmpty &&
+                  partnerItems.contains(widget.partnerController.text)
+                  ? widget.partnerController.text
+                  : (partnerItems.isNotEmpty ? partnerItems.first : ''),
+              controller: widget.partnerController,
+              items: partnerItems,
+              status: true,
+              lbl: "Select Partner",
+              onChanged: (str) {
+                setState(() {
+                  widget.partnerController.text = str;
+                  print("Selected Partner: ${widget.partnerController.text}");
+                });
+              },
 
-
+            ),
+          ],
         ],
       ),
     );
