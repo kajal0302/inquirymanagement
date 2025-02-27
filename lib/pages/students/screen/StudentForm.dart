@@ -14,12 +14,15 @@ import 'package:provider/provider.dart';
 import '../../../common/text.dart';
 import '../../../components/DynamicStepper.dart';
 import '../../../utils/common.dart';
+import '../apicall/courseListApi.dart';
 import '../apicall/partnerListModel.dart';
 import '../components/courseDetails.dart';
 import '../components/createUsernamePassword.dart';
 import '../components/installmentDetails.dart';
 import '../components/parentDetails.dart';
 import '../components/personalDetails.dart';
+import '../models/courseListModel.dart';
+
 
 bool _isSubmitting = false;
 final _personalDetailsFormKey = GlobalKey<FormState>();
@@ -29,15 +32,12 @@ final _courseDetailsFormKey = GlobalKey<FormState>();
 final _installmentDetailsFormKey = GlobalKey<FormState>();
 
 List<String> batchItems = [];
-List batchIds = [];
-List<String> selectedBatchItems = [];
-List<String> courseItem = [];
-List<Map<String, dynamic>> courseItems = [];
-List courseIds = [];
+List<String> batchIds = [];
 List<String> partnerItems = [];
-List partnerIds = [];
+String partnerId = '';
+// Store both names and IDs using a map
+Map<String, String> partnerMap = {}; // Mapping of partner name -> partner ID
 String? categoryId;
-
 class StudentForm extends StatefulWidget {
   final String? id;
   final String? fname;
@@ -87,8 +87,18 @@ class _StudentFromState extends State<StudentForm> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() async {
-        await Provider.of<CategoryProvider>(context, listen: false).getCategory(context);
         await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
+        final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+        await categoryProvider.getCategory(context);
+
+        if (categoryProvider.category != null &&
+            categoryProvider.category!.categories != null &&
+            categoryProvider.category!.categories!.isNotEmpty) {
+          setState(() {
+            categoryId = categoryProvider.category!.categories!.first.id.toString();
+          });
+        }
+        await loadstudentCourseListData();
         loadstudentBatchListData();
         loadstudentPartnerListData();
       });
@@ -121,20 +131,41 @@ class _StudentFromState extends State<StudentForm> {
   Future<void> loadstudentPartnerListData() async {
     StudentPartnerListModel? fetchedPartnerListData = await fetchPartnerListData(context);
     setState(() {
-      if (fetchedPartnerListData != null && fetchedPartnerListData.partners != null &&
-          fetchedPartnerListData.partners!.isNotEmpty)
-      {
-        partnerItems =
-            fetchedPartnerListData.partners!.map((item) => item.partnerName ?? '').toList();
-        partnerIds = fetchedPartnerListData.partners!
-            .map((item) => item.id.toString() ?? '')
-            .toList();
+      if (fetchedPartnerListData != null &&
+          fetchedPartnerListData.partners != null &&
+          fetchedPartnerListData.partners!.isNotEmpty) {
 
-      } else
-      {
+        partnerMap = {
+          for (var item in fetchedPartnerListData.partners!)
+            item.partnerName ?? '': item.id.toString()
+        };
+
+        // Extract only names for dropdown
+        partnerItems = partnerMap.keys.toList();
+
+      } else {
         partnerItems = [];
+        partnerMap = {};
       }
-      isLoading = false;
+    });
+  }
+
+
+  // Load Course List Data
+  Future<void> loadstudentCourseListData() async {
+    StudentCourseListModel? fetchedCourseListData = await fetchStudentCourseListData(context,categoryId.toString());
+    setState(() {
+      if (fetchedCourseListData != null &&
+          fetchedCourseListData.courses != null &&
+          fetchedCourseListData.courses!.isNotEmpty) {
+        courseItemsWithFee = fetchedCourseListData.courses!.map((item) => {
+          "id": item.id.toString(),
+          "value": item.name ?? '',
+          "total_fee": int.tryParse(item.fees ?? '0') ?? 0,
+        }).toList();
+      } else {
+        courseItems = [];
+      }
     });
   }
 
@@ -192,6 +223,7 @@ class _StudentFromState extends State<StudentForm> {
               isCourseSelected = selected;
             });
           },
+          isSubmitted: _isSubmitting,
         )
       },
       {
@@ -203,6 +235,7 @@ class _StudentFromState extends State<StudentForm> {
           joiningDateController: joiningDateController,
           referenceByController:referenceByController,
           partnerController:partnerController,
+          isSubmitted: _isSubmitting,
         )
       },
     ];
@@ -220,32 +253,41 @@ class _StudentFromState extends State<StudentForm> {
         scrollDirection: Axis.vertical,
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: 10,),
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage(userImg), // Use local asset image
-                ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5,),
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage(userImg),
+              ),
+              const SizedBox(height: 5),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
-                  child: DynamicStepper(
+                  child:
+                  DynamicStepper(
                     dynamicSteps: dynamicSteps(branchProvider,categoryProvider,_isSubmitting,),
                     enforceCourseSelection: true,
                     voidCallback: () async{
+
                       setState(() {
                         _isSubmitting = true;
                       });
 
+                      await Future.delayed(const Duration(milliseconds: 50));
                       bool isPersonalDetailsFormValid = _personalDetailsFormKey.currentState!.validate();
                       bool isUsernamePasswordFormValid = _usernamePasswordFormKey.currentState!.validate() ;
                       bool isParentsDetailsFormValid = _parentsDetailsFormKey.currentState!.validate();
-                      bool isCourseDetailsFormValid = _courseDetailsFormKey.currentState?.validate() ?? false;
-                      bool isInstallmentDetailsFormValid = _installmentDetailsFormKey.currentState?.validate() ?? false;
+                      bool isCourseDetailsFormValid = _courseDetailsFormKey.currentState!.validate();
+                      bool isInstallmentDetailsFormValid = _installmentDetailsFormKey.currentState!.validate();
+                      print(isPersonalDetailsFormValid);
+                      print(isUsernamePasswordFormValid);
+                      print(isParentsDetailsFormValid);
+                      print(isCourseDetailsFormValid);
+                      print(isInstallmentDetailsFormValid);
+
 
                       //Message according to forms
                       List<String> invalidForms = [];
@@ -258,6 +300,10 @@ class _StudentFromState extends State<StudentForm> {
 
                       // Proceed only if all forms are valid
                       if (invalidForms.isEmpty) {
+
+                        String selectedBatchIdsString = selectedBatchIds.join(",");
+                        String selectedCourseIdsString = courseIds.join(",");
+                        String selectedPartnerId = partnerId ?? '';
 
                         var data = await createStudentData(
                             context,
@@ -275,18 +321,19 @@ class _StudentFromState extends State<StudentForm> {
                             parentNameController.text,
                             parentMobileController.text,
                             parentAddressController.text,
-                            batchController.text,
+                            selectedBatchIdsString,
                             categoryController.text,
-                            courseController.text,
-                            discountController.text,
+                            selectedCourseIdsString,
+                            discountController.text.isNotEmpty ? discountController.text : "0",
                             joiningDateController.text,
-                            referenceByController.text, partnerController.text
+                            referenceByController.text,
+                            selectedPartnerId
                         );
 
                         // Handle the response from the submission
-                        if (data?.status == success) {
+                        if (data != null && data.status == success) {
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
-                          callSnackBar(data!.message.toString(), success);
+                          callSnackBar(data.message.toString(), success);
                         } else {
                           callSnackBar(data!.message.toString(), "danger");
                         }

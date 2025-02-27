@@ -43,6 +43,7 @@ class PersonalDetails extends StatelessWidget {
     return SingleChildScrollView(
       child: Form(
         key: formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,  // This ensures validation happens after interaction
         child: Column(
           children: [
             BranchInputTxt(
@@ -160,7 +161,14 @@ class PersonalDetails extends StatelessWidget {
               },
 
             ),
-            DateField(firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Birth Date", controller:birthController ),
+            DateField(
+                validator: (value) {
+                  if (isSubmitted && (value == null || value.isEmpty)){
+                    return "Please Enter Birth Date";
+                  }
+                  return null;
+                },
+                firstDate: DateTime(1980, 1, 1), lastDate: DateTime.now(), label: "Birth Date", controller:birthController ),
             DropDown(
                 preSelectedValue: genderController.text.isNotEmpty ? (genderController.text ?? '') : (genderList.isNotEmpty ? genderList.first : ''),
                 controller:genderController,

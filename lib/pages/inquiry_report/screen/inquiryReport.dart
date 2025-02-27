@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
@@ -843,87 +844,95 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                 final inquiry = inquiryData!.inquiries![index];
                 // Extract course names
                 String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(px20),
-                  ),
-                  color: bv_secondaryLightColor3,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    leading: Image.asset(userImg,height: 50,width: 50,),
-                    title: Text(
-                      "${inquiry.fname} ${inquiry.lname}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: black,
-                      ),
+                return GestureDetector(
+                  child: Card(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(px20),
                     ),
-                    subtitle: Text(
-                      courseNames,
-                      style: TextStyle(
-                        fontSize: px14,
-                        fontWeight: FontWeight.bold,
-                        color: colorBlackAlpha,
+                    color: bv_secondaryLightColor3,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      leading: Image.asset(userImg,height: 50,width: 50,),
+                      title: Text(
+                        "${inquiry.fname} ${inquiry.lname}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: black,
+                        ),
                       ),
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      color: white,
-                      onSelected: (value) async{
-                        if(value == "call"){
-                          makePhoneCall(inquiry.contact!);
-                        }
-                        else if(value == "feedback"){
+                      subtitle: Text(
+                        courseNames,
+                        style: TextStyle(
+                          fontSize: px14,
+                          fontWeight: FontWeight.bold,
+                          color: colorBlackAlpha,
+                        ),
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        color: white,
+                        onSelected: (value) async{
+                          if(value == "call"){
+                            makePhoneCall(inquiry.contact!);
+                          }
+                          else if(value == "feedback"){
 
-                          // Show loading indicator before fetching data
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false, // Prevent closing dialog manually
-                            builder: (context) {
-                              return const Dialog(
-                                backgroundColor: Colors.transparent,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: grey_400,
-                                    strokeWidth: 2.0,
+                            // Show loading indicator before fetching data
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false, // Prevent closing dialog manually
+                              builder: (context) {
+                                return const Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: grey_400,
+                                      strokeWidth: 2.0,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
-                          // Load feedback data
-                          await loadFeedBackListData(inquiry.id.toString());
+                                );
+                              },
+                            );
+                            // Load feedback data
+                            await loadFeedBackListData(inquiry.id.toString());
 
-                          // Close the loading dialog
-                          Navigator.pop(context);
+                            // Close the loading dialog
+                            Navigator.pop(context);
 
-                          // Show feedback dialog
-                          showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
+                            // Show feedback dialog
+                            showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
 
-                        }
-                        else if(value == "settings"){
-                          showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
+                          }
+                          else if(value == "settings"){
+                            showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
 
-                        }
-                        else if(value == "student"){
-                          Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm(
-                            id: inquiry.id,
-                            fname: inquiry.fname,
-                            lname: inquiry.lname,
-                          )));
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => [
-                        PopupMenuItem<String>(value: 'call', child: Text(call)),
-                        PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                        PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                        PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
-                      ],
-                      icon: Icon(Icons.more_vert, color: black),
+                          }
+                          else if(value == "student"){
+                            Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm(
+                              id: inquiry.id,
+                              fname: inquiry.fname,
+                              lname: inquiry.lname,
+                            )));
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(value: 'call', child: Text(call)),
+                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                          PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
+                        ],
+                        icon: Icon(Icons.more_vert, color: black),
+                      ),
                     ),
                   ),
+                  onTap: (){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>AddInquiryPage(
+                      isEdit: true,
+                      id: inquiry.id,
+                    )));
+                  },
                 );
               },
             ),

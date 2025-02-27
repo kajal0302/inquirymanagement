@@ -5,20 +5,38 @@ import 'package:inquirymanagement/utils/apicall/ApiService.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 
-Future<SuccessModel?> createStudentData(BuildContext context ,String login_id,
-    String fname,String lname,String mobileno,String wamobileno,String email,String dob,String gender,String branch_id,
-    String username,String password,String parentname,String parentmobileno,String address,
-    String batch_id,String standard_id,String subject_id,
-    String discount,String joining_date,String reference,String partner_id
+Future<SuccessModel?> createStudentData(
+    BuildContext context,
+    String login_id,
+    String fname,
+    String lname,
+    String mobileno,
+    String wamobileno,
+    String email,
+    String dob,
+    String gender,
+    String branch_id,
+    String username,
+    String password,
+    String parentname,
+    String parentmobileno,
+    String address,
+    String batch_id,
+    String standard_id,
+    String subject_id,
+    String discount,
+    String joining_date,
+    String reference,
+    String partner_id
     ) async {
-  bool checkInternet = await checkConnection();
-  if (!checkInternet) {
-    callSnackBar(noInternetStr, "def");
-    return null;
-  }
+    bool checkInternet = await checkConnection();
+    if (!checkInternet) {
+      callSnackBar(noInternetStr, "def");
+      return null;
+    }
 
-  final ApiService apiService = ApiService();
-  SuccessModel? returnData;
+    final ApiService apiService = ApiService();
+    SuccessModel? returnData;
 
   try {
     returnData = await apiService.post<SuccessModel>(
@@ -44,10 +62,12 @@ Future<SuccessModel?> createStudentData(BuildContext context ,String login_id,
           "joining_date": joining_date,
           "reference": reference,
           "partner_id": partner_id,
+
         },
         fromApi: true,
         endpoint: addStudentUri,
         fromJson: (json) => SuccessModel.fromJson(json));
+
   }on ApiException catch (e) {
     if (e.statusCode == 408) {
       callSnackBar("time out error", danger);

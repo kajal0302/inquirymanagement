@@ -17,6 +17,7 @@ class InstallmentDetails extends StatefulWidget {
     required this.joiningDateController,
     required this.referenceByController,
     required this.partnerController,
+    required this.isSubmitted
   });
 
   final TextEditingController discountController;
@@ -25,18 +26,27 @@ class InstallmentDetails extends StatefulWidget {
   final TextEditingController referenceByController;
   final TextEditingController partnerController;
   final GlobalKey<FormState> formKey;
+  final bool isSubmitted;
 
   @override
   State<InstallmentDetails> createState() => _InstallmentDetailsState();
 }
 
 class _InstallmentDetailsState extends State<InstallmentDetails> {
-  final bool isSubmitted = false;
 
   @override
   void initState() {
     super.initState();
+
+    widget.referenceByController.addListener(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {}); // Triggers rebuild after the frame
+        }
+      });
+    });
   }
+
 
 
 
@@ -44,6 +54,7 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
   Widget build(BuildContext context) {
     return Form(
       key: widget.formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,  // This ensures validation happens after interaction
       child: Column(
         children: [
           BranchInputTxt(
@@ -52,18 +63,19 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
             type: "number",
             floatingLabelColor: preIconFillColor,
             controller: widget.discountController,
-            validator: (value) {
-              if (isSubmitted && (value == null || value.isEmpty)) {
-                return "Please enter discount";
-              }
-              return null;
-            },
           ),
           DateField(
               firstDate: DateTime(1980, 1, 1),
               lastDate: DateTime.now(),
               label: "Joining Date",
-              controller: widget.joiningDateController),
+              controller: widget.joiningDateController,
+              validator: (value) {
+                if (widget.isSubmitted && (value == null || value.isEmpty)) {
+                  return "Please enter joining date";
+                }
+                return null;
+              },
+          ),
 
           SizedBox(height: 10,),
           DropDown(
@@ -77,7 +89,6 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
             lbl: "Reference By",
           ),
           SizedBox(height: 10,),
-          if (widget.referenceByController.text.isNotEmpty) ...[
             TextWidget(
               labelAlignment: Alignment.topLeft,
               label: "Select Partner",
@@ -86,6 +97,7 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
               labelFontSize: px15,
             ),
             SizedBox(height: 3),
+          if (widget.referenceByController.text.trim().toLowerCase() == "global it partner") ...[
             DropDown(
               preSelectedValue: widget.partnerController.text.isNotEmpty &&
                   partnerItems.contains(widget.partnerController.text)
@@ -95,13 +107,12 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
               items: partnerItems,
               status: true,
               lbl: "Select Partner",
-              onChanged: (str) {
+              onChanged: (selectedName) {
                 setState(() {
-                  widget.partnerController.text = str;
-                  print("Selected Partner: ${widget.partnerController.text}");
+                  widget.partnerController.text = selectedName;
+                  partnerId = partnerMap[selectedName] ?? ''; // Get the corresponding ID
                 });
               },
-
             ),
           ],
         ],
