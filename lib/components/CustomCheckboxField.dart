@@ -155,16 +155,16 @@ class _CustomCheckBoxTextFieldState extends State<CustomCheckBoxTextField> {
                                   Theme(
                                     data: ThemeData(
                                       checkboxTheme: CheckboxThemeData(
-                                        side: BorderSide(color: Colors.white, width: 2.0),
+                                        side: BorderSide(color: Colors.black, width: 2.0),
                                         fillColor: WidgetStateProperty.resolveWith<Color?>(
                                               (Set<WidgetState> states) {
                                             if (states.contains(WidgetState.selected)) {
-                                              return white;
+                                              return primaryColor;
                                             }
                                             return transparent;
                                           },
                                         ),
-                                        checkColor: WidgetStateProperty.all(primaryColor),
+                                        checkColor: WidgetStateProperty.all(white),
                                       ),
                                     ),
                                     child: Checkbox(
@@ -197,7 +197,7 @@ class _CustomCheckBoxTextFieldState extends State<CustomCheckBoxTextField> {
                                   fillColor: WidgetStateProperty.resolveWith<Color?>(
                                         (Set<WidgetState> states) {
                                       if (states.contains(WidgetState.selected)) {
-                                        return colorGreen_900;
+                                        return primaryColor;
                                       }
                                       return transparent;
                                     },

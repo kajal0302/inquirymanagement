@@ -41,7 +41,11 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
   @override
   void initState() {
     super.initState();
-    selectedReference = widget.referenceByController.text;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        selectedReference = widget.referenceByController.text;
+      });
+    });
   }
 
 
@@ -75,7 +79,6 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
 
           SizedBox(height: 10,),
           DropDown(
-            key: Key('dropDown1'),
             preSelectedValue: selectedReference?.isNotEmpty == true
                 ? selectedReference
                 : (referenceBy.isNotEmpty ? referenceBy.first : ''),
@@ -83,13 +86,14 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
             items: referenceBy,
             status: true,
             lbl: "Select Reference",
-            onChanged: (value) {
+            onChanged: (str) {
               setState(() {
-                selectedReference = value;
-                widget.referenceByController.text = value;
+                selectedReference = str;
+                widget.referenceByController.text = str;
               });
             },
           ),
+
           SizedBox(height: 10,),
           if (selectedReference!.trim().toLowerCase() == "global it partner") ...[
             TextWidget(

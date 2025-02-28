@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
@@ -8,6 +7,7 @@ import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
 import '../../../common/size.dart';
@@ -21,6 +21,8 @@ import '../../../main.dart';
 import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
 import '../../branch/model/addBranchModel.dart';
+import '../../course/components/showDynamicCheckboxDialog.dart';
+import '../../course/provider/CourseProvider.dart';
 import '../../dashboard/screen/dashboard.dart';
 import '../../login/screen/login.dart';
 import '../../notification/apicall/feedbackApi.dart';
@@ -63,6 +65,10 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() {
+      Provider.of<CourseProvider>(context, listen: false).getCourse(context);
+
+    });
     _selectedDay = _focusedDay;
     loadinquiryData();
   }
@@ -807,12 +813,16 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     });
   }
 
+  ValueNotifier<bool> isSearching = ValueNotifier(false);
+  TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final courseProvider = context.watch<CourseProvider>();
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForInquiryReport(
+      appBar:
+      widgetAppbarForInquiryReport(
         context,
         "Inquiry Report",
         DashboardPage(),
@@ -827,6 +837,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             });
           }
         },
+            () {
+          loadinquiryData();
+        },
+        isSearching, // Pass ValueNotifier
+        searchController, // Pass Controller
       ),
       body: Column(
         children: [
@@ -943,7 +958,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             child: Center(
               child: Text(
                 dataNotAvailable,
-                style: TextStyle(color: black),
+                style: TextStyle(color: primaryColor,fontSize: px20,fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1024,7 +1039,34 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             },
           );
         },
-        onFilterTap: () => print("Filter Icon Pressed"),
+        onFilterTap: () {
+          List<int?> selectedCourseIds = [];
+          showDynamicCheckboxDialog(
+            context,
+                (selectedCourses) async{
+               selectedCourseIds = selectedCourses.courses!
+                  .where((c) => c.isChecked == true)
+                  .map((c) => c.id)
+                  .toList();
+              String selectedCourseIdsString = selectedCourseIds.join(",");
+              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, null, null, context);
+              setState(() {
+                inquiryData = filteredData;
+              });
+
+            },
+            courseProvider.course,
+            () {
+              // Reset all checkboxes on cancel
+              for (var course in courseProvider.course!.courses!) {
+                course.isChecked = false;
+              }
+              setState(() {});
+              loadinquiryData();
+            },
+          );
+        },
+
         backgroundColor: preIconFillColor,
         iconColor: Colors.black,
         iconSize: 25.0,

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/pages/course/components/CourseListTile.dart';
 import 'package:inquirymanagement/pages/course/models/CourseModel.dart';
+import 'package:inquirymanagement/utils/common.dart';
 import '../../../common/size.dart';
 
 Future<void> showDynamicCheckboxDialog(
-    BuildContext context, Function(CourseModel) onOkPressed, CourseModel? courses) async {
+    BuildContext context, Function(CourseModel) onOkPressed, CourseModel? courses , VoidCallback? onCancelPressed,) async {
   if (courses == null || courses.courses == null || courses.courses!.isEmpty) {
     return;
   }
@@ -17,9 +18,10 @@ Future<void> showDynamicCheckboxDialog(
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
-      return StatefulBuilder( // Use StatefulBuilder to handle updates
+      return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
+            backgroundColor: white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             titlePadding: EdgeInsets.zero,
             title: ValueListenableBuilder<bool>(
@@ -121,6 +123,12 @@ Future<void> showDynamicCheckboxDialog(
                 height: 42,
                 child: ElevatedButton(
                   onPressed: () {
+                    bool isAnySelected = courses.courses!.any((c) => c.isChecked == true);
+
+                    if (!isAnySelected) {
+                      callSnackBar("Please select at least one course", "danger");
+                      return;
+                    }
                     onOkPressed(courses);
                     Navigator.pop(context);
                   },
@@ -136,6 +144,9 @@ Future<void> showDynamicCheckboxDialog(
                 height: 42,
                 child: ElevatedButton(
                   onPressed: () {
+                    if (onCancelPressed != null) {
+                      onCancelPressed(); // Call the custom cancel function
+                    }
                     Navigator.pop(context, false);
                   },
                   style: ElevatedButton.styleFrom(

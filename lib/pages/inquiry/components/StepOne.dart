@@ -39,8 +39,15 @@ class _StepOneState extends State<StepOne> {
   @override
   void initState() {
     super.initState();
-    selectedReference = widget.reference.text;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.reference.text.isNotEmpty) {
+        setState(() {
+          selectedReference = widget.reference.text;
+        });
+      }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +102,6 @@ class _StepOneState extends State<StepOne> {
         ),
 
         DropDown(
-          key: Key('dropDown1'),
           preSelectedValue: selectedReference?.isNotEmpty == true
               ? selectedReference
               : (referenceBy.isNotEmpty ? referenceBy.first : ''),
@@ -104,13 +110,13 @@ class _StepOneState extends State<StepOne> {
           status: true,
           lbl: "Select Reference",
           onChanged: (str) {
-            print(str);
             setState(() {
               selectedReference = str;
-              widget.reference.text = str; // Ensure controller updates
+              widget.reference.text = str;
             });
           },
         ),
+
         SizedBox(height: 8,),
         if (selectedReference == "Global IT Partner")
           DropDown(

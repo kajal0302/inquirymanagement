@@ -3,6 +3,8 @@ import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/style.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../../common/size.dart';
+
 class CourseListTile extends StatefulWidget {
   final String name;
   final bool status;
@@ -55,7 +57,7 @@ class _CourseListTileState extends State<CourseListTile> {
                 errorWidget: (context, url, error) => Center(
                   child: Text(
                     widget.name[0].toUpperCase(),
-                    style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px20),
                   ),
                 ),
                 fit: BoxFit.cover,
@@ -63,7 +65,7 @@ class _CourseListTileState extends State<CourseListTile> {
                   : Center(
                 child: Text(
                   widget.name[0].toUpperCase(),
-                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 20),
+                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px20),
                 ),
               ),
             ),
@@ -73,12 +75,14 @@ class _CourseListTileState extends State<CourseListTile> {
             style: primary_heading_3_bold,
           ),
           trailing: Checkbox(
+            activeColor: primaryColor,
             side: BorderSide(
               color: primaryColor,
               width: 1.5,
             ),
             value: preCheckedValue,
             onChanged: (status) {
+              _toggleCheckbox();
               setState(() {
                 preCheckedValue = status ?? false;
               });

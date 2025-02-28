@@ -15,9 +15,13 @@ import 'package:inquirymanagement/pages/inquiry/components/StepOne.dart';
 import 'package:inquirymanagement/pages/inquiry/components/StepTwo.dart';
 import 'package:inquirymanagement/pages/inquiry/models/PartnerModel.dart';
 import 'package:inquirymanagement/pages/inquiry/models/inquiryModel.dart';
+import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/common.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../../../components/branchInputField.dart';
 
 class AddInquiryPage extends StatefulWidget {
   final bool isEdit;
@@ -55,52 +59,21 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   bool _isSubmitting = false;
   String profilePic = userImageUri;
 
+
   @override
   void initState() {
     super.initState();
-    if (widget.isEdit && widget.id!.isNotEmpty) {
-      loadInquiryDetailData().then((_) {
-        if (inquiryDetailData != null && inquiryDetailData!.inquiryDetail != null) {
-          setState(() {
-            firstNameTextEditing.text = inquiryDetailData!.inquiryDetail!.fname ?? '';
-            lastNameTextEditing.text = inquiryDetailData!.inquiryDetail!.lname ?? '';
-            mobileNoTextEditing.text = inquiryDetailData!.inquiryDetail!.mobileno ?? '';
-            referenceByTextEditing.text = inquiryDetailData!.inquiryDetail!.reference ?? '';
-            feedBackTextEditing.text = inquiryDetailData!.inquiryDetail!.feedback ?? '';
-            if (inquiryDetailData?.inquiryDetail?.courses != null &&
-                inquiryDetailData!.inquiryDetail!.courses!.isNotEmpty) {
-              coursesTextEditing.text = inquiryDetailData!.inquiryDetail!.courses!
-                  .map((course) => course.name)
-                  .join(', ');
 
-              String courseIds = inquiryDetailData!.inquiryDetail!.courses!
-                  .map((course) => course.id.toString().trim())
-                  .join(', ');
-
-              coursesIdsTextEditing.value = TextEditingValue(
-                text: courseIds, // Assign formatted string
-                selection: TextSelection.collapsed(offset: courseIds.length),
-              );
-
-            } else {
-              coursesTextEditing.text = '';
-              coursesIdsTextEditing.text = '';
-            }
-            branchTextEditing.text = inquiryDetailData!.inquiryDetail!.branchName ?? '';
-            inquiryDateTextEditing.text = inquiryDetailData!.inquiryDetail!.inquiyDate ?? '';
-            upcomingTextEditing.text = inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
-            smsTextEditing.text = inquiryDetailData!.inquiryDetail!.smsContent ?? '';
-            partnerTextEditing.text = inquiryDetailData!.inquiryDetail!.partnerId ?? '';
-          });
-        }
-      });
-    }
     fetchData();
     userId = userBox.get(idStr);
     Future.microtask(() {
       Provider.of<BranchProvider>(context, listen: false).getBranch(context);
       Provider.of<CourseProvider>(context, listen: false).getCourse(context);
     });
+
+    if (widget.isEdit && widget.id!.isNotEmpty) {
+      loadInquiryDetailData();
+    }
   }
 
 
@@ -108,9 +81,43 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   Future <void> loadInquiryDetailData() async{
     InquiryModel? inquiryDetail = await fetchInquiryDetailData(context, widget.id!);
     if(mounted){
-      setState(() {
         inquiryDetailData = inquiryDetail;
-      });
+        if (inquiryDetailData != null && inquiryDetailData!.inquiryDetail != null) {
+          firstNameTextEditing.text = inquiryDetailData!.inquiryDetail!.fname ?? '';
+          lastNameTextEditing.text = inquiryDetailData!.inquiryDetail!.lname ?? '';
+          mobileNoTextEditing.text = inquiryDetailData!.inquiryDetail!.mobileno ?? '';
+          referenceByTextEditing.text = inquiryDetailData?.inquiryDetail?.reference ?? '';
+          feedBackTextEditing.text = inquiryDetailData!.inquiryDetail!.feedback ?? '';
+          if (inquiryDetailData?.inquiryDetail?.courses != null &&
+              inquiryDetailData!.inquiryDetail!.courses!.isNotEmpty) {
+            coursesTextEditing.text = inquiryDetailData!.inquiryDetail!.courses!
+                .map((course) => course.name)
+                .join(', ');
+            String courseIds = inquiryDetailData!.inquiryDetail!.courses!
+                .map((course) => course.id.toString().trim())
+                .join(', ');
+
+            coursesIdsTextEditing.value = TextEditingValue(
+              text: courseIds, // Assign formatted string
+              selection: TextSelection.collapsed(offset: courseIds.length),
+            );
+
+          } else {
+            coursesTextEditing.text = '';
+            coursesIdsTextEditing.text = '';
+          }
+          branchTextEditing.text = inquiryDetailData!.inquiryDetail!.branchName ?? '';
+          String formattedDate = DateFormat('yyyy-MM-dd').format(
+              DateFormat('dd/MM/yyyy').parse(inquiryDetailData!.inquiryDetail!.inquiyDate!)
+          );
+          inquiryDateTextEditing.text = formattedDate ?? '';
+          upcomingTextEditing.text = inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
+          smsTextEditing.text = inquiryDetailData!.inquiryDetail!.smsContent ?? '';
+          partnerTextEditing.text = inquiryDetailData!.inquiryDetail!.partnerId ?? '';
+
+
+        }
+        setState(() {});
     }
   }
 
@@ -118,8 +125,6 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   Future<void> fetchData() async{
     partnerModel =
     await fetchPartner(context);
-    setState(() {
-    });
   }
 
   void _onImagePicked(File file) {
@@ -133,16 +138,17 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return [
       {
         "title": "Personal Details",
-        "content": StepOne(
+        "content":  inquiryDetailData != null
+            ? StepOne(
           firstName: firstNameTextEditing,
           lastName: lastNameTextEditing,
           mobileNo: mobileNoTextEditing,
           feedback: feedBackTextEditing,
           reference: referenceByTextEditing,
-          partner:partnerTextEditing,
-          partnerModel:partnerModel,
+          partner: partnerTextEditing,
+          partnerModel: partnerModel,
           isSubmitted: isSubmitted,
-        ),
+        ) :_buildLoadingForm(),
       },
       {
         "title": "Inquiry Details",
@@ -198,7 +204,6 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                       dynamicSteps: dynamicSteps(
                           branchProvider, _isSubmitting, courseProvider),
                       voidCallback: () async {
-
                         setState(() {
                           _isSubmitting = true;
                         });
@@ -263,7 +268,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DashboardPage(),
+                              builder: (context) => InquiryReportPage(),
                             ),
                           );
                         }
@@ -280,3 +285,37 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     );
   }
 }
+
+
+// Widget for Personal Detail Form (Step One) which is used while inquiry Data is loading
+Widget _buildLoadingForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildDisabledBranchInput("First Name"),
+        buildDisabledBranchInput("Last Name"),
+        buildDisabledBranchInput("Mobile Number"),
+        buildDisabledBranchInput("Select Reference"),
+        buildDisabledBranchInput("Feedback"),
+
+      ],
+    ),
+  );
+}
+
+Widget buildDisabledBranchInput(String label) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2.0),
+    child: BranchInputTxt(
+      label: label,
+      textColor: Colors.grey,
+      floatingLabelColor: Colors.grey,
+      controller: TextEditingController(),
+      readOnly: true,
+      keyboardType: TextInputType.text,
+    ),
+  );
+}
+
