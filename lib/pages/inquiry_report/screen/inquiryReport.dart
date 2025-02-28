@@ -481,7 +481,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                             SizedBox(
                               width: 108,
                               height: 42,
-                              child: ElevatedButton(
+                              child:
+                              ElevatedButton(
                                 onPressed: () async {
                                   String dayValue= dayController.text;
                                   String dateValue = dateController.text;

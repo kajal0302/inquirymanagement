@@ -11,6 +11,7 @@ const transparent= Colors.transparent;
 const blue = Colors.blue;
 const colorGrey = Color(0xFF999999);
 const colorWhiteTransperent = Color(0x33ffffff);
+const redAccent = Colors.redAccent;
 
 const primaryColor =  Color(0xFF0092b0);
 const lightBlueColor =  Color(0xFFC0FFFF);

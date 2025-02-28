@@ -67,7 +67,6 @@ class StepTwo extends StatelessWidget {
             coursesId.text = selectedCoursesId.join(",");
           },
         ),
-
         DropDown(
           preSelectedValue: branchProvider.branch?.branches != null &&
                   branchProvider.branch!.branches!

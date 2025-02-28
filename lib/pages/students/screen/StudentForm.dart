@@ -14,8 +14,9 @@ import 'package:provider/provider.dart';
 import '../../../common/text.dart';
 import '../../../components/DynamicStepper.dart';
 import '../../../utils/common.dart';
+import '../../inquiry/apiCall/PartnerApi.dart';
+import '../../inquiry/models/PartnerModel.dart';
 import '../apicall/courseListApi.dart';
-import '../apicall/partnerListModel.dart';
 import '../components/courseDetails.dart';
 import '../components/createUsernamePassword.dart';
 import '../components/installmentDetails.dart';
@@ -33,11 +34,9 @@ final _installmentDetailsFormKey = GlobalKey<FormState>();
 
 List<String> batchItems = [];
 List<String> batchIds = [];
-List<String> partnerItems = [];
-String partnerId = '';
-// Store both names and IDs using a map
-Map<String, String> partnerMap = {}; // Mapping of partner name -> partner ID
 String? categoryId;
+PartnerModel? partnerModel;
+
 class StudentForm extends StatefulWidget {
   final String? id;
   final String? fname;
@@ -100,7 +99,7 @@ class _StudentFromState extends State<StudentForm> {
         }
         await loadstudentCourseListData();
         loadstudentBatchListData();
-        loadstudentPartnerListData();
+        fetchData();
       });
     });
   }
@@ -128,25 +127,10 @@ class _StudentFromState extends State<StudentForm> {
   }
 
   // Method to load PartnerList
-  Future<void> loadstudentPartnerListData() async {
-    StudentPartnerListModel? fetchedPartnerListData = await fetchPartnerListData(context);
+  Future<void> fetchData() async{
+    partnerModel =
+    await fetchPartner(context);
     setState(() {
-      if (fetchedPartnerListData != null &&
-          fetchedPartnerListData.partners != null &&
-          fetchedPartnerListData.partners!.isNotEmpty) {
-
-        partnerMap = {
-          for (var item in fetchedPartnerListData.partners!)
-            item.partnerName ?? '': item.id.toString()
-        };
-
-        // Extract only names for dropdown
-        partnerItems = partnerMap.keys.toList();
-
-      } else {
-        partnerItems = [];
-        partnerMap = {};
-      }
     });
   }
 
@@ -230,6 +214,7 @@ class _StudentFromState extends State<StudentForm> {
         "title": "Installment Details",
         "content": InstallmentDetails(
           formKey: _installmentDetailsFormKey,
+          partnerModel:partnerModel,
           discountController: discountController,
           installmentTypeController: installmentTypeController,
           joiningDateController: joiningDateController,
@@ -263,9 +248,8 @@ class _StudentFromState extends State<StudentForm> {
                 radius: 30,
                 backgroundImage: AssetImage(userImg),
               ),
-              const SizedBox(height: 5),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.7,
+                  height: MediaQuery.of(context).size.height * 0.8,
                   child:
                   DynamicStepper(
                     dynamicSteps: dynamicSteps(branchProvider,categoryProvider,_isSubmitting,),
@@ -303,7 +287,6 @@ class _StudentFromState extends State<StudentForm> {
 
                         String selectedBatchIdsString = selectedBatchIds.join(",");
                         String selectedCourseIdsString = courseIds.join(",");
-                        String selectedPartnerId = partnerId ?? '';
 
                         var data = await createStudentData(
                             context,
@@ -327,7 +310,7 @@ class _StudentFromState extends State<StudentForm> {
                             discountController.text.isNotEmpty ? discountController.text : "0",
                             joiningDateController.text,
                             referenceByController.text,
-                            selectedPartnerId
+                            partnerController.text
                         );
 
                         // Handle the response from the submission

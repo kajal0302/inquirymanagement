@@ -15,7 +15,6 @@ import 'package:inquirymanagement/pages/inquiry/components/StepOne.dart';
 import 'package:inquirymanagement/pages/inquiry/components/StepTwo.dart';
 import 'package:inquirymanagement/pages/inquiry/models/PartnerModel.dart';
 import 'package:inquirymanagement/pages/inquiry/models/inquiryModel.dart';
-import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:provider/provider.dart';
@@ -73,10 +72,20 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
               coursesTextEditing.text = inquiryDetailData!.inquiryDetail!.courses!
                   .map((course) => course.name)
                   .join(', ');
-            } else {
-              coursesTextEditing.text = ''; // Set empty if no courses
-            }
 
+              String courseIds = inquiryDetailData!.inquiryDetail!.courses!
+                  .map((course) => course.id.toString().trim())
+                  .join(', ');
+
+              coursesIdsTextEditing.value = TextEditingValue(
+                text: courseIds, // Assign formatted string
+                selection: TextSelection.collapsed(offset: courseIds.length),
+              );
+
+            } else {
+              coursesTextEditing.text = '';
+              coursesIdsTextEditing.text = '';
+            }
             branchTextEditing.text = inquiryDetailData!.inquiryDetail!.branchName ?? '';
             inquiryDateTextEditing.text = inquiryDetailData!.inquiryDetail!.inquiyDate ?? '';
             upcomingTextEditing.text = inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
@@ -161,7 +170,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return Scaffold(
       appBar: buildAppBar(
           context,
-          widget.isEdit! && inquiryDetailData != null
+          widget.isEdit && inquiryDetailData != null
               ? '${inquiryDetailData!.inquiryDetail!.fname ?? ''} ${inquiryDetailData!.inquiryDetail!.lname ?? ''}'
               : "Inquiry Form",
           []

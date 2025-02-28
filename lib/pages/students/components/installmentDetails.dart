@@ -6,6 +6,7 @@ import '../../../components/branchInputField.dart';
 import '../../../components/dateField.dart';
 import '../../../components/dropDown.dart';
 import '../../../utils/lists.dart';
+import '../../inquiry/models/PartnerModel.dart';
 import '../../login/screen/login.dart';
 import '../screen/StudentForm.dart';
 
@@ -16,10 +17,12 @@ class InstallmentDetails extends StatefulWidget {
     required this.installmentTypeController,
     required this.joiningDateController,
     required this.referenceByController,
+    required this.partnerModel,
     required this.partnerController,
     required this.isSubmitted
   });
 
+  final PartnerModel? partnerModel;
   final TextEditingController discountController;
   final TextEditingController installmentTypeController;
   final TextEditingController joiningDateController;
@@ -33,20 +36,13 @@ class InstallmentDetails extends StatefulWidget {
 }
 
 class _InstallmentDetailsState extends State<InstallmentDetails> {
+  String? selectedReference;
 
   @override
   void initState() {
     super.initState();
-
-    widget.referenceByController.addListener(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {}); // Triggers rebuild after the frame
-        }
-      });
-    });
+    selectedReference = widget.referenceByController.text;
   }
-
 
 
 
@@ -79,16 +75,23 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
 
           SizedBox(height: 10,),
           DropDown(
-            preSelectedValue: widget.referenceByController.text.isNotEmpty &&
-                referenceBy.contains(widget.referenceByController.text)
-                ? widget.referenceByController.text
+            key: Key('dropDown1'),
+            preSelectedValue: selectedReference?.isNotEmpty == true
+                ? selectedReference
                 : (referenceBy.isNotEmpty ? referenceBy.first : ''),
             controller: widget.referenceByController,
             items: referenceBy,
             status: true,
-            lbl: "Reference By",
+            lbl: "Select Reference",
+            onChanged: (value) {
+              setState(() {
+                selectedReference = value;
+                widget.referenceByController.text = value;
+              });
+            },
           ),
           SizedBox(height: 10,),
+          if (selectedReference!.trim().toLowerCase() == "global it partner") ...[
             TextWidget(
               labelAlignment: Alignment.topLeft,
               label: "Select Partner",
@@ -97,22 +100,23 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
               labelFontSize: px15,
             ),
             SizedBox(height: 3),
-          if (widget.referenceByController.text.trim().toLowerCase() == "global it partner") ...[
             DropDown(
-              preSelectedValue: widget.partnerController.text.isNotEmpty &&
-                  partnerItems.contains(widget.partnerController.text)
+              preSelectedValue: widget.partnerModel?.partners != null &&
+                  widget.partnerModel!.partners!
+                      .any((b) => b.id.toString() == widget.partnerController.text)
                   ? widget.partnerController.text
-                  : (partnerItems.isNotEmpty ? partnerItems.first : ''),
+                  : (widget.partnerModel?.partners != null &&
+                  widget.partnerModel!.partners!.isNotEmpty
+                  ? widget.partnerModel?.partners!.first.id.toString()
+                  : null),
               controller: widget.partnerController,
-              items: partnerItems,
+              mapItems: widget.partnerModel?.partners!
+                  .map((b) =>
+              {"id": b.id.toString(), "value": b.partnerName.toString()})
+                  .toSet()
+                  .toList(),
               status: true,
               lbl: "Select Partner",
-              onChanged: (selectedName) {
-                setState(() {
-                  widget.partnerController.text = selectedName;
-                  partnerId = partnerMap[selectedName] ?? ''; // Get the corresponding ID
-                });
-              },
             ),
           ],
         ],
