@@ -81,7 +81,6 @@ class _DateFieldState extends State<DateField> {
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10.0),
           filled: true,
           fillColor: Colors.white,
-
           focusedBorder: widget.showBottomBorder
               ? UnderlineInputBorder(
             borderSide: BorderSide(color: grey_500, width: 2),

@@ -14,7 +14,6 @@ class splashScreenPage extends StatefulWidget {
 }
 
 class _splashScreenPageState extends State<splashScreenPage> {
-  @override
 
   @override
   void initState() {
