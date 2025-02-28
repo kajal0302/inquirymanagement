@@ -90,10 +90,15 @@ AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget desti
 }
 
 
-
-AppBar widgetAppbarForInquiryReport(BuildContext context, String title, Widget destinationScreen, Function(int) onMenuSelected ) {
+AppBar widgetAppbarForInquiryReport(
+    BuildContext context,
+    String title,
+    Widget destinationScreen,
+    Function(int) onMenuSelected,
+    Function(String) onSearch, // Callback for search
+    ) {
   ValueNotifier<bool> isSearching = ValueNotifier(false);
-  TextEditingController searchController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
 
   return AppBar(
     backgroundColor: bv_primaryColor,
@@ -106,20 +111,27 @@ AppBar widgetAppbarForInquiryReport(BuildContext context, String title, Widget d
           children: [
             Expanded(
               child: TextField(
-                controller: searchController,
+                textInputAction: TextInputAction.search,
+                controller: _searchController,
                 style: TextStyle(color: white),
                 decoration: InputDecoration(
                   hintText: 'Type here to Search',
                   hintStyle: TextStyle(color: white70),
                   border: InputBorder.none,
                 ),
+                onSubmitted: (value) {
+                  if (value.isNotEmpty) {
+                    onSearch(value); // Call the search function
+                  }
+                },
               ),
             ),
             IconButton(
               icon: Icon(Icons.close, color: white),
               onPressed: () {
                 isSearching.value = false;
-                searchController.clear();
+                _searchController.clear();
+                onSearch(''); // Clear search results
               },
             ),
           ],
@@ -127,9 +139,7 @@ AppBar widgetAppbarForInquiryReport(BuildContext context, String title, Widget d
             : Text(
           title,
           style: TextStyle(
-              color: white,
-              fontWeight: FontWeight.normal,
-              fontSize: 20),
+              color: white, fontWeight: FontWeight.normal, fontSize: 20),
         );
       },
     ),
@@ -169,6 +179,7 @@ AppBar widgetAppbarForInquiryReport(BuildContext context, String title, Widget d
     ],
   );
 }
+
 
 
 

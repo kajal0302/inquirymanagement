@@ -15,12 +15,12 @@ import 'package:inquirymanagement/pages/notification/components/notificationCard
 import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
 import 'package:inquirymanagement/utils/common.dart';
-import 'package:inquirymanagement/utils/lists.dart';
 import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 import 'package:intl/intl.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
+import '../../../utils/lists.dart';
 import '../apicall/postFeedbackApi.dart';
 import '../apicall/updateUpcomingDate.dart';
 import '../components/customDialogBox.dart';

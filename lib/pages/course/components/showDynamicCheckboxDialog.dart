@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/pages/course/components/CourseListTile.dart';
 import 'package:inquirymanagement/pages/course/models/CourseModel.dart';
+import '../../../common/size.dart';
 
 Future<void> showDynamicCheckboxDialog(
     BuildContext context, Function(CourseModel) onOkPressed, CourseModel? courses) async {
@@ -9,60 +10,147 @@ Future<void> showDynamicCheckboxDialog(
     return;
   }
 
+  TextEditingController _searchController = TextEditingController();
+  List<Courses> filteredCourses = List.from(courses.courses!);
+  ValueNotifier<bool> isSearching = ValueNotifier(false);
+
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Center(
-          child: Text(
-            '--- Courses ---',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        content: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return SingleChildScrollView(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
+      return StatefulBuilder( // Use StatefulBuilder to handle updates
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            titlePadding: EdgeInsets.zero,
+            title: ValueListenableBuilder<bool>(
+              valueListenable: isSearching,
+              builder: (context, searching, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: preIconFillColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: Row(
+                    children: [
+                      searching
+                          ? Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          textInputAction: TextInputAction.search,
+                          style: TextStyle(color: white),
+                          decoration: InputDecoration(
+                            hintText: 'Type here to Search',
+                            hintStyle: TextStyle(color: white70),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            setState(() { // Ensure UI updates
+                              filteredCourses = courses.courses!
+                                  .where((course) => course.name!
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
+                                  .toList();
+                            });
+                          },
+                        ),
+                      )
+                          : Expanded(
+                        child: Center(
+                          child: Text(
+                            '-- Select Courses --',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(searching ? Icons.close : Icons.search, color: white),
+                        onPressed: () {
+                          setState(() {
+                            if (searching) {
+                              _searchController.clear();
+                              filteredCourses = List.from(courses.courses!);
+                            }
+                            isSearching.value = !searching;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              constraints: BoxConstraints(maxHeight: 400),
+              child: SingleChildScrollView(
                 child: Column(
-                  children: courses.courses!.asMap().entries.map((entry) {
+                  children: filteredCourses.asMap().entries.map((entry) {
                     int index = entry.key;
                     var course = entry.value;
-                    var name = course.name.toString().length > 8
-                        ? course.name.toString().substring(0, 8)
-                        : course.name.toString();
-
-                    return CourseListTile(
-                      name: "${name}...",
-                      status: course.isChecked ?? false,
-                      isChecked: (status) {
-                        setState(() {
-                          print(status.toString());
-                          courses.courses![index].isChecked = status;
-                        });
-                      },
+                    var name = course.name!.length > 8 ? '${course.name!.substring(0, 8)}...' : course.name;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: CourseListTile(
+                        name: name!,
+                        status: course.isChecked ?? false,
+                        isChecked: (status) {
+                          setState(() {
+                            courses.courses![index].isChecked = status;
+                          });
+                        },
+                        imageUrl: course.image,
+                      ),
                     );
                   }).toList(),
                 ),
               ),
-            );
-          },
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Cancel', style: TextStyle(color: grey_500)),
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-          ),
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              onOkPressed(courses);
-              Navigator.pop(context, true);
-            },
-          ),
-        ],
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              SizedBox(
+                width: 108,
+                height: 42,
+                child: ElevatedButton(
+                  onPressed: () {
+                    onOkPressed(courses);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: bv_primaryDarkColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(px15)),
+                  ),
+                  child: const Text("APPLY", style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15)),
+                ),
+              ),
+              SizedBox(
+                width: 108,
+                height: 42,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(px15),
+                      side: BorderSide(color: grey_500, width: 2),
+                    ),
+                  ),
+                  child: const Text("CANCEL", style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15)),
+                ),
+              ),
+            ],
+          );
+        },
       );
     },
   );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
@@ -6,12 +8,14 @@ import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 import 'package:intl/intl.dart';
-
+import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/alertBox.dart';
 import '../../../components/appBar.dart';
+import '../../../components/customCalender.dart';
+import '../../../components/customDialog.dart';
 import '../../../components/dateField.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
@@ -27,6 +31,9 @@ import '../../notification/apicall/updateNotificationDay.dart';
 import '../../notification/components/customDialogBox.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
+import '../../students/screen/StudentForm.dart';
+import '../apicall/inquiryFilterApi.dart';
+import '../apicall/inquirySearchFilter.dart';
 
 class InquiryReportPage extends StatefulWidget {
   const InquiryReportPage({super.key});
@@ -39,15 +46,46 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   String branchId = userBox.get('branch_id').toString();
   String createdBy = userBox.get('id').toString();
   bool isLoading = true;
-  InquiryModel? inquriyData;
+  InquiryModel? inquiryData;
   FeedbackModel? feedbackData;
   SuccessModel? addFeedback;
   InquiryStatusModel? inquiryList;
+  InquiryModel? filteredInquiryData;
+  InquiryModel? inquirySearchedData;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
+  String? startDateString;
+  String? endDateString;
 
   @override
   void initState() {
     super.initState();
+    _selectedDay = _focusedDay;
     loadinquiryData();
+  }
+
+// Method for Day Selection
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+    });
+  }
+
+  // Method for range selection
+  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
+    setState(() {
+      _rangeStart = start;
+      _rangeEnd = end;
+      _focusedDay = focusedDay;
+
+      startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
+      endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
+    });
+
   }
 
 
@@ -56,11 +94,12 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     InquiryModel? fetchedInquiryListData = await fetchInquiryData(branchId, inquiry, context);
     if(mounted){
       setState(() {
-        inquriyData = fetchedInquiryListData;
+        inquiryData = fetchedInquiryListData;
       });
     }
     isLoading=false;
   }
+
 
   // Method to load feedback data
   Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
@@ -72,6 +111,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     }
     return fetchedFeedbackListData;
   }
+
 
   // Method to add feedback data
   Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
@@ -94,6 +134,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     print(inquiryList);
   }
+
+
 
   // FeedBack Dialog Box
   void showFeedbackDialog(FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
@@ -439,7 +481,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                             SizedBox(
                               width: 108,
                               height: 42,
-                              child: ElevatedButton(
+                              child:
+                              ElevatedButton(
                                 onPressed: () async {
                                   String dayValue= dayController.text;
                                   String dateValue = dateController.text;
@@ -563,8 +606,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                     isMessageAdded = true;
                                     callSnackBar(updationMessage, "success");
                                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
-
-
                                   },
                                 );
                               },
@@ -748,11 +789,45 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
   }
 
+
+  // Updating Filtered Data
+  void fetchFilteredInquiryData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+        null, startDateString, endDateString, branchId, null, context
+    );
+
+
+    setState(() {
+      inquiryData = fetchedFilteredInquiryData;
+      isLoading = false;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForInquiryReport(context, "Inquiry Report", DashboardPage(),handleMenuSelection),
+      appBar: widgetAppbarForInquiryReport(
+        context,
+        "Inquiry Report",
+        DashboardPage(),
+            (menuValue) {
+          handleMenuSelection(menuValue);
+        },
+            (searchQuery) async {
+          InquiryModel? result = await inquirySearchFilter(null, searchQuery, context);
+          if (result != null) {
+            setState(() {
+              inquiryData = result;
+            });
+          }
+        },
+      ),
       body: Column(
         children: [
           isLoading
@@ -762,97 +837,109 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               itemBuilder: (context, index) => const InquiryCardSkeleton(),
             ),
           )
-              : (inquriyData!.inquiries!.isNotEmpty)
+              : (inquiryData!.inquiries!.isNotEmpty && inquiryData != null)
               ? Expanded(
             child: ListView.builder(
-              itemCount: inquriyData!.inquiries!.length,
+              itemCount: inquiryData!.inquiries!.length,
               itemBuilder: (context, index) {
-                final inquiry = inquriyData!.inquiries![index];
+                final inquiry = inquiryData!.inquiries![index];
                 // Extract course names
                 String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(px20),
-                  ),
-                  color: bv_secondaryLightColor3,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    leading: Image.asset(userImg,height: 50,width: 50,),
-                    title: Text(
-                      "${inquiry.fname} ${inquiry.lname}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: black,
-                      ),
+                return GestureDetector(
+                  child: Card(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(px20),
                     ),
-                    subtitle: Text(
-                      courseNames,
-                      style: TextStyle(
-                        fontSize: px14,
-                        fontWeight: FontWeight.bold,
-                        color: colorBlackAlpha,
+                    color: bv_secondaryLightColor3,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      leading: Image.asset(userImg,height: 50,width: 50,),
+                      title: Text(
+                        "${inquiry.fname} ${inquiry.lname}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: black,
+                        ),
                       ),
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      color: white,
-                      onSelected: (value) async{
-                        if(value == "call"){
-                          makePhoneCall(inquiry.contact!);
-                        }
-                        else if(value == "feedback"){
+                      subtitle: Text(
+                        courseNames,
+                        style: TextStyle(
+                          fontSize: px14,
+                          fontWeight: FontWeight.bold,
+                          color: colorBlackAlpha,
+                        ),
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        color: white,
+                        onSelected: (value) async{
+                          if(value == "call"){
+                            makePhoneCall(inquiry.contact!);
+                          }
+                          else if(value == "feedback"){
 
-                          // Show loading indicator before fetching data
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false, // Prevent closing dialog manually
-                            builder: (context) {
-                              return const Dialog(
-                                backgroundColor: Colors.transparent,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: grey_400,
-                                    strokeWidth: 2.0,
+                            // Show loading indicator before fetching data
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false, // Prevent closing dialog manually
+                              builder: (context) {
+                                return const Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: grey_400,
+                                      strokeWidth: 2.0,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
-                          // Load feedback data
-                          await loadFeedBackListData(inquiry.id.toString());
+                                );
+                              },
+                            );
+                            // Load feedback data
+                            await loadFeedBackListData(inquiry.id.toString());
 
-                          // Close the loading dialog
-                          Navigator.pop(context);
+                            // Close the loading dialog
+                            Navigator.pop(context);
 
-                          // Show feedback dialog
-                          showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
+                            // Show feedback dialog
+                            showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
 
-                        }
-                        else if(value == "settings"){
-                          showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
+                          }
+                          else if(value == "settings"){
+                            showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
 
-                        }
-                        else if(value == "student"){
-
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => [
-                        PopupMenuItem<String>(value: 'call', child: Text(call)),
-                        PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                        PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                        PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
-                      ],
-                      icon: Icon(Icons.more_vert, color: black),
+                          }
+                          else if(value == "student"){
+                            Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm(
+                              id: inquiry.id,
+                              fname: inquiry.fname,
+                              lname: inquiry.lname,
+                            )));
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(value: 'call', child: Text(call)),
+                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                          PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
+                        ],
+                        icon: Icon(Icons.more_vert, color: black),
+                      ),
                     ),
                   ),
+                  onTap: (){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>AddInquiryPage(
+                      isEdit: true,
+                      id: inquiry.id,
+                    )));
+                  },
                 );
               },
             ),
           )
               : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 170),
             child: Center(
               child: Text(
                 dataNotAvailable,
@@ -861,6 +948,86 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: CustomSpeedDial(
+        onCalendarTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: preIconFillColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Select Date Range',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 600,
+                        height: 400,
+                        child: CustomCalendar(
+                          initialFormat: _calendarFormat,
+                          initialFocusedDay: _focusedDay,
+                          initialSelectedDay: _selectedDay,
+                          initialRangeStart: _rangeStart,
+                          initialRangeEnd: _rangeEnd,
+                          onDaySelected: _onDaySelected,
+                          onRangeSelected: _onRangeSelected,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          isLoading = true;
+                        });
+                        if (mounted) {
+                          setState(() {
+                            fetchFilteredInquiryData();
+                          });
+                        }
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        onFilterTap: () => print("Filter Icon Pressed"),
+        backgroundColor: preIconFillColor,
+        iconColor: Colors.black,
+        iconSize: 25.0,
       ),
     );
   }

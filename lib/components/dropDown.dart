@@ -81,6 +81,7 @@ class _DropDownState extends State<DropDown> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: DropdownButton<String>(
+                dropdownColor: white,
                 style: TextStyle(color: black),
                 value: widget.mapItems != null && widget.mapItems!.isNotEmpty || widget.items != null && widget.items!.isNotEmpty
                     ? dropdownValue

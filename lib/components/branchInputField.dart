@@ -53,7 +53,7 @@ class BranchInputTxt extends StatelessWidget {
             filled: true,
             fillColor: Colors.white,
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
+
               borderRadius: BorderRadius.circular(borderRadius),
             ),
             border: OutlineInputBorder(

@@ -24,7 +24,11 @@ const notification = "missing_inquiry_report.php";
 const inquiryStatusList = "inquiry_status_list.php";
 
 const inquiries = "inquiries.php";
+const filterInquiry = "inquiry_filter.php";  // have to pass a parameter for status
 const inquiry = "Inquiry";
+const inquiryDetail = "inquiry_detail.php";
+
+const branch = "branches.php";
 
 
 const postInquiriesUri = "postinquiries.php";
@@ -36,3 +40,8 @@ const partnerUri = "partner.php";
 const apiUrl = "https://api.globalitians.com/globalit_courses_management/";
 const courseUri = "courses.php"+dbName;
 const dbName = "?cid=globalit";
+
+const branchUri = "branches.php"+dbName;
+const batchUri = "batches.php"+dbName;
+const categoryUri = "categories.php"+dbName;
+const addStudentUri = "add_student.php"+dbName;

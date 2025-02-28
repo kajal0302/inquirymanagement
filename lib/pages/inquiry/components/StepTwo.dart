@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/InkWellInputField.dart';
-import 'package:inquirymanagement/components/branchInputField.dart';
 import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/components/dropDown.dart';
-import 'package:inquirymanagement/pages/course/components/showDynamicCheckboxDialog.dart';
 import 'package:inquirymanagement/pages/course/models/CourseModel.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 
@@ -69,7 +67,6 @@ class StepTwo extends StatelessWidget {
             coursesId.text = selectedCoursesId.join(",");
           },
         ),
-
         DropDown(
           preSelectedValue: branchProvider.branch?.branches != null &&
                   branchProvider.branch!.branches!

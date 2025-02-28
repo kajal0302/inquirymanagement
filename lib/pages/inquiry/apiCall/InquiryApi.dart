@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/text.dart';
-import 'package:inquirymanagement/pages/course/models/CourseModel.dart';
 import 'package:inquirymanagement/pages/users/models/SuccessResponse.dart';
 import 'package:inquirymanagement/utils/apicall/ApiService.dart';
 import 'package:inquirymanagement/utils/common.dart';
@@ -8,6 +7,7 @@ import 'package:inquirymanagement/utils/constants.dart';
 
 Future<SuccessResponse?> postInquiries(
     BuildContext context,
+    String? slug,
     String fName,
     String lName,
     String branch_id,
@@ -34,6 +34,7 @@ Future<SuccessResponse?> postInquiries(
   try {
     returnData = await apiService.post<SuccessResponse>(
        body: {
+         if (slug != null && slug.isNotEmpty)  "slug":slug ,
          "fname":fName,
          "lname":lName,
          "branch_id":branch_id,

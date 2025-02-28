@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/pages/dashboard/components/DashboardListView.dart';
-import '../../../common/color.dart';
 import '../../../common/size.dart';
 import '../../../components/sidebar.dart';
 import '../../../utils/asset_paths.dart';
