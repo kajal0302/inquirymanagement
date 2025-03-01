@@ -105,6 +105,7 @@ Future<void> showDynamicCheckboxDialog(
                         name: name!,
                         status: course.isChecked ?? false,
                         isChecked: (status) {
+                          print("$status");
                           setState(() {
                             courses.courses![index].isChecked = status;
                           });
