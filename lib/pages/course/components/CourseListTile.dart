@@ -3,19 +3,21 @@ import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/style.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../../common/size.dart';
+
 class CourseListTile extends StatefulWidget {
   final String name;
   final bool status;
   final Function(bool) isChecked;
   final String? imageUrl;
 
-  const CourseListTile({
-    super.key,
-    required this.name,
-    required this.status,
-    required this.isChecked,
-    this.imageUrl,
-  });
+  const CourseListTile(
+      {super.key,
+      required this.name,
+      required this.status,
+      required this.isChecked,
+        this.imageUrl,
+      });
 
   @override
   State<CourseListTile> createState() => _CourseListTileState();
@@ -50,29 +52,22 @@ class _CourseListTileState extends State<CourseListTile> {
             child: ClipOval(
               child: widget.imageUrl != null && widget.imageUrl!.isNotEmpty
                   ? CachedNetworkImage(
-                      imageUrl: widget.imageUrl!,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Center(
-                        child: Text(
-                          widget.name[0].toUpperCase(),
-                          style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                      ),
-                      fit: BoxFit.cover,
-                    )
+                imageUrl: widget.imageUrl!,
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Center(
+                  child: Text(
+                    widget.name[0].toUpperCase(),
+                    style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px20),
+                  ),
+                ),
+                fit: BoxFit.cover,
+              )
                   : Center(
-                      child: Text(
-                        widget.name[0].toUpperCase(),
-                        style: TextStyle(
-                            color: white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
+                child: Text(
+                  widget.name[0].toUpperCase(),
+                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px20),
+                ),
+              ),
             ),
           ),
           title: Text(
@@ -80,6 +75,7 @@ class _CourseListTileState extends State<CourseListTile> {
             style: primary_heading_3_bold,
           ),
           trailing: Checkbox(
+            activeColor: primaryColor,
             side: BorderSide(
               color: primaryColor,
               width: 1.5,

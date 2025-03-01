@@ -65,7 +65,7 @@ AppBar buildAppBar(BuildContext context,String title, List<Widget> list) {
 }
 
 
-AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
+AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen,{List<Widget>? trailingIcons}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -95,11 +95,11 @@ AppBar widgetAppbarForInquiryReport(
     String title,
     Widget destinationScreen,
     Function(int) onMenuSelected,
-    Function(String) onSearch, // Callback for search
+    Function(String) onSearch,
+    VoidCallback onCloseSearch, // Callback for search close
+    ValueNotifier<bool> isSearching, // Pass ValueNotifier from the parent
+    TextEditingController searchController, // Pass controller from the parent
     ) {
-  ValueNotifier<bool> isSearching = ValueNotifier(false);
-  TextEditingController _searchController = TextEditingController();
-
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -112,7 +112,7 @@ AppBar widgetAppbarForInquiryReport(
             Expanded(
               child: TextField(
                 textInputAction: TextInputAction.search,
-                controller: _searchController,
+                controller: searchController,
                 style: TextStyle(color: white),
                 decoration: InputDecoration(
                   hintText: 'Type here to Search',
@@ -130,14 +130,15 @@ AppBar widgetAppbarForInquiryReport(
               icon: Icon(Icons.close, color: white),
               onPressed: () {
                 isSearching.value = false;
-                _searchController.clear();
+                searchController.clear();
                 onSearch(''); // Clear search results
+                onCloseSearch(); // Call a function when closing the search
               },
             ),
           ],
         )
             : Text(
-          title,
+          searchController.text.isNotEmpty ? searchController.text : title,
           style: TextStyle(
               color: white, fontWeight: FontWeight.normal, fontSize: 20),
         );
@@ -179,6 +180,7 @@ AppBar widgetAppbarForInquiryReport(
     ],
   );
 }
+
 
 
 
