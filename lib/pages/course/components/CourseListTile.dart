@@ -9,13 +9,13 @@ class CourseListTile extends StatefulWidget {
   final Function(bool) isChecked;
   final String? imageUrl;
 
-  const CourseListTile(
-      {super.key,
-      required this.name,
-      required this.status,
-      required this.isChecked,
-        this.imageUrl,
-      });
+  const CourseListTile({
+    super.key,
+    required this.name,
+    required this.status,
+    required this.isChecked,
+    this.imageUrl,
+  });
 
   @override
   State<CourseListTile> createState() => _CourseListTileState();
@@ -50,22 +50,29 @@ class _CourseListTileState extends State<CourseListTile> {
             child: ClipOval(
               child: widget.imageUrl != null && widget.imageUrl!.isNotEmpty
                   ? CachedNetworkImage(
-                imageUrl: widget.imageUrl!,
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Center(
-                  child: Text(
-                    widget.name[0].toUpperCase(),
-                    style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-                fit: BoxFit.cover,
-              )
+                      imageUrl: widget.imageUrl!,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Center(
+                        child: Text(
+                          widget.name[0].toUpperCase(),
+                          style: TextStyle(
+                              color: white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      ),
+                      fit: BoxFit.cover,
+                    )
                   : Center(
-                child: Text(
-                  widget.name[0].toUpperCase(),
-                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-              ),
+                      child: Text(
+                        widget.name[0].toUpperCase(),
+                        style: TextStyle(
+                            color: white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
             ),
           ),
           title: Text(
@@ -79,6 +86,7 @@ class _CourseListTileState extends State<CourseListTile> {
             ),
             value: preCheckedValue,
             onChanged: (status) {
+              _toggleCheckbox();
               setState(() {
                 preCheckedValue = status ?? false;
               });
