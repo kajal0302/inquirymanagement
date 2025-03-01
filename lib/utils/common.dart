@@ -99,3 +99,69 @@ void showLogoutDialog(BuildContext context) {
 }
 
 
+// Loading Dialog
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing dialog manually
+      builder: (context) {
+        return const Dialog(
+          backgroundColor: transparent,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: grey_400,
+              strokeWidth: 2.0,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+
+  // Widget for Showing Message If data is not available
+
+  class DataNotAvailableWidget extends StatelessWidget {
+    final String message;
+    final Color textColor;
+    final double fontSize;
+    final FontWeight fontWeight;
+    final double horizontalPadding;
+    final double verticalPadding;
+
+    const DataNotAvailableWidget({
+      Key? key,
+      required this.message,
+      this.textColor = primaryColor,
+      this.fontSize = 18.0,
+      this.fontWeight = FontWeight.bold,
+      this.horizontalPadding = 40.0,
+      this.verticalPadding = 130.0,
+    }) : super(key: key);
+
+    @override
+    Widget build(BuildContext context) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+        child: Center(
+          child: Text(
+            message,
+            style: TextStyle(
+              color: textColor,
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+
+
+

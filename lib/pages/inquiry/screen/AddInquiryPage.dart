@@ -138,8 +138,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return [
       {
         "title": "Personal Details",
-        "content":  inquiryDetailData != null
-            ? StepOne(
+        "content":   StepOne(
           firstName: firstNameTextEditing,
           lastName: lastNameTextEditing,
           mobileNo: mobileNoTextEditing,
@@ -148,7 +147,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
           partner: partnerTextEditing,
           partnerModel: partnerModel,
           isSubmitted: isSubmitted,
-        ) :_buildLoadingForm(),
+        ) ,
       },
       {
         "title": "Inquiry Details",

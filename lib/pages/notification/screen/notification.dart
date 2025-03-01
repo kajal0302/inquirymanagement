@@ -944,27 +944,12 @@ class _NotificationPageState extends State<NotificationPage> {
                           }
                           else if(value == "feedback"){
 
-                            // Show loading indicator before fetching data
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false, // Prevent closing dialog manually
-                              builder: (context) {
-                                return const Dialog(
-                                  backgroundColor: Colors.transparent,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: grey_400,
-                                      strokeWidth: 2.0,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
+                            // Show loading dialog
+                            showLoadingDialog(context);
                             // Load feedback data
                             await loadFeedBackListData(notification.id.toString());
-
-                            // Close the loading dialog
-                            Navigator.pop(context);
+                            // Hide loading dialog when done
+                            hideLoadingDialog(context);
 
                             // Show feedback dialog
                             showFeedbackDialog(feedbackData,notification.id.toString(),context);
@@ -976,27 +961,12 @@ class _NotificationPageState extends State<NotificationPage> {
                           }
                           else if(value == "status"){
 
-                            // Show loading indicator before fetching data
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false, // Prevent closing dialog manually
-                              builder: (context) {
-                                return const Dialog(
-                                  backgroundColor: Colors.transparent,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: grey_400,
-                                      strokeWidth: 2.0,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
+                            // Show loading dialog
+                            showLoadingDialog(context);
                             // load status list
                             await loadInquiryStatusListData();
-
-                            // Close the loading dialog
-                            Navigator.pop(context);
+                            // Hide loading dialog when done
+                            hideLoadingDialog(context);
                             showInquiryStatusDialog(inquiryList,context);
 
                           }

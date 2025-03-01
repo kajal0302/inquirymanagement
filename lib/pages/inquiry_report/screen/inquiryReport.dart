@@ -129,7 +129,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     }
   }
 
-  // Method to update upcoming date
+  // Method to load Status Data
   Future <void> loadInquiryStatusListData() async{
     InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
     if(mounted){
@@ -137,8 +137,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         inquiryList = inquiryStatusList;
       });
     }
-
-    print(inquiryList);
   }
 
 
@@ -770,27 +768,13 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
 // Handle Menu Selection
   void handleMenuSelection(int value) async{
-    // Show loading indicator before fetching data
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent closing dialog manually
-      builder: (context) {
-        return const Dialog(
-          backgroundColor: Colors.transparent,
-          child: Center(
-            child: CircularProgressIndicator(
-              color: grey_400,
-              strokeWidth: 2.0,
-            ),
-          ),
-        );
-      },
-    );
+    // Show loading dialog
+    showLoadingDialog(context);
     // load status list
     await loadInquiryStatusListData();
 
-    // Close the loading dialog
-    Navigator.pop(context);
+    // Hide loading dialog when done
+    hideLoadingDialog(context);
     showInquiryStatusDialog(inquiryList,context);
 
   }
@@ -895,27 +879,12 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                           }
                           else if(value == "feedback"){
 
-                            // Show loading indicator before fetching data
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false, // Prevent closing dialog manually
-                              builder: (context) {
-                                return const Dialog(
-                                  backgroundColor: Colors.transparent,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: grey_400,
-                                      strokeWidth: 2.0,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
+                            // Show loading dialog
+                            showLoadingDialog(context);
                             // Load feedback data
                             await loadFeedBackListData(inquiry.id.toString());
-
-                            // Close the loading dialog
-                            Navigator.pop(context);
+                            // Hide loading dialog when done
+                            hideLoadingDialog(context);
 
                             // Show feedback dialog
                             showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
@@ -953,15 +922,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               },
             ),
           )
-              : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 170),
-            child: Center(
-              child: Text(
-                dataNotAvailable,
-                style: TextStyle(color: primaryColor,fontSize: px20,fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
+              : DataNotAvailableWidget(message: dataNotAvailable)
         ],
       ),
       floatingActionButton: CustomSpeedDial(
