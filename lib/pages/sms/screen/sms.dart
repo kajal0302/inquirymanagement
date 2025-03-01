@@ -160,22 +160,28 @@ class _SmsPageState extends State<SmsPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if(studentFilteredBYCourse == null)
-                        {
+                        if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
                           Navigator.pop(context);
                           callSnackBar("Please select Students.", "danger");
-                        }
-
-                        else if (selectedId.isEmpty)
-                        {
+                        } else if (selectedId.isEmpty) {
                           callSnackBar("Please select a status", "danger");
-                        }
-                        else
-                          {
+                        } else {
 
-                            Navigator.pop(context);
-                            callSnackBar("Data Fetched Successfully", "success");
-                          }
+                          List<Inquiries> filteredData = studentFilteredBYCourse!.inquiries!
+                              .where((student) => student.status == selectedName)
+                              .toList();
+
+                          setState(() {
+                            studentFilteredBYCourse = InquiryModel(
+                              status: studentFilteredBYCourse!.status,
+                              message: studentFilteredBYCourse!.message,
+                              inquiries: filteredData,
+                            );
+                          });
+
+
+                          Navigator.pop(context);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: bv_primaryDarkColor,
