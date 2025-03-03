@@ -45,8 +45,8 @@ class InquiryReportPage extends StatefulWidget {
 }
 
 class _InquiryReportPageState extends State<InquiryReportPage> {
-  String branchId = userBox.get('branch_id').toString();
-  String createdBy = userBox.get('id').toString();
+  String branchId = userBox.get(branchIdStr).toString();
+  String createdBy = userBox.get(idStr).toString();
   bool isLoading = true;
   InquiryModel? inquiryData;
   FeedbackModel? feedbackData;
@@ -345,8 +345,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     );
     return isFeedbackAdded;
   }
-
-
 
   //  Date Selection Method
   void _selectDate(BuildContext context, TextEditingController controller) async {
@@ -812,8 +810,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         DashboardPage(),
             (menuValue) {
           handleMenuSelection(menuValue);
-        },
-            (searchQuery) async {
+        },(searchQuery) async {
           InquiryModel? result = await inquirySearchFilter(null, searchQuery, context);
           if (result != null) {
             setState(() {
@@ -821,8 +818,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             });
           }
         },
-            () {
-          loadinquiryData();
+            () async{
+          await loadinquiryData();
         },
         isSearching, // Pass ValueNotifier
         searchController, // Pass Controller

@@ -34,8 +34,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  String branchId = userBox.get('branch_id').toString();
-  String createdBy = userBox.get('id').toString();
+  String branchId = userBox.get(branchIdStr).toString();
+  String createdBy = userBox.get(idStr).toString();
   List<dynamic> notifications = []; // Stores all notifications
   bool isLoading = true;
   bool isLoadingMore = false; // For pagination loading indicator

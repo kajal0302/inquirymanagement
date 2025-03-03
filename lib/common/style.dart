@@ -18,3 +18,5 @@ const primary_heading_3_bold = TextStyle(fontSize: 18,color: primaryColor,fontWe
 
 const grey_heading_4_5 = TextStyle(fontSize: 12,color: grey_500);
 
+const tabBarStyle= TextStyle(fontSize: 18,color: white,fontWeight:FontWeight.bold);
+
