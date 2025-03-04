@@ -57,13 +57,13 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
 
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
+  bool isLoading = true;
   String profilePic = userImageUri;
 
 
   @override
   void initState() {
     super.initState();
-
     fetchData();
     userId = userBox.get(idStr);
     Future.microtask(() {
@@ -73,6 +73,16 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
 
     if (widget.isEdit && widget.id!.isNotEmpty) {
       loadInquiryDetailData();
+    }
+
+    if (widget.isEdit) {
+      Future.delayed(Duration(seconds: 4), () {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    } else {
+      isLoading = false;
     }
   }
 
@@ -138,7 +148,9 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return [
       {
         "title": "Personal Details",
-        "content":   StepOne(
+        "content":   (widget.isEdit && isLoading) ?
+        _buildLoadingForm():
+        StepOne(
           firstName: firstNameTextEditing,
           lastName: lastNameTextEditing,
           mobileNo: mobileNoTextEditing,
@@ -147,7 +159,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
           partner: partnerTextEditing,
           partnerModel: partnerModel,
           isSubmitted: isSubmitted,
-        ) ,
+        ),
       },
       {
         "title": "Inquiry Details",

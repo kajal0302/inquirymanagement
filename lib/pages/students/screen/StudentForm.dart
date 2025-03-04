@@ -6,7 +6,6 @@ import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart
 import 'package:inquirymanagement/pages/students/apicall/addStudentApi.dart';
 import 'package:inquirymanagement/pages/students/apicall/batchListApi.dart';
 import 'package:inquirymanagement/pages/students/models/batchListModel.dart';
-import 'package:inquirymanagement/pages/students/models/partnerListModel.dart';
 import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
 import 'package:inquirymanagement/pages/students/provider/categoryProvider.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';

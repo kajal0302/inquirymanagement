@@ -35,7 +35,7 @@ Future<void> showDynamicCheckboxDialog(
                       topRight: Radius.circular(10),
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: Row(
                     children: [
                       searching
@@ -91,14 +91,15 @@ Future<void> showDynamicCheckboxDialog(
               },
             ),
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width*1,
               constraints: BoxConstraints(maxHeight: 400),
               child: SingleChildScrollView(
-                child: Column(
+                child:
+                Column(
                   children: filteredCourses.asMap().entries.map((entry) {
                     int index = entry.key;
                     var course = entry.value;
-                    var name = course.name!.length > 8 ? '${course.name!.substring(0, 8)}...' : course.name;
+                    var name = course.name!.length > 15 ? '${course.name!.substring(0, 15)}...' : course.name;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: CourseListTile(
@@ -109,7 +110,6 @@ Future<void> showDynamicCheckboxDialog(
                             courses.courses![index].isChecked = status;
                           });
                         },
-                        imageUrl: course.image,
                       ),
                     );
                   }).toList(),
@@ -124,13 +124,12 @@ Future<void> showDynamicCheckboxDialog(
                 child: ElevatedButton(
                   onPressed: () {
                     bool isAnySelected = courses.courses!.any((c) => c.isChecked == true);
-
+                    Navigator.pop(context);
                     if (!isAnySelected) {
                       callSnackBar("Please select at least one course", "danger");
                       return;
                     }
                     onOkPressed(courses);
-                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: bv_primaryDarkColor,

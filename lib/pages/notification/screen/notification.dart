@@ -5,6 +5,7 @@ import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/model/addBranchModel.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
+import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCard.dart';
 import 'package:inquirymanagement/pages/login/screen/login.dart';
 import 'package:inquirymanagement/pages/notification/apicall/feedbackApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
@@ -34,8 +35,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  String branchId = userBox.get('branch_id').toString();
-  String createdBy = userBox.get('id').toString();
+  String branchId = userBox.get(branchIdStr).toString();
+  String createdBy = userBox.get(idStr).toString();
   List<dynamic> notifications = []; // Stores all notifications
   bool isLoading = true;
   bool isLoadingMore = false; // For pagination loading indicator
@@ -384,11 +385,9 @@ class _NotificationPageState extends State<NotificationPage> {
     // Get the index of notificationDay in days list
     int selectedOption = days.indexOf(notificationDay);
     if (selectedOption == -1) {
-      selectedOption = 3; // Default selection if notificationDay is not found
+      selectedOption = 3;
     }
     String selectedOptionValue = days[selectedOption];
-
-    //  assign values
     dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     dayController.text = selectedOptionValue;;
 
@@ -486,7 +485,6 @@ class _NotificationPageState extends State<NotificationPage> {
                                   String dateValue = dateController.text;
                                   Navigator.pop(context);
                                   showMessageDialog(inquiryId,dayValue,dateValue,context);
-                  
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: bv_primaryDarkColor,
@@ -537,10 +535,14 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Add Message Dialog Box
-  Future<void> showMessageDialog(String inquiryId, String day,String date,BuildContext context) async {
+  Future<void> showMessageDialog(
+      String inquiryId,
+      String day,
+      String date,
+      BuildContext context,
+      ) async {
     TextEditingController messageController = TextEditingController();
-    bool isMessageAdded = false;
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -592,26 +594,34 @@ class _NotificationPageState extends State<NotificationPage> {
                           String message = messageController.text.trim();
                           if (message.isEmpty) {
                             callSnackBar("Please Enter message..", "danger");
-                          }
-                          else{
+                          } else {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialogBox(
                                   message: "Are you sure?",
                                   onPress: () async {
-                                      await UpdateNotificationDay(inquiryId, day, date, message, createdBy, branchId, context);
-                                      isMessageAdded = true;
-                                      callSnackBar(updationMessage, "success");
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
-
-
+                                    await UpdateNotificationDay(
+                                      inquiryId,
+                                      day,
+                                      date,
+                                      message,
+                                      createdBy,
+                                      branchId,
+                                      context,
+                                    );
+                                    callSnackBar(updationMessage, "success");
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NotificationPage(),
+                                      ),
+                                    );
                                   },
                                 );
                               },
                             );
                           }
-
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: bv_primaryDarkColor,
@@ -629,7 +639,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       width: 120,
                       height: 45,
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed: () {
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
@@ -642,7 +652,6 @@ class _NotificationPageState extends State<NotificationPage> {
                             ),
                           ),
                         ),
-
                         child: const Text(
                           "CANCEL",
                           style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px13),
@@ -658,6 +667,7 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
+
 
 
 
@@ -903,95 +913,43 @@ class _NotificationPageState extends State<NotificationPage> {
                   final notification = notifications[index];
                   // Extract course names
                   String courseNames = notification.courses!.map((course) => course.name).join(", ");
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(px20),
-                    ),
-                    color: bv_secondaryLightColor3,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                      leading: Icon(
-                        Icons.notifications,
-                        color: preIconFillColor,
-                      ),
-                      title: Text(
-                        "${notification.fname} ${notification.lname}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: black,
-                        ),
-                      ),
-                      subtitle: Text(
-                        courseNames,
-                        style: TextStyle(
-                          fontSize: px14,
-                          fontWeight: FontWeight.bold,
-                          color: colorBlackAlpha,
-                        ),
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        color: white,
-                        onSelected: (value) async{
-                          if(value == "call"){
-                            makePhoneCall(notification.contact);
-                          }
-                          else if(value == "settings"){
-                            showNotificationSettingsDialog(notification.id.toString(),notification.notificationDay, context);
-
-                          }
-                          else if(value == "feedback"){
-
-                            // Show loading dialog
-                            showLoadingDialog(context);
-                            // Load feedback data
-                            await loadFeedBackListData(notification.id.toString());
-                            // Hide loading dialog when done
-                            hideLoadingDialog(context);
-
-                            // Show feedback dialog
-                            showFeedbackDialog(feedbackData,notification.id.toString(),context);
-
-                          }
-                          else if(value == "date"){
-                            showUpcomingDateDialog(notification.inquiryDate,notification.id.toString(),context);
-
-                          }
-                          else if(value == "status"){
-
-                            // Show loading dialog
-                            showLoadingDialog(context);
-                            // load status list
-                            await loadInquiryStatusListData();
-                            // Hide loading dialog when done
-                            hideLoadingDialog(context);
-                            showInquiryStatusDialog(inquiryList,context);
-
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => [
-                          PopupMenuItem<String>(value: 'call', child: Text(call)),
-                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                          PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
-                          PopupMenuItem<String>(value: 'status', child: Text(status)),
-                        ],
-                        icon: Icon(Icons.more_vert, color: black),
-                      ),
-                    ),
+                  return InquiryCard(
+                      title:  "${notification.fname} ${notification.lname}",
+                      subtitle: courseNames,
+                      menuItems: [
+                        PopupMenuItem<String>(value: 'call', child: Text(call)),
+                        PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                        PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                        PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
+                        PopupMenuItem<String>(value: 'status', child: Text(status)),
+                      ],
+                    onMenuSelected: (value) async {
+                    if (value == "call") {
+                      makePhoneCall(notification.contact);
+                    } else if (value == "settings") {
+                      showNotificationSettingsDialog(notification.id.toString(), notification.notificationDay, context);
+                    } else if (value == "feedback") {
+                      showLoadingDialog(context);
+                      await loadFeedBackListData(notification.id.toString());
+                      hideLoadingDialog(context);
+                      showFeedbackDialog(feedbackData, notification.id.toString(), context);
+                    } else if (value == "date") {
+                      showUpcomingDateDialog(notification.inquiryDate, notification.id.toString(), context);
+                    } else if (value == "status") {
+                      showLoadingDialog(context);
+                      await loadInquiryStatusListData();
+                      hideLoadingDialog(context);
+                      showInquiryStatusDialog(inquiryList, context);
+                    }
+                  },
                   );
-                },
+                  },
               ),
             )
                 : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Center(
-                child: Text(
-                  dataNotAvailable,
-                  style: TextStyle(color: black),
-                ),
+                child: DataNotAvailableWidget(message: dataNotAvailable)
               ),
             ),
           ],

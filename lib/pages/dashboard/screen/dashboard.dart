@@ -4,8 +4,11 @@ import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/pages/dashboard/components/DashboardListView.dart';
 import '../../../common/size.dart';
 import '../../../components/sidebar.dart';
+import '../../../main.dart';
 import '../../../utils/asset_paths.dart';
 import '../../../utils/lists.dart';
+import '../../notification/apicall/notificationApi.dart';
+import '../../notification/model/notificationModel.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -15,7 +18,34 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  String branchId = userBox.get(branchIdStr).toString();
+  NotificationModel? notification;
   String count = "0";
+
+  @override
+  void initState() {
+    super.initState();
+    loadNotificationData();
+  }
+
+  // Method to load notification data
+  Future<void> loadNotificationData() async {
+    NotificationModel? fetchedNotificationData = await fetchNotificationData(branchId, context);
+    if (mounted) {
+      setState(() {
+        if (fetchedNotificationData != null && fetchedNotificationData.inquiries!.isNotEmpty) {
+          notification = fetchedNotificationData;
+          count = fetchedNotificationData.inquiries!.length.toString();
+        }
+        else
+          {
+            count = "0";
+          }
+      });
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
