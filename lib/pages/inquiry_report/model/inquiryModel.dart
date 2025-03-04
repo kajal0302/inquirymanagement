@@ -30,6 +30,7 @@ class InquiryModel {
 class Inquiries {
   String? id;
   String? slug;
+  bool? isChecked;
   String? smsContent;
   String? fname;
   String? lname;
@@ -46,6 +47,7 @@ class Inquiries {
   Inquiries(
       {this.id,
         this.slug,
+        this.isChecked = false,
         this.smsContent,
         this.fname,
         this.lname,

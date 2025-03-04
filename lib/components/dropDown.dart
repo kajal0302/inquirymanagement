@@ -9,6 +9,7 @@ class DropDown extends StatefulWidget {
   final String? preSelectedValue;
   final bool status;
   final String lbl;
+  final String? value;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final heightofSize;
@@ -16,13 +17,14 @@ class DropDown extends StatefulWidget {
   const DropDown({
     super.key,
     this.items,
+    this.value,
     this.mapItems,
     this.preSelectedValue,
     required this.status,
     required this.lbl,
     this.controller,
     this.onChanged,
-    this.heightofSize = px20
+    this.heightofSize = px20,
   });
 
   @override
@@ -30,7 +32,7 @@ class DropDown extends StatefulWidget {
 }
 
 class _DropDownState extends State<DropDown> {
-  late String dropdownValue;
+  String? dropdownValue;
 
   @override
   void initState() {
@@ -38,17 +40,17 @@ class _DropDownState extends State<DropDown> {
     _setDropdownValue();
 
     if (widget.controller != null && widget.controller!.text.isEmpty) {
-      widget.controller!.text = dropdownValue;
+      widget.controller!.text = dropdownValue ?? '';
     }
   }
 
   void _setDropdownValue() {
     if (widget.mapItems != null && widget.mapItems!.isNotEmpty) {
-      dropdownValue = (widget.preSelectedValue ?? widget.mapItems!.first['id']!);
+      dropdownValue = widget.preSelectedValue ?? widget.mapItems!.first['id'];
     } else if (widget.items != null && widget.items!.isNotEmpty) {
-      dropdownValue = (widget.preSelectedValue ?? widget.items!.first);
+      dropdownValue = widget.preSelectedValue ?? widget.items!.first;
     } else {
-      dropdownValue = "";
+      dropdownValue = null;
     }
   }
 
@@ -56,12 +58,13 @@ class _DropDownState extends State<DropDown> {
   void didUpdateWidget(covariant DropDown oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.mapItems != widget.mapItems || oldWidget.items != widget.items || oldWidget.preSelectedValue != widget.preSelectedValue) {
+    if (oldWidget.mapItems != widget.mapItems ||
+        oldWidget.items != widget.items ||
+        oldWidget.preSelectedValue != widget.preSelectedValue) {
       _setDropdownValue();
-
       // Update the controller's text only if necessary
       if (widget.controller != null && widget.controller!.text != dropdownValue) {
-        widget.controller!.text = dropdownValue;
+        widget.controller!.text = dropdownValue ?? '';
       }
     }
   }
@@ -75,7 +78,7 @@ class _DropDownState extends State<DropDown> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(50), // Added border radius here
-            border: Border.all(color: grey_300 ),
+            border: Border.all(color: grey_300),
           ),
           child: DropdownButtonHideUnderline(
             child: Padding(
@@ -83,21 +86,21 @@ class _DropDownState extends State<DropDown> {
               child: DropdownButton<String>(
                 dropdownColor: white,
                 style: TextStyle(color: black),
-                value: widget.mapItems != null && widget.mapItems!.isNotEmpty || widget.items != null && widget.items!.isNotEmpty
-                    ? dropdownValue
-                    : null,
+                value: dropdownValue,
                 icon: const Icon(Icons.arrow_drop_down),
-                onChanged: widget.status && (widget.mapItems != null && widget.mapItems!.isNotEmpty || widget.items != null && widget.items!.isNotEmpty)
+                onChanged: widget.status &&
+                    (widget.mapItems != null && widget.mapItems!.isNotEmpty ||
+                        widget.items != null && widget.items!.isNotEmpty)
                     ? (String? newValue) {
                   setState(() {
-                    dropdownValue = newValue!;
+                    dropdownValue = newValue;
 
                     if (widget.controller != null) {
-                      widget.controller!.text = dropdownValue;
+                      widget.controller!.text = dropdownValue!;
                     }
 
                     if (widget.onChanged != null) {
-                      widget.onChanged!(dropdownValue);
+                      widget.onChanged!(dropdownValue!);
                     }
                   });
                 }

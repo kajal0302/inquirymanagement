@@ -64,8 +64,6 @@ void callSnackBar(String text, String type) {
   );
 }
 
-
-
 // Method for checking internet Connectivity
 Future <bool> checkConnection() async{
   bool result = await InternetConnection().hasInternetAccess;

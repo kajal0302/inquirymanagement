@@ -14,7 +14,11 @@ const dataNotAvailable = "Data is Not Available";
 const danger = "danger";
 const appName = "Global IT Inquiry";
 const userImageUri = "https://static.vecteezy.com/system/resources/previews/036/280/650/original/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg";
+const backgroundWhatsapp = "assets/images/background_whatsapp.png";
 
+const wp_phone_number = "91932800789";
+const wp_account_id = "207125825810672";
+const phone_number_id = "186089601256908";
 
 const adminUserType = "Admin";
 
@@ -44,3 +48,7 @@ const feedBackHistory = "FeedBack History";
 const addFeedbackHeader = "Add Feedback";
 const upcomingDateHeader = "Select upcoming Date";
 const convertStudent = "Convert as student";
+
+
+
+const cameraImageUri = "https://www.shutterstock.com/image-vector/camera-clipart-vector-illustration-photo-600nw-2479223569.jpg";
