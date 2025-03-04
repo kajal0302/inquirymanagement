@@ -20,7 +20,6 @@ import '../../course/components/showDynamicCheckboxDialog.dart';
 import '../../course/provider/CourseProvider.dart';
 import '../../inquiry_report/apicall/inquiryFilterApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/apicall/updateInquiryStatus.dart';
 import '../../notification/components/customDialogBox.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 
@@ -32,8 +31,8 @@ class SmsPage extends StatefulWidget {
 }
 
 class _SmsPageState extends State<SmsPage> {
-  String branchId = userBox.get('branch_id').toString();
-  String createdBy = userBox.get('id').toString();
+  String branchId = userBox.get(branchIdStr).toString();
+  String createdBy = userBox.get(idStr).toString();
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -47,6 +46,7 @@ class _SmsPageState extends State<SmsPage> {
   InquiryModel? studentFilteredBYCourse;
   Map<String, bool> selectedInquiries = {}; // To track checked items
   List <String> selectedStudentContactNumber = [];
+  bool isStatusLoading = false;
 
 
   @override
@@ -155,41 +155,34 @@ class _SmsPageState extends State<SmsPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    height: 45,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if(studentFilteredBYCourse == null)
-                        {
-                          Navigator.pop(context);
-                          callSnackBar("Please select Students.", "danger");
-                        }
-
-                        else if (selectedId.isEmpty)
-                        {
-                          callSnackBar("Please select a status", "danger");
-                        }
-                        else
-                          {
-
-                            Navigator.pop(context);
-                            callSnackBar("Data Fetched Successfully", "success");
-                          }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: bv_primaryDarkColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        "FIND",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                    ),
+            SizedBox(
+              height: 45,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
+                    Navigator.pop(context);
+                    callSnackBar("Please select Students.", "danger");
+                  } else if (selectedId.isEmpty) {
+                    callSnackBar("Please select a status", "danger");
+                  }
+                  else {
+                    filterInquiriesByStatus(selectedName);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: bv_primaryDarkColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                ],
+                ),
+                child: const Text(
+                  "FIND",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ),
+            )
+            ],
               ),
             ),
           );
@@ -200,7 +193,7 @@ class _SmsPageState extends State<SmsPage> {
   }
 
 // Method for date Filter
-  void fetchFilteredCourseDataData() async {
+  void filterInquiriesByDate() async {
     setState(() {
       isLoading = true;
     });
@@ -217,6 +210,28 @@ class _SmsPageState extends State<SmsPage> {
   }
 
 
+// Method for Status Filter
+  void filterInquiriesByStatus(String selectedName) {
+    setState(() {
+      isStatusLoading = true;
+    });
+
+    List<Inquiries> filteredData = studentFilteredBYCourse!.inquiries!
+        .where((student) => student.status == selectedName)
+        .toList();
+
+    Future.delayed(Duration(milliseconds: 500), () {
+      setState(() {
+        studentFilteredBYCourse = InquiryModel(inquiries: filteredData);
+        isStatusLoading = false;
+      });
+
+      Navigator.pop(context);
+    });
+  }
+
+
+
 
 
   @override
@@ -226,6 +241,7 @@ class _SmsPageState extends State<SmsPage> {
       backgroundColor: white,
       appBar: widgetAppbarForAboutPage(context, "SMS", DashboardPage()),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(height: 5,),
@@ -389,6 +405,7 @@ class _SmsPageState extends State<SmsPage> {
                         ],
                       ),
                     ),
+                    isStatusLoading ? StudentListSkeleton():
                     Expanded(
                       child: ListView.builder(
                         itemCount: studentFilteredBYCourse!.inquiries!.length,
@@ -518,7 +535,7 @@ class _SmsPageState extends State<SmsPage> {
                             else
                               {
                                 Navigator.pop(context);
-                                fetchFilteredCourseDataData();
+                                filterInquiriesByDate();
                                 setState(() {});
                               }
                           },
