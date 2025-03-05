@@ -12,22 +12,22 @@ class StudentListSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Skeleton
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 35.0, vertical: 2.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ShimmerWidget.rectangular(height: 20, width: 120), // Student List Title
-                Row(
-                  children: [
-                    ShimmerWidget.rectangular(height: 20, width: 30), // "All" Text
-                    const SizedBox(width: 5),
-                    ShimmerWidget.circular(height: 24, width: 24), // Checkbox
-                  ],
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 35.0, vertical: 2.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       ShimmerWidget.rectangular(height: 20, width: 120), // Student List Title
+          //       Row(
+          //         children: [
+          //           ShimmerWidget.rectangular(height: 20, width: 30), // "All" Text
+          //           const SizedBox(width: 5),
+          //           ShimmerWidget.circular(height: 24, width: 24), // Checkbox
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
           const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(

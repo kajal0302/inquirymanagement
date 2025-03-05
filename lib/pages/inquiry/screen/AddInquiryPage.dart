@@ -7,6 +7,7 @@ import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/pages/course/provider/CourseProvider.dart';
+import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/InquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/PartnerApi.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/inquiryDetailApi.dart';
@@ -25,8 +26,7 @@ import '../../../components/branchInputField.dart';
 class AddInquiryPage extends StatefulWidget {
   final bool isEdit;
   final String? id;
-
-  const AddInquiryPage({super.key, this.isEdit = false, this.id});
+  const AddInquiryPage({super.key,this.isEdit=false,this.id});
 
   @override
   State<AddInquiryPage> createState() => _AddInquiryPageState();
@@ -39,6 +39,8 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   PartnerModel? partnerModel;
   late String userId;
   InquiryModel? inquiryDetailData;
+
+
 
   final TextEditingController firstNameTextEditing = TextEditingController();
   final TextEditingController lastNameTextEditing = TextEditingController();
@@ -55,12 +57,14 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
 
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
+  bool isLoading = true;
   String profilePic = userImageUri;
+
 
   @override
   void initState() {
     super.initState();
-
+    fetchData();
     userId = userBox.get(idStr);
     Future.microtask(() {
       Provider.of<BranchProvider>(context, listen: false).getBranch(context);
@@ -70,12 +74,23 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     if (widget.isEdit && widget.id!.isNotEmpty) {
       loadInquiryDetailData();
     }
+
+    if (widget.isEdit) {
+      Future.delayed(Duration(seconds: 4), () {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    } else {
+      isLoading = false;
+    }
   }
 
-  Future<void> loadInquiryDetailData() async {
+
+  // Method to fetch Inquiry Detail
+  Future <void> loadInquiryDetailData() async{
     InquiryModel? inquiryDetail = await fetchInquiryDetailData(context, widget.id!);
-    if (mounted) {
-      setState(() {
+    if(mounted){
         inquiryDetailData = inquiryDetail;
         if (inquiryDetailData != null && inquiryDetailData!.inquiryDetail != null) {
           firstNameTextEditing.text = inquiryDetailData!.inquiryDetail!.fname ?? '';
@@ -93,27 +108,33 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                 .join(', ');
 
             coursesIdsTextEditing.value = TextEditingValue(
-              text: courseIds,
+              text: courseIds, // Assign formatted string
               selection: TextSelection.collapsed(offset: courseIds.length),
             );
+
           } else {
             coursesTextEditing.text = '';
             coursesIdsTextEditing.text = '';
           }
           branchTextEditing.text = inquiryDetailData!.inquiryDetail!.branchName ?? '';
           String formattedDate = DateFormat('yyyy-MM-dd').format(
-              DateFormat('dd/MM/yyyy').parse(inquiryDetailData!.inquiryDetail!.inquiyDate!));
-          inquiryDateTextEditing.text = formattedDate;
+              DateFormat('dd/MM/yyyy').parse(inquiryDetailData!.inquiryDetail!.inquiyDate!)
+          );
+          inquiryDateTextEditing.text = formattedDate ?? '';
           upcomingTextEditing.text = inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
           smsTextEditing.text = inquiryDetailData!.inquiryDetail!.smsContent ?? '';
           partnerTextEditing.text = inquiryDetailData!.inquiryDetail!.partnerId ?? '';
+
+
         }
-      });
+        setState(() {});
     }
   }
 
-  Future<void> fetchData() async {
-    partnerModel = await fetchPartner(context);
+
+  Future<void> fetchData() async{
+    partnerModel =
+    await fetchPartner(context);
   }
 
   void _onImagePicked(File file) {
@@ -127,7 +148,9 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return [
       {
         "title": "Personal Details",
-        "content": StepOne(
+        "content":   (widget.isEdit && isLoading) ?
+        _buildLoadingForm():
+        StepOne(
           firstName: firstNameTextEditing,
           lastName: lastNameTextEditing,
           mobileNo: mobileNoTextEditing,
@@ -142,7 +165,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
         "title": "Inquiry Details",
         "content": StepTwo(
           course: coursesTextEditing,
-          coursesId: coursesIdsTextEditing,
+          coursesId : coursesIdsTextEditing,
           branch: branchTextEditing,
           inquiryDate: inquiryDateTextEditing,
           selectBranch: branchTextEditing,
@@ -167,115 +190,130 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
           widget.isEdit && inquiryDetailData != null
               ? '${inquiryDetailData!.inquiryDetail!.fname ?? ''} ${inquiryDetailData!.inquiryDetail!.lname ?? ''}'
               : "Inquiry Form",
-          []),
-      body: FutureBuilder(
-        future: widget.isEdit ? loadInquiryDetailData() : Future.value(),
-        builder: (context, snapshot) {
+          []
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            child: Form(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ImageCamera(
+                    image: profilePic,
+                    status: true,
+                    onImagePicked: _onImagePicked,
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: DynamicStepper(
+                      dynamicSteps: dynamicSteps(
+                          branchProvider, _isSubmitting, courseProvider),
+                      voidCallback: () async {
+                        setState(() {
+                          _isSubmitting = true;
+                        });
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                  child: Form(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ImageCamera(
-                          image: profilePic,
-                          status: true,
-                          onImagePicked: _onImagePicked,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: DynamicStepper(
-                            dynamicSteps: dynamicSteps(
-                                branchProvider, _isSubmitting, courseProvider),
-                            voidCallback: () async {
-                              setState(() {
-                                _isSubmitting = true;
-                              });
+                        await Future.delayed(const Duration(milliseconds: 50));
 
-                              await Future.delayed(const Duration(milliseconds: 50));
+                        if (!_formKey.currentState!.validate()) {
+                          callSnackBar("All Fields Are Required", danger);
+                          return;
+                        }
+                        var response;
+                        if(widget.isEdit && widget.id!.isNotEmpty)
+                          {
+                            response = await postInquiries(
+                                context,
+                                inquiryDetailData!.inquiryDetail!.slug,
+                                firstNameTextEditing.text,
+                                lastNameTextEditing.text,
+                                branchTextEditing.text,
+                                feedBackTextEditing.text,
+                                referenceByTextEditing.text,
+                                mobileNoTextEditing.text,
+                                partnerTextEditing.text,
+                                coursesIdsTextEditing.text,
+                                "0",
+                                "0",
+                                inquiryDateTextEditing.text,
+                                upcomingTextEditing.text,
+                                "1",
+                                userId);
+                          }
+                        else
+                          {
+                            response = await postInquiries(
+                                context,
+                                null,
+                                firstNameTextEditing.text,
+                                lastNameTextEditing.text,
+                                branchTextEditing.text,
+                                feedBackTextEditing.text,
+                                referenceByTextEditing.text,
+                                mobileNoTextEditing.text,
+                                partnerTextEditing.text,
+                                coursesIdsTextEditing.text,
+                                "0",
+                                "0",
+                                inquiryDateTextEditing.text,
+                                upcomingTextEditing.text,
+                                "1",
+                                userId);
+                          }
+                        if (response == null) {
+                          callSnackBar("Unknown Error Accrued", danger);
+                          return;
+                        }
 
-                              if (!_formKey.currentState!.validate()) {
-                                callSnackBar("All Fields Are Required", danger);
-                                return;
-                              }
+                        callSnackBar(
+                            response.message ?? "Unknown Error Accrued",
+                            response.status ?? "def");
 
-                              var response;
-                              if (widget.isEdit && widget.id!.isNotEmpty) {
-                                response = await postInquiries(
-                                    context,
-                                    inquiryDetailData!.inquiryDetail!.slug,
-                                    firstNameTextEditing.text,
-                                    lastNameTextEditing.text,
-                                    branchTextEditing.text,
-                                    feedBackTextEditing.text,
-                                    referenceByTextEditing.text,
-                                    mobileNoTextEditing.text,
-                                    partnerTextEditing.text,
-                                    coursesIdsTextEditing.text,
-                                    "0",
-                                    "0",
-                                    inquiryDateTextEditing.text,
-                                    upcomingTextEditing.text,
-                                    "1",
-                                    userId);
-                              } else {
-                                response = await postInquiries(
-                                    context,
-                                    null,
-                                    firstNameTextEditing.text,
-                                    lastNameTextEditing.text,
-                                    branchTextEditing.text,
-                                    feedBackTextEditing.text,
-                                    referenceByTextEditing.text,
-                                    mobileNoTextEditing.text,
-                                    partnerTextEditing.text,
-                                    coursesIdsTextEditing.text,
-                                    "0",
-                                    "0",
-                                    inquiryDateTextEditing.text,
-                                    upcomingTextEditing.text,
-                                    "1",
-                                    userId);
-                              }
-                              if (response == null) {
-                                callSnackBar("Unknown Error Accrued", danger);
-                                return;
-                              }
-
-                              callSnackBar(
-                                  response.message ?? "Unknown Error Accrued",
-                                  response.status ?? "def");
-
-                              if (response.status == success) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InquiryReportPage(),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                        if (response.status == success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InquiryReportPage(),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
-                ),
+                  const SizedBox(height: 20),
+                ],
               ),
-            );
-          }
+            ),
+          ),
+        ),
       ),
     );
   }
+}
+
+
+// Widget for Personal Detail Form (Step One) which is used while inquiry Data is loading
+Widget _buildLoadingForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildDisabledBranchInput("First Name"),
+        buildDisabledBranchInput("Last Name"),
+        buildDisabledBranchInput("Mobile Number"),
+        buildDisabledBranchInput("Select Reference"),
+        buildDisabledBranchInput("Feedback"),
+
+      ],
+    ),
+  );
 }
 
 Widget buildDisabledBranchInput(String label) {
@@ -291,3 +329,4 @@ Widget buildDisabledBranchInput(String label) {
     ),
   );
 }
+

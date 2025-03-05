@@ -26,7 +26,7 @@ class AddBranchPage extends StatefulWidget {
 }
 
 class _AddBranchPageState extends State<AddBranchPage> {
-  String createdBy = userBox.get('id').toString();
+  String createdBy = userBox.get(idStr).toString();
 
   @override
   void initState() {

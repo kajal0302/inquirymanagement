@@ -45,8 +45,8 @@ class InquiryReportPage extends StatefulWidget {
 }
 
 class _InquiryReportPageState extends State<InquiryReportPage> {
-  String branchId = userBox.get('branch_id').toString();
-  String createdBy = userBox.get('id').toString();
+  String branchId = userBox.get(branchIdStr).toString();
+  String createdBy = userBox.get(idStr).toString();
   bool isLoading = true;
   InquiryModel? inquiryData;
   FeedbackModel? feedbackData;
@@ -67,6 +67,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     super.initState();
     Future.microtask(() {
       Provider.of<CourseProvider>(context, listen: false).getCourse(context);
+
     });
     _selectedDay = _focusedDay;
     loadinquiryData();
@@ -90,25 +91,26 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
       endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
     });
+
   }
 
+
   // Method to load inquiry data
-  Future<InquiryModel?> loadinquiryData() async {
-    InquiryModel? fetchedInquiryListData =
-        await fetchInquiryData(branchId, inquiry, context);
-    if (mounted) {
+  Future <InquiryModel?> loadinquiryData( ) async{
+    InquiryModel? fetchedInquiryListData = await fetchInquiryData(branchId, inquiry, context);
+    if(mounted){
       setState(() {
         inquiryData = fetchedInquiryListData;
       });
     }
-    isLoading = false;
+    isLoading=false;
   }
 
+
   // Method to load feedback data
-  Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
-    FeedbackModel? fetchedFeedbackListData =
-        await fetchFeedbackData(inquiryId, context);
-    if (mounted) {
+  Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
+    FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
+    if(mounted){
       setState(() {
         feedbackData = fetchedFeedbackListData;
       });
@@ -116,11 +118,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     return fetchedFeedbackListData;
   }
 
+
   // Method to add feedback data
-  Future<void> addFeedbackData(String inquiryId, String feedBack) async {
-    SuccessModel? addFeedbackData =
-        await createFeedbackData(inquiryId, feedBack, branchId, context);
-    if (mounted) {
+  Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
+    SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
+    if(mounted){
       setState(() {
         addFeedback = addFeedbackData;
       });
@@ -128,19 +130,19 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Method to load Status Data
-  Future<void> loadInquiryStatusListData() async {
-    InquiryStatusModel? inquiryStatusList =
-        await fetchInquiryStatusList(context);
-    if (mounted) {
+  Future <void> loadInquiryStatusListData() async{
+    InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
+    if(mounted){
       setState(() {
         inquiryList = inquiryStatusList;
       });
     }
   }
 
+
+
   // FeedBack Dialog Box
-  void showFeedbackDialog(
-      FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
+  void showFeedbackDialog(FeedbackModel? feedbackData, String inquiryId, BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -154,57 +156,52 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                 children: [
                   // Scrollable Feedback List
                   Expanded(
-                    child: feedbackData == null ||
-                            feedbackData!.feedbacks == null ||
-                            feedbackData!.feedbacks!.isEmpty
+                    child: feedbackData == null || feedbackData!.feedbacks == null || feedbackData!.feedbacks!.isEmpty
                         ? const Center(child: Text(noFeedback))
                         : ListView.builder(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            itemCount: feedbackData!.feedbacks!.length,
-                            itemBuilder: (context, index) {
-                              var feedbackItem =
-                                  feedbackData!.feedbacks![index];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: grey_100,
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.topRight,
-                                        child: Text(
-                                          feedbackItem.createdAt!,
-                                          style: TextStyle(
-                                            fontSize: px14,
-                                            fontWeight: FontWeight.normal,
-                                            color: primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          feedbackItem.feedback!,
-                                          style: TextStyle(
-                                            fontSize: px14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemCount: feedbackData!.feedbacks!.length,
+                      itemBuilder: (context, index) {
+                        var feedbackItem = feedbackData!.feedbacks![index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: grey_100,
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: Text(
+                                    feedbackItem.createdAt!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.normal,
+                                      color: primaryColor,
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    feedbackItem.feedback!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                        );
+                      },
+                    ),
                   ),
 
                   // Floating Button for Adding Feedback
@@ -218,12 +215,10 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         ),
                         onPressed: () async {
                           // Show add feedback dialog
-                          bool isAdded =
-                              await showAddFeedbackDialog(inquiryId, context);
+                          bool isAdded = await showAddFeedbackDialog(inquiryId, context);
                           if (isAdded) {
                             // Refresh feedback list after adding
-                            FeedbackModel? updatedData =
-                                await loadFeedBackListData(inquiryId);
+                            FeedbackModel? updatedData = await loadFeedBackListData(inquiryId);
                             setState(() {
                               feedbackData = updatedData;
                             });
@@ -244,8 +239,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Feedback Dialog Box
-  Future<bool> showAddFeedbackDialog(
-      String inquiryId, BuildContext context) async {
+  Future<bool> showAddFeedbackDialog(String inquiryId, BuildContext context) async {
     TextEditingController feedbackController = TextEditingController();
     bool isFeedbackAdded = false;
 
@@ -300,6 +294,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                           String feedback = feedbackController.text.trim();
                           if (feedback.isEmpty) {
                             callSnackBar("Please Enter feedback", "danger");
+
                           }
                           await addFeedbackData(inquiryId, feedback);
                           isFeedbackAdded = true;
@@ -313,10 +308,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         ),
                         child: const Text(
                           "Add",
-                          style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: px15),
+                          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
                         ),
                       ),
                     ),
@@ -339,10 +331,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         ),
                         child: const Text(
                           "Cancel",
-                          style: TextStyle(
-                              color: grey_500,
-                              fontWeight: FontWeight.bold,
-                              fontSize: px15),
+                          style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15),
                         ),
                       ),
                     ),
@@ -358,8 +347,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   //  Date Selection Method
-  void _selectDate(
-      BuildContext context, TextEditingController controller) async {
+  void _selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -393,8 +381,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Notification Dialog Box
-  void showNotificationSettingsDialog(
-      String inquiryId, String notificationDay, BuildContext context) {
+  void showNotificationSettingsDialog(String inquiryId, String notificationDay,BuildContext context) {
     TextEditingController dateController = TextEditingController();
     TextEditingController dayController = TextEditingController();
     // Get the index of notificationDay in days list
@@ -406,8 +393,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     //  assign values
     dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    dayController.text = selectedOptionValue;
-    ;
+    dayController.text = selectedOptionValue;;
 
     showDialog(
       context: context,
@@ -442,7 +428,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                 setState(() {
                                   selectedOption = value!;
                                   selectedOptionValue = days[selectedOption];
-                                  dayController.text = selectedOptionValue;
+                                  dayController.text=selectedOptionValue;
                                 });
                               },
                             ),
@@ -481,10 +467,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                 ),
                                 const SizedBox(width: 10),
                                 IconButton(
-                                  icon: const Icon(Icons.calendar_today,
-                                      color: preIconFillColor),
-                                  onPressed: () => _selectDate(context,
-                                      dateController), // Also trigger date picker
+                                  icon: const Icon(Icons.calendar_today, color: preIconFillColor),
+                                  onPressed: () => _selectDate(context, dateController), // Also trigger date picker
                                 ),
                               ],
                             ),
@@ -499,13 +483,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                             SizedBox(
                               width: 108,
                               height: 42,
-                              child: ElevatedButton(
+                              child:
+                              ElevatedButton(
                                 onPressed: () async {
-                                  String dayValue = dayController.text;
+                                  String dayValue= dayController.text;
                                   String dateValue = dateController.text;
                                   Navigator.pop(context);
-                                  showMessageDialog(
-                                      inquiryId, dayValue, dateValue, context);
+                                  showMessageDialog(inquiryId,dayValue,dateValue,context);
+
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: bv_primaryDarkColor,
@@ -515,10 +500,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                 ),
                                 child: const Text(
                                   "APPLY",
-                                  style: TextStyle(
-                                      color: white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: px15),
+                                  style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
                                 ),
                               ),
                             ),
@@ -541,10 +523,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                 ),
                                 child: const Text(
                                   "CANCEL",
-                                  style: TextStyle(
-                                      color: grey_500,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: px15),
+                                  style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15),
                                 ),
                               ),
                             ),
@@ -563,8 +542,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Message Dialog Box
-  Future<void> showMessageDialog(
-      String inquiryId, String day, String date, BuildContext context) async {
+  Future<void> showMessageDialog(String inquiryId, String day,String date,BuildContext context) async {
     TextEditingController messageController = TextEditingController();
     bool isMessageAdded = false;
     await showDialog(
@@ -588,8 +566,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: grey_100,
-                    hintText:
-                        "Type your message here... (Maximum 119 characters allowed)",
+                    hintText: "Type your message here... (Maximum 119 characters allowed)",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -619,33 +596,24 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                           String message = messageController.text.trim();
                           if (message.isEmpty) {
                             callSnackBar("Please Enter message..", "danger");
-                          } else {
+                          }
+                          else{
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialogBox(
                                   message: "Are you sure?",
                                   onPress: () async {
-                                    await UpdateNotificationDay(
-                                        inquiryId,
-                                        day,
-                                        date,
-                                        message,
-                                        createdBy,
-                                        branchId,
-                                        context);
+                                    await UpdateNotificationDay(inquiryId, day, date, message, createdBy, branchId, context);
                                     isMessageAdded = true;
                                     callSnackBar(updationMessage, "success");
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                InquiryReportPage()));
+                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
                                   },
                                 );
                               },
                             );
                           }
+
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: bv_primaryDarkColor,
@@ -655,10 +623,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         ),
                         child: const Text(
                           "SEND SMS",
-                          style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: px13),
+                          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px13),
                         ),
                       ),
                     ),
@@ -679,12 +644,10 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                             ),
                           ),
                         ),
+
                         child: const Text(
                           "CANCEL",
-                          style: TextStyle(
-                              color: grey_500,
-                              fontWeight: FontWeight.bold,
-                              fontSize: px13),
+                          style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px13),
                         ),
                       ),
                     ),
@@ -699,128 +662,110 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Status Dialog Box
-  void showInquiryStatusDialog(
-      InquiryStatusModel? inquiryList, BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String selectedId = '';
-        String selectedName = '';
-        String selectedStatusId = '';
+  void showInquiryStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context) {
+      String selectedId = '';
+      String selectedName = '';
+      String selectedStatusId = '';
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CustomDialog(
-              title: "Status",
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: inquiryList!.inquiryStatusList!.length,
-                        itemBuilder: (context, index) {
-                          var status = inquiryList.inquiryStatusList![index];
-                          bool isSelected =
-                              selectedId == status.id; // Check if selected
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return CustomDialog(
+            title: "Status",
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: inquiryList!.inquiryStatusList!.length,
+                      itemBuilder: (context, index) {
+                        var status = inquiryList.inquiryStatusList![index];
+                        bool isSelected = selectedId == status.id; // Check if selected
 
-                          return Card(
-                            color: Colors.white,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedId = status.id!;
-                                  selectedName = status.name!;
-                                  selectedStatusId = status.status!;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(15),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 15),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isSelected
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
-                                      color: isSelected
-                                          ? preIconFillColor
-                                          : grey_500,
+                        return Card(
+                          color: Colors.white,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedId = status.id!;
+                                selectedName = status.name!;
+                                selectedStatusId = status.status!;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(15),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                                    color: isSelected ? preIconFillColor : grey_500,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    status.name!,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected ? preIconFillColor : black,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      status.name!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? preIconFillColor
-                                            : black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 45,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (selectedId.isEmpty) {
-                            callSnackBar("Please select a status", "danger");
-                            return;
-                          }
-                          await updateInquiryStatusData(
-                              selectedId,
-                              selectedStatusId,
-                              selectedName,
-                              branchId,
-                              createdBy,
-                              context);
-
-                          Navigator.pop(context);
-                          callSnackBar(updationMessage, "success");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: bv_primaryDarkColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
                           ),
-                        ),
-                        child: const Text(
-                          "FIND",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 45,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (selectedId.isEmpty) {
+                          callSnackBar("Please select a status", "danger");
+                          return;
+                        }
+                        await updateInquiryStatusData(
+                            selectedId, selectedStatusId, selectedName, branchId, createdBy, context);
+
+                        Navigator.pop(context);
+                        callSnackBar(updationMessage, "success");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: bv_primaryDarkColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
+                      child: const Text(
+                        "FIND",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      );
+    },
     );
   }
 
+
 // Handle Menu Selection
-  void handleMenuSelection(int value) async {
+  void handleMenuSelection(int value) async{
     // Show loading dialog
     showLoadingDialog(context);
     // load status list
@@ -828,8 +773,10 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     // Hide loading dialog when done
     hideLoadingDialog(context);
-    showInquiryStatusDialog(inquiryList, context);
+    showInquiryStatusDialog(inquiryList,context);
+
   }
+
 
   // Updating Filtered Data
   void fetchFilteredInquiryData() async {
@@ -838,7 +785,9 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     });
 
     InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, context);
+        null, startDateString, endDateString, branchId, null, context
+    );
+
 
     setState(() {
       inquiryData = fetchedFilteredInquiryData;
@@ -854,146 +803,123 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     final courseProvider = context.watch<CourseProvider>();
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForInquiryReport(
+      appBar:
+      widgetAppbarForInquiryReport(
         context,
         "Inquiry Report",
         DashboardPage(),
-        (menuValue) {
+            (menuValue) {
           handleMenuSelection(menuValue);
-        },
-        (searchQuery) async {
-          InquiryModel? result =
-              await inquirySearchFilter(null, searchQuery, context);
+        },(searchQuery) async {
+          InquiryModel? result = await inquirySearchFilter(null, searchQuery, context);
           if (result != null) {
             setState(() {
               inquiryData = result;
             });
           }
         },
-        () {
-          loadinquiryData();
+            () async{
+          await loadinquiryData();
         },
-        isSearching,
-        // Pass ValueNotifier
+        isSearching, // Pass ValueNotifier
         searchController, // Pass Controller
       ),
       body: Column(
         children: [
           isLoading
               ? Expanded(
-                  child: ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (context, index) =>
-                        const InquiryCardSkeleton(),
-                  ),
-                )
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) => const InquiryCardSkeleton(),
+            ),
+          )
               : (inquiryData!.inquiries!.isNotEmpty && inquiryData != null)
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: inquiryData!.inquiries!.length,
-                        itemBuilder: (context, index) {
-                          final inquiry = inquiryData!.inquiries![index];
-                          // Extract course names
-                          String courseNames = inquiry.courses!
-                              .map((course) => course.name)
-                              .join(", ");
-                          return GestureDetector(
-                            child: Card(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 8),
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(px20),
-                              ),
-                              color: bv_secondaryLightColor3,
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 5.0),
-                                leading: Image.asset(
-                                  userImg,
-                                  height: 50,
-                                  width: 50,
-                                ),
-                                title: Text(
-                                  "${inquiry.fname} ${inquiry.lname}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: black,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  courseNames,
-                                  style: TextStyle(
-                                    fontSize: px14,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorBlackAlpha,
-                                  ),
-                                ),
-                                trailing: PopupMenuButton<String>(
-                                  color: white,
-                                  onSelected: (value) async {
-                                    if (value == "call") {
-                                      makePhoneCall(inquiry.contact!);
-                                    } else if (value == "feedback") {
-                                      // Show loading dialog
-                                      showLoadingDialog(context);
-                                      // Load feedback data
-                                      await loadFeedBackListData(
-                                          inquiry.id.toString());
-                                      // Hide loading dialog when done
-                                      hideLoadingDialog(context);
-
-                                      // Show feedback dialog
-                                      showFeedbackDialog(feedbackData,
-                                          inquiry.id.toString(), context);
-                                    } else if (value == "settings") {
-                                      showNotificationSettingsDialog(
-                                          inquiry.id.toString(),
-                                          inquiry.notificationDay!,
-                                          context);
-                                    } else if (value == "student") {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (contex) => StudentForm(
-                                                    id: inquiry.id,
-                                                    fname: inquiry.fname,
-                                                    lname: inquiry.lname,
-                                                  )));
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) => [
-                                    PopupMenuItem<String>(
-                                        value: 'call', child: Text(call)),
-                                    PopupMenuItem<String>(
-                                        value: 'feedback',
-                                        child: Text(feedbackHistory)),
-                                    PopupMenuItem<String>(
-                                        value: 'settings',
-                                        child: Text(notificationSettings)),
-                                    PopupMenuItem<String>(
-                                        value: 'student',
-                                        child: Text(convertStudent)),
-                                  ],
-                                  icon: Icon(Icons.more_vert, color: black),
-                                ),
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddInquiryPage(
-                                            isEdit: true,
-                                            id: inquiry.id,
-                                          )));
-                            },
-                          );
-                        },
+              ? Expanded(
+            child: ListView.builder(
+              itemCount: inquiryData!.inquiries!.length,
+              itemBuilder: (context, index) {
+                final inquiry = inquiryData!.inquiries![index];
+                // Extract course names
+                String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
+                return GestureDetector(
+                  child: Card(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(px20),
+                    ),
+                    color: bv_secondaryLightColor3,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      leading: Image.asset(userImg,height: 50,width: 50,),
+                      title: Text(
+                        "${inquiry.fname} ${inquiry.lname}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: black,
+                        ),
                       ),
-                    )
-                  : DataNotAvailableWidget(message: dataNotAvailable)
+                      subtitle: Text(
+                        courseNames,
+                        style: TextStyle(
+                          fontSize: px14,
+                          fontWeight: FontWeight.bold,
+                          color: colorBlackAlpha,
+                        ),
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        color: white,
+                        onSelected: (value) async{
+                          if(value == "call"){
+                            makePhoneCall(inquiry.contact!);
+                          }
+                          else if(value == "feedback"){
+
+                            // Show loading dialog
+                            showLoadingDialog(context);
+                            // Load feedback data
+                            await loadFeedBackListData(inquiry.id.toString());
+                            // Hide loading dialog when done
+                            hideLoadingDialog(context);
+
+                            // Show feedback dialog
+                            showFeedbackDialog(feedbackData,inquiry.id.toString(),context);
+
+                          }
+                          else if(value == "settings"){
+                            showNotificationSettingsDialog(inquiry.id.toString(),inquiry.notificationDay!, context);
+
+                          }
+                          else if(value == "student"){
+                            Navigator.push(context, MaterialPageRoute(builder: (contex)=>StudentForm(
+                              id: inquiry.id,
+                              fname: inquiry.fname,
+                              lname: inquiry.lname,
+                            )));
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(value: 'call', child: Text(call)),
+                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                          PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
+                        ],
+                        icon: Icon(Icons.more_vert, color: black),
+                      ),
+                    ),
+                  ),
+                  onTap: (){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>AddInquiryPage(
+                      isEdit: true,
+                      id: inquiry.id,
+                    )));
+                  },
+                );
+              },
+            ),
+          )
+              : DataNotAvailableWidget(message: dataNotAvailable)
         ],
       ),
       floatingActionButton: CustomSpeedDial(
@@ -1075,17 +1001,17 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           List<int?> selectedCourseIds = [];
           showDynamicCheckboxDialog(
             context,
-            (selectedCourses) async {
-              selectedCourseIds = selectedCourses.courses!
+                (selectedCourses) async{
+               selectedCourseIds = selectedCourses.courses!
                   .where((c) => c.isChecked == true)
                   .map((c) => c.id)
                   .toList();
               String selectedCourseIdsString = selectedCourseIds.join(",");
-              InquiryModel? filteredData = await FilterInquiryData(
-                  selectedCourseIdsString, null, null, null, null, context);
+              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, null, null, context);
               setState(() {
                 inquiryData = filteredData;
               });
+
             },
             courseProvider.course,
             () {
@@ -1098,6 +1024,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             },
           );
         },
+
         backgroundColor: preIconFillColor,
         iconColor: Colors.black,
         iconSize: 25.0,
