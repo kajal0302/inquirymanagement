@@ -19,13 +19,13 @@ Future<InquiryModel?> fetchUpcomingInquiryData(String? today, String? tomorrow, 
   try {
     returnData = await apiService.post<InquiryModel>(
         body: {
-          "today":today,
-          "tomorrow": tomorrow,
-          "7days": sevenDays,
+          if (today != null) "today": today,
+          if (tomorrow != null) "tomorrow": tomorrow,
+          if (sevenDays != null) "7days": sevenDays,
           "branch_id": branch_id,
         },
         fromApi: false,
-        endpoint: updateUpcomingDate,
+        endpoint: updateUpcomingFilter,
         fromJson: (json) => InquiryModel.fromJson(json));
 
   }on ApiException catch (e) {
