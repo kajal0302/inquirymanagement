@@ -6,7 +6,11 @@ import 'package:inquirymanagement/utils/common.dart';
 import '../../../common/size.dart';
 
 Future<void> showDynamicCheckboxDialog(
-    BuildContext context, Function(CourseModel) onOkPressed, CourseModel? courses , VoidCallback? onCancelPressed,) async {
+  BuildContext context,
+  Function(CourseModel) onOkPressed,
+  CourseModel? courses,
+  VoidCallback? onCancelPressed,
+) async {
   if (courses == null || courses.courses == null || courses.courses!.isEmpty) {
     return;
   }
@@ -22,7 +26,8 @@ Future<void> showDynamicCheckboxDialog(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
             backgroundColor: white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             titlePadding: EdgeInsets.zero,
             title: ValueListenableBuilder<bool>(
               valueListenable: isSearching,
@@ -35,46 +40,48 @@ Future<void> showDynamicCheckboxDialog(
                       topRight: Radius.circular(10),
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: Row(
                     children: [
                       searching
                           ? Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          textInputAction: TextInputAction.search,
-                          style: TextStyle(color: white),
-                          decoration: InputDecoration(
-                            hintText: 'Type here to Search',
-                            hintStyle: TextStyle(color: white70),
-                            border: InputBorder.none,
-                          ),
-                          onChanged: (value) {
-                            setState(() { // Ensure UI updates
-                              filteredCourses = courses.courses!
-                                  .where((course) => course.name!
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()))
-                                  .toList();
-                            });
-                          },
-                        ),
-                      )
+                              child: TextField(
+                                controller: _searchController,
+                                textInputAction: TextInputAction.search,
+                                style: TextStyle(color: white),
+                                decoration: InputDecoration(
+                                  hintText: 'Type here to Search',
+                                  hintStyle: TextStyle(color: white70),
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    // Ensure UI updates
+                                    filteredCourses = courses.courses!
+                                        .where((course) => course.name!
+                                            .toLowerCase()
+                                            .contains(value.toLowerCase()))
+                                        .toList();
+                                  });
+                                },
+                              ),
+                            )
                           : Expanded(
-                        child: Center(
-                          child: Text(
-                            '-- Select Courses --',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                              child: Center(
+                                child: Text(
+                                  '-- Select Courses --',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
                       IconButton(
-                        icon: Icon(searching ? Icons.close : Icons.search, color: white),
+                        icon: Icon(searching ? Icons.close : Icons.search,
+                            color: white),
                         onPressed: () {
                           setState(() {
                             if (searching) {
@@ -91,15 +98,16 @@ Future<void> showDynamicCheckboxDialog(
               },
             ),
             content: Container(
-              width: MediaQuery.of(context).size.width*1,
+              width: MediaQuery.of(context).size.width * 0.9,
               constraints: BoxConstraints(maxHeight: 400),
               child: SingleChildScrollView(
-                child:
-                Column(
+                child: Column(
                   children: filteredCourses.asMap().entries.map((entry) {
                     int index = entry.key;
                     var course = entry.value;
-                    var name = course.name!.length > 15 ? '${course.name!.substring(0, 15)}...' : course.name;
+                    var name = course.name!.length > 8
+                        ? '${course.name!.substring(0, 8)}...'
+                        : course.name;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: CourseListTile(
@@ -110,6 +118,7 @@ Future<void> showDynamicCheckboxDialog(
                             courses.courses![index].isChecked = status;
                           });
                         },
+                        imageUrl: course.image,
                       ),
                     );
                   }).toList(),
@@ -123,19 +132,27 @@ Future<void> showDynamicCheckboxDialog(
                 height: 42,
                 child: ElevatedButton(
                   onPressed: () {
-                    bool isAnySelected = courses.courses!.any((c) => c.isChecked == true);
-                    Navigator.pop(context);
+                    bool isAnySelected =
+                        courses.courses!.any((c) => c.isChecked == true);
+
                     if (!isAnySelected) {
-                      callSnackBar("Please select at least one course", "danger");
+                      callSnackBar(
+                          "Please select at least one course", "danger");
                       return;
                     }
                     onOkPressed(courses);
+                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: bv_primaryDarkColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(px15)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(px15)),
                   ),
-                  child: const Text("APPLY", style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15)),
+                  child: const Text("APPLY",
+                      style: TextStyle(
+                          color: white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: px15)),
                 ),
               ),
               SizedBox(
@@ -155,7 +172,11 @@ Future<void> showDynamicCheckboxDialog(
                       side: BorderSide(color: grey_500, width: 2),
                     ),
                   ),
-                  child: const Text("CANCEL", style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15)),
+                  child: const Text("CANCEL",
+                      style: TextStyle(
+                          color: grey_500,
+                          fontWeight: FontWeight.bold,
+                          fontSize: px15)),
                 ),
               ),
             ],

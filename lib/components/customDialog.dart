@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:inquirymanagement/common/color.dart';
 
 class CustomSpeedDial extends StatelessWidget {
   final VoidCallback onCalendarTap;
@@ -27,6 +28,7 @@ class CustomSpeedDial extends StatelessWidget {
       overlayColor: overlayColor,
       overlayOpacity: overlayOpacity,
       icon: Icons.add,
+      foregroundColor: iconColor,
       activeIcon: Icons.close,
       spaceBetweenChildren: 0.1,
       animatedIcon: AnimatedIcons.menu_close,
@@ -38,12 +40,12 @@ class CustomSpeedDial extends StatelessWidget {
       children: [
         SpeedDialChild(
           backgroundColor: backgroundColor,
-          child: Icon(Icons.calendar_month),
+          child: Icon(Icons.calendar_month,color: iconColor,),
           onTap: onCalendarTap,
         ),
         SpeedDialChild(
           backgroundColor: backgroundColor,
-          child: Icon(Icons.filter_list),
+          child: Icon(Icons.filter_list,color: iconColor,),
           onTap: onFilterTap,
         ),
       ],

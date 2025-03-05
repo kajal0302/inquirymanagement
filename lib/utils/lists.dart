@@ -6,6 +6,7 @@ import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart
 import 'package:inquirymanagement/pages/sms/screen/sms.dart';
 import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
+import 'package:inquirymanagement/pages/whatsapp/screens/ContactList.dart';
 
 import '../pages/dashboard/screen/dashboard.dart';
 
@@ -41,6 +42,11 @@ final List<Map<String, dynamic>> dashboardItems = [
     "icon": Icons.person_add,
     "title": "User",
     'page': UserScreen()
+  },
+  {
+    "icon": FontAwesomeIcons.whatsapp,
+    "title": "Whatsapp",
+    'page': ContactList()
   },
 ];
 

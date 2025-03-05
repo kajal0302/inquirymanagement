@@ -48,14 +48,12 @@ class _StepOneState extends State<StepOne> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         BranchInputTxt(
           label: "First Name",
           textColor: Colors.black,
@@ -68,7 +66,6 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
-
         BranchInputTxt(
           label: "Last Name",
           textColor: Colors.black,
@@ -81,7 +78,6 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
-
         BranchInputTxt(
           label: "Mobile No.",
           textColor: Colors.black,
@@ -100,7 +96,6 @@ class _StepOneState extends State<StepOne> {
             return null;
           },
         ),
-
         DropDown(
           preSelectedValue: selectedReference?.isNotEmpty == true
               ? selectedReference
@@ -116,8 +111,7 @@ class _StepOneState extends State<StepOne> {
             });
           },
         ),
-
-        SizedBox(height: 8,),
+        SizedBox(height: 8),
         if (selectedReference == "Global IT Partner")
           DropDown(
             preSelectedValue: widget.partnerModel?.partners != null &&
@@ -137,7 +131,6 @@ class _StepOneState extends State<StepOne> {
             status: true,
             lbl: "Select Partner",
           ),
-
         BranchInputTxt(
           label: "Feedback History",
           textColor: Colors.black,
@@ -150,7 +143,6 @@ class _StepOneState extends State<StepOne> {
                 : null;
           },
         ),
-
       ],
     );
   }

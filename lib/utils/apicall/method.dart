@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:inquirymanagement/utils/constants.dart';
@@ -21,13 +22,23 @@ class ApiService{
 
 
   Future<void> get<modelName>({
+    bool? wp,
+    bool? qt,
     required String endpoint,
     required modelName Function(Map<String, dynamic>) fromJson,
     required Function(modelName data) onSuccess,
     required Function(String errorMessage) onError,}) async {
 
     String baseUrl = baseUrlInquiry;
-    final url = Uri.parse('$baseUrl$endpoint');
+    var url = Uri.parse('$baseUrl$endpoint');
+
+    if(wp != null && wp){
+      url = Uri.parse('$wpUrl$endpoint');
+    }
+
+    if(qt != null && qt){
+      url = Uri.parse('$quotation$endpoint');
+    }
 
     try {
       if (kDebugMode) {
@@ -67,6 +78,8 @@ class ApiService{
 
 
   Future<void> post<modelName>({
+    bool? wp,
+    bool? temp,
     required String endpoint,
     required Map<String, String> body,
     required modelName Function(Map<String, dynamic>) fromJson,
@@ -74,9 +87,16 @@ class ApiService{
     required Function(String errorMessage) onError,
   }) async {
     String baseUrl = baseUrlInquiry;
+    var url = Uri.parse('$baseUrl$endpoint');
 
+    //// temp mean globalitinfosolution current is on globalitians so delete after transfer to globalitinfsolution
+    if(temp != null && temp){
+      url = Uri.parse('$urlClassManagement$endpoint');
+    }
 
-    final url = Uri.parse('$baseUrl$endpoint');
+    if(wp != null && wp){
+      url = Uri.parse('$wpUrl$endpoint');
+    }
 
     try {
       if (kDebugMode) {
@@ -113,6 +133,108 @@ class ApiService{
       }
     } catch (e) {
       final errorMessage = 'Error during POST request: $e';
+      if (kDebugMode) {
+        print(errorMessage);
+      }
+      onError(errorMessage);
+    }
+  }
+
+  Future<void> postMedia<modelName>({
+    bool? wp,
+    required String endpoint,
+    required Map<String, String> body,
+    required modelName Function(Map<String, dynamic>) fromJson,
+    required Function(modelName data) onSuccess,
+    required Function(String errorMessage) onError,
+    File? file,
+    List<File>? files,
+    String fileField = 'file',
+  }) async {
+    String baseUrl = urlClassManagement;
+    if(wp != null){
+      baseUrl = wpUrl;
+    }
+
+    var url = Uri.parse('$baseUrl$endpoint');
+
+    if(wp != null && wp){
+      url = Uri.parse('$urlClassManagement$endpoint');
+    }
+    try {
+      if (kDebugMode) {
+        print('Making POST request to: $url');
+        print('Request Body: $body');
+      }
+
+      // Use MultipartRequest for file uploads
+      final request = http.MultipartRequest('POST', url);
+
+      // Add regular form data
+      body.forEach((key, value) {
+        request.fields[key] = value;
+      });
+
+      // If a single file is provided, add it to the request
+      if (file != null) {
+        final fileStream = http.ByteStream(file.openRead());
+        final length = await file.length();
+        final multipartFile = http.MultipartFile(
+          fileField,
+          fileStream,
+          length,
+          filename: file.path.split('/').last,  // Extract file name
+        );
+        request.files.add(multipartFile);
+      }
+
+      if (files != null && files.isNotEmpty) {
+        for (var file in files) {
+          final fileStream = http.ByteStream(file.openRead());
+          final length = await file.length();
+          final multipartFile = http.MultipartFile(
+            'files[]',
+            fileStream,
+            length,
+            filename: file.path.split('/').last,
+          );
+          request.files.add(multipartFile);
+        }
+      }
+
+      request.headers.addAll({
+        'Content-Type': 'multipart/form-data',
+      });
+      if (kDebugMode) {
+        print("Number of files to upload: ${request.files.length}");
+      }
+      // Send the request
+      final response = await request.send();
+
+      // Handle response
+      if (kDebugMode) {
+        print('Response Status Code: ${response.statusCode}');
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = await response.stream.bytesToString();
+        loggerNoStack.i(responseData);
+        final data = fromJson(jsonDecode(responseData));
+        onSuccess(data);
+      } else {
+        final responseData = await response.stream.bytesToString();
+        loggerNoStack.i(responseData);
+        if (kDebugMode) {
+          print(responseData);
+        }
+        final errorMessage = 'Failed to upload file, Status code: ${response.statusCode}';
+        if (kDebugMode) {
+          print(errorMessage);
+        }
+        onError(errorMessage);
+      }
+    } catch (e) {
+      final errorMessage = 'Error during file upload: $e';
       if (kDebugMode) {
         print(errorMessage);
       }

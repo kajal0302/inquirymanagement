@@ -38,7 +38,6 @@ class StepTwo extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         InkWellInputField(
           courses: courses,
           context: context,
@@ -67,15 +66,16 @@ class StepTwo extends StatelessWidget {
             coursesId.text = selectedCoursesId.join(",");
           },
         ),
+
         DropDown(
           preSelectedValue: branchProvider.branch?.branches != null &&
-                  branchProvider.branch!.branches!
-                      .any((b) => b.id.toString() == selectBranch.text)
+              branchProvider.branch!.branches!
+                  .any((b) => b.id.toString() == selectBranch.text)
               ? selectBranch.text
               : (branchProvider.branch != null &&
-                      branchProvider.branch!.branches!.isNotEmpty
-                  ? branchProvider.branch!.branches!.first.id.toString()
-                  : null),
+              branchProvider.branch!.branches!.isNotEmpty
+              ? branchProvider.branch!.branches!.first.id.toString()
+              : null),
           controller: selectBranch,
           mapItems: branchProvider.branch?.branches!
               .map((b) => {"id": b.id.toString(), "value": b.name.toString()})
@@ -84,7 +84,6 @@ class StepTwo extends StatelessWidget {
           status: true,
           lbl: "Select Branch",
         ),
-
         DateField(
           firstDate: DateTime(1980, 1, 1),
           lastDate: DateTime.now(),
