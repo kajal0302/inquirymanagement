@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/utils/asset_paths.dart';
 
 class InquiryCard extends StatelessWidget {
+  final bool? hasNotificationPage;
   final String title;
   final String subtitle;
   final List<PopupMenuEntry<String>> menuItems;
@@ -10,6 +12,7 @@ class InquiryCard extends StatelessWidget {
 
   const InquiryCard({
     Key? key,
+    this.hasNotificationPage=false,
     required this.title,
     required this.subtitle,
     required this.menuItems,
@@ -29,7 +32,9 @@ class InquiryCard extends StatelessWidget {
       color: bv_secondaryLightColor3,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-        leading: Icon(Icons.notifications, color: preIconFillColor),
+        leading: hasNotificationPage ?? false
+            ? Icon(Icons.notifications, color: preIconFillColor,size: 30,)
+            : Image.asset(userImg, width: 45, height: 45),
         title: Text(
           title,
           style: const TextStyle(

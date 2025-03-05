@@ -15,6 +15,8 @@ const updateNotificationDay = "updatenotificationday.php";
 
 const updateUpcomingDate = "update_upcoming_date.php";
 
+const updateUpcomingFilter = "upcoming_inquiry_filter.php";
+
 const updateInquiryStatusList = "update_inquiry_status.php";
 
 const feedbackList = "feedback_list.php";

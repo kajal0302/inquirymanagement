@@ -31,11 +31,14 @@ import '../../notification/apicall/postFeedbackApi.dart';
 import '../../notification/apicall/updateInquiryStatus.dart';
 import '../../notification/apicall/updateNotificationDay.dart';
 import '../../notification/components/customDialogBox.dart';
+import '../../notification/components/feedbackDialog.dart';
+import '../../notification/components/notificationSettingsDialog.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 import '../../students/screen/StudentForm.dart';
 import '../apicall/inquiryFilterApi.dart';
 import '../apicall/inquirySearchFilter.dart';
+import '../components/inquiryCard.dart';
 
 class InquiryReportPage extends StatefulWidget {
   const InquiryReportPage({super.key});
