@@ -31,7 +31,6 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
   SuccessModel? addFeedback;
   FeedbackModel? feedbackData;
 
-
   // Method to add feedback data
   Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
     SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
@@ -109,7 +108,6 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
                           String feedback = feedbackController.text.trim();
                           if (feedback.isEmpty) {
                             callSnackBar("Please Enter feedback", "danger");
-
                           }
                           await addFeedbackData(inquiryId, feedback);
                           isFeedbackAdded = true;
@@ -179,15 +177,15 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           itemCount: widget.feedbackData!.feedbacks!.length,
                           itemBuilder: (context, index) {
-                      var feedbackItem = widget.feedbackData!.feedbacks![index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: grey_100,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
+                            var feedbackItem = widget.feedbackData!.feedbacks![index];
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: grey_100,
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(5),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +218,6 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
                                           },
                                         ),
                 ),
-
                 // Floating Button for Adding Feedback
                 Padding(
                   padding: const EdgeInsets.all(8.0),

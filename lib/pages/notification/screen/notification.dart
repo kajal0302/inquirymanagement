@@ -29,11 +29,8 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
-  List<dynamic> notifications = []; // Stores all notifications
+  List<dynamic> notifications = [];
   bool isLoading = true;
-  bool isLoadingMore = false; // For pagination loading indicator
-  int page = 1; // Pagination starts from page 1
-  final ScrollController _scrollController = ScrollController();
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
   TextEditingController feedbackController = TextEditingController();
@@ -42,44 +39,24 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     loadNotificationData();
-    _scrollController.addListener(_onScroll);
   }
 
   // Method to load notification data (Initial & Pagination)
-  Future<void> loadNotificationData({bool isPagination = false}) async {
-    if (isPagination) {
-      if (isLoadingMore) return; // Prevent multiple API calls
-      setState(() => isLoadingMore = true);
-    } else {
-      setState(() => isLoading = true);
-    }
-
+  Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData = await fetchNotificationData(branchId, context);
 
     if (mounted) {
       setState(() {
         if (fetchedNotificationData != null && fetchedNotificationData.inquiries!.isNotEmpty) {
           notifications.addAll(fetchedNotificationData.inquiries!);
-          page++; // Increase page number for next request
         }
         isLoading = false;
-        isLoadingMore = false;
       });
     }
   }
 
-  // Detect when user scrolls to the bottom
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      loadNotificationData(isPagination: true);
-    }
-  }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+
 
   // Method to load feedback data
   Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
@@ -101,8 +78,6 @@ class _NotificationPageState extends State<NotificationPage> {
       });
     }
   }
-
-
 
 
   // Add Inquiry Notification Dialog Box
@@ -189,12 +164,8 @@ class _NotificationPageState extends State<NotificationPage> {
                 : (notifications.isNotEmpty)
                 ? Expanded(
               child: ListView.builder(
-                controller: _scrollController, // Attach scroll controller
-                itemCount: notifications.length + 1, // Add extra item for loader
+                itemCount: notifications.length,
                 itemBuilder: (context, index) {
-                  if (index == notifications.length) {
-                    return isLoadingMore ? _buildLoadingIndicator() : SizedBox.shrink();
-                  }
                   final notification = notifications[index];
                   // Extract course names
                   String courseNames = notification.courses!.map((course) => course.name).join(", ");
