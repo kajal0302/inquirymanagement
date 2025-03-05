@@ -7,7 +7,6 @@ import 'package:inquirymanagement/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
-import '../../../common/size.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
 import '../../../components/customCalender.dart';
@@ -15,13 +14,11 @@ import '../../../components/customDialog.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
-import '../../branch/model/addBranchModel.dart';
 import '../../course/components/showDynamicCheckboxDialog.dart';
 import '../../course/provider/CourseProvider.dart';
 import '../../dashboard/screen/dashboard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/apicall/postFeedbackApi.dart';
 import '../../notification/apicall/updateInquiryStatus.dart';
 import '../../notification/components/customDialogBox.dart';
 import '../../notification/components/feedbackDialog.dart';
@@ -113,8 +110,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     return fetchedFeedbackListData;
   }
 
-
-
   // Method to load Status Data
   Future <void> loadInquiryStatusListData() async{
     InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
@@ -124,8 +119,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       });
     }
   }
-
-
 
   // Add Inquiry Notification Setting Dialog Box
   void showNotificationSettingsDialog(BuildContext context, String inquiryId, String notificationDay) {
@@ -140,7 +133,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     );
 
   }
-
 
   // Add Inquiry Feedback Dialog Box
   void showFeedbackDialog(BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
@@ -483,7 +475,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             },
           );
         },
-
         backgroundColor: preIconFillColor,
         iconColor: Colors.black,
         iconSize: 25.0,
