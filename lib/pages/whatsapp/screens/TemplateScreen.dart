@@ -3,8 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/size.dart';
 import 'package:inquirymanagement/common/text.dart';
+import 'package:inquirymanagement/components/BuildDialogBox.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/components/button.dart';
+import 'package:inquirymanagement/components/customCalender.dart';
+import 'package:inquirymanagement/components/customDialog.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/course/apiCall/fetchCourseListData.dart';
 import 'package:inquirymanagement/pages/course/components/showDynamicCheckboxDialog.dart';
@@ -25,6 +28,7 @@ import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class TemplateScreen extends StatefulWidget {
   const TemplateScreen({super.key});
@@ -52,6 +56,13 @@ class _TemplateScreenState extends State<TemplateScreen> {
   InquiryStatusModel? inquiryList;
   String selectedStatus = inquiry;
   late String selectedCourseIdsString;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
+  String? startDateString;
+  String? endDateString;
 
   @override
   void initState() {
@@ -67,12 +78,12 @@ class _TemplateScreenState extends State<TemplateScreen> {
 
   Future<void> _loadTemplate() async {
     branch_id = await userBox.get(branchIdStr).toString();
-    login_id = "loginid";
+    login_id = await userBox.get(idStr).toString();
+
     final results = await Future.wait([
       fetchTemplateList(),
       fetchCourseListData(context),
       fetchInquiryStatusList(context)
-      // fetchApi(login_id!, cid!),
     ]);
     if (mounted) {
       setState(() {
@@ -82,6 +93,25 @@ class _TemplateScreenState extends State<TemplateScreen> {
         buildShowTemplatesDialog(context);
       });
     }
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+    });
+  }
+
+  // Method for range selection
+  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
+    setState(() {
+      _rangeStart = start;
+      _rangeEnd = end;
+      _focusedDay = focusedDay;
+
+      startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
+      endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
+    });
   }
 
   @override
@@ -95,15 +125,6 @@ class _TemplateScreenState extends State<TemplateScreen> {
             },
             icon: Icon(FontAwesomeIcons.ellipsisVertical))
       ]),
-      // appBar: buildAppBar(wpPermissionList, wpStr, context, _selectedValue,
-      //     (value) {
-      //   setState(() {
-      //     _selectedValue = value;
-      //   });
-      // }, () {
-      //   Navigator.pop(context, true);
-      //   buildShowTemplatesDialog(context);
-      // }),
       body: Stack(fit: StackFit.expand, children: [
         buildBackgroundImage(),
         Padding(
@@ -122,6 +143,42 @@ class _TemplateScreenState extends State<TemplateScreen> {
           ),
         ),
       ]),
+      floatingActionButton: CustomSpeedDial(
+        onCalendarTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return BuildDialogBox(
+                context,
+                'Select Date Range',
+                Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    child: CustomCalendar(
+                      initialFormat: _calendarFormat,
+                      initialFocusedDay: _focusedDay,
+                      initialSelectedDay: _selectedDay,
+                      initialRangeStart: _rangeStart,
+                      initialRangeEnd: _rangeEnd,
+                      onDaySelected: _onDaySelected,
+                      onRangeSelected: _onRangeSelected,
+                    ),
+                  ),
+                ),
+                (bool) {
+                  if (bool) {
+                    loadInquiryData();
+                  }
+                },
+              );
+            },
+          );
+        },
+        onFilterTap: () async {},
+        backgroundColor: primaryColor,
+        iconColor: Colors.white,
+        iconSize: 25.0,
+      ),
     );
   }
 
@@ -421,7 +478,12 @@ class _TemplateScreenState extends State<TemplateScreen> {
 
   Future<void> loadInquiryData() async {
     InquiryModel? fetchedInquiryListData = await FilterInquiryData(
-        selectedCourseIdsString, "", "", branch_id, selectedStatus, context);
+        selectedCourseIdsString,
+        startDateString,
+        endDateString,
+        branch_id,
+        selectedStatus,
+        context);
     setState(() {
       inquiryData = fetchedInquiryListData;
       filterInquiryData = inquiryData?.inquiries;
@@ -663,7 +725,6 @@ class _TemplateScreenState extends State<TemplateScreen> {
                           });
 
                           Navigator.pop(context);
-                          callSnackBar(updationMessage, "success");
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: bv_primaryDarkColor,

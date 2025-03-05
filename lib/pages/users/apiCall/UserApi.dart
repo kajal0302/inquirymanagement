@@ -96,3 +96,39 @@ Future<SuccessResponse?> postUsers(
   }
   return returnData;
 }
+
+Future<SuccessResponse?> changeUserStatus(
+    BuildContext context,
+    String created_by,
+    String slug,
+    String status) async {
+  bool checkInternet = await checkConnection();
+  if (!checkInternet) {
+    callSnackBar(noInternetStr, "def");
+    return null;
+  }
+
+  final ApiService apiService = ApiService();
+  SuccessResponse? returnData;
+
+  try {
+    returnData = await apiService.post<SuccessResponse>(
+        body: {
+          "status":status,
+          "created_by":created_by,
+          "slug":slug,
+        },
+        endpoint: changeUserStatusUri,
+        fromJson: (json) => SuccessResponse.fromJson(json));
+  } on ApiException catch (e) {
+    if (e.statusCode == 408) {
+      callSnackBar("time out error", danger);
+      returnData = null;
+      // showTimeoutError();
+    } else {
+      callSnackBar(e.message, danger);
+      returnData = null;
+    }
+  }
+  return returnData;
+}

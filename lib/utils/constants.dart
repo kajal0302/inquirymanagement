@@ -47,7 +47,7 @@ const inquiryDetail = "inquiry_detail.php";
 const branch = "branches.php";
 const sms="sendsms.php";
 
-
+const changeUserStatusUri = "change_user_status.php";
 const postInquiriesUri = "postinquiries.php";
 const postUserUri = "post_user.php";
 

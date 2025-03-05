@@ -42,6 +42,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   String profilePic = userImageUri;
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
+  String title = "Add User";
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   }
 
   void setData(Users user){
+    title = user.name.toString().toUpperCase();
     fullName.text = user.name.toString();
     address.text = user.address.toString();
     mobileNo.text = user.mobileNo.toString();
@@ -74,6 +76,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
     userRole.text = user.userType.toString();
     profilePic = user.file ?? userImageUri;
     slug = user.slug.toString();
+    setState(() {
+
+    });
   }
 
   void _onImagePicked(File file) {
@@ -116,7 +121,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     final branchProvider = Provider.of<BranchProvider>(context);
     return Scaffold(
-      appBar: buildAppBar(context, "Add User", []),
+      appBar: buildAppBar(context, title, []),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(
