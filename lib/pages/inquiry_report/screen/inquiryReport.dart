@@ -29,6 +29,7 @@ import '../../notification/components/notificationSettingsDialog.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 import '../../students/screen/StudentForm.dart';
+import '../apicall/inquiryApiPagination.dart';
 import '../apicall/inquiryFilterApi.dart';
 import '../apicall/inquirySearchFilter.dart';
 import '../components/inquiryCard.dart';
@@ -41,10 +42,12 @@ class InquiryReportPage extends StatefulWidget {
 }
 
 class _InquiryReportPageState extends State<InquiryReportPage> {
+  ScrollController scrollController = ScrollController();
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
   bool isLoading = true;
   InquiryModel? inquiryData;
+  List<Inquiries> inquiryListModel = [];
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
   InquiryModel? filteredInquiryData;
@@ -56,16 +59,38 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   DateTime? _rangeEnd;
   String? startDateString;
   String? endDateString;
+  bool isLoadPagination = false;
+  int limit = 20;
+  int totalCount = 0;
+  int page = 1;
 
   @override
   void initState() {
     super.initState();
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        if (inquiryListModel.length < totalCount) {
+          isLoadPagination = true;
+          page += 1;
+          loadInquiryData();
+          setState(() {});
+        }
+      }
+    });
+
     Future.microtask(() {
       Provider.of<CourseProvider>(context, listen: false).getCourse(context);
-
     });
     _selectedDay = _focusedDay;
-    loadinquiryData();
+    loadInquiryData();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
 // Method for Day Selection
@@ -86,26 +111,34 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
       endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
     });
-
   }
-
 
   // Method to load inquiry data
-  Future <InquiryModel?> loadinquiryData( ) async{
-    InquiryModel? fetchedInquiryListData = await fetchInquiryData(branchId, inquiry, context);
-    if(mounted){
+  Future<InquiryModel?> loadInquiryData() async {
+    InquiryModel? fetchedInquiryListData = await fetchInquiryDataPagination(
+        branchId, inquiry, context, page, limit);
+    if (mounted) {
+      if (fetchedInquiryListData != null &&
+          fetchedInquiryListData.status == success) {
+        fetchedInquiryListData.inquiries?.forEach((e) {
+          inquiryListModel.add(e);
+        });
+      }
+
       setState(() {
-        inquiryData = fetchedInquiryListData;
+        isLoadPagination = false;
+        // inquiryData = fetchedInquiryListData;
+        totalCount = fetchedInquiryListData?.count ?? 0;
       });
     }
-    isLoading=false;
+    isLoading = false;
   }
 
-
   // Method to load feedback data
-  Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
-    FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
-    if(mounted){
+  Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
+    FeedbackModel? fetchedFeedbackListData =
+        await fetchFeedbackData(inquiryId, context);
+    if (mounted) {
       setState(() {
         feedbackData = fetchedFeedbackListData;
       });
@@ -113,22 +146,20 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     return fetchedFeedbackListData;
   }
 
-
-
   // Method to load Status Data
-  Future <void> loadInquiryStatusListData() async{
-    InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
-    if(mounted){
+  Future<void> loadInquiryStatusListData() async {
+    InquiryStatusModel? inquiryStatusList =
+        await fetchInquiryStatusList(context);
+    if (mounted) {
       setState(() {
         inquiryList = inquiryStatusList;
       });
     }
   }
 
-
-
   // Add Inquiry Notification Setting Dialog Box
-  void showNotificationSettingsDialog(BuildContext context, String inquiryId, String notificationDay) {
+  void showNotificationSettingsDialog(
+      BuildContext context, String inquiryId, String notificationDay) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -138,12 +169,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         );
       },
     );
-
   }
 
-
   // Add Inquiry Feedback Dialog Box
-  void showFeedbackDialog(BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
+  void showFeedbackDialog(
+      BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -156,110 +186,147 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Status Dialog Box
-  void showInquiryStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
-    showDialog(context: context, builder: (BuildContext context) {
-      String selectedId = '';
-      String selectedName = '';
-      String selectedStatusId = '';
+  void showInquiryStatusDialog(
+      InquiryStatusModel? inquiryList, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String selectedId = '';
+        String selectedName = '';
+        String selectedStatusId = '';
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return CustomDialog(
-            title: "Status",
-            height: MediaQuery.of(context).size.height * 0.5,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: inquiryList!.inquiryStatusList!.length,
-                      itemBuilder: (context, index) {
-                        var status = inquiryList.inquiryStatusList![index];
-                        bool isSelected = selectedId == status.id; // Check if selected
-
-                        return Card(
-                          color: Colors.white,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                selectedId = status.id!;
-                                selectedName = status.name!;
-                                selectedStatusId = status.status!;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(15),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                                    color: isSelected ? preIconFillColor : grey_500,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    status.name!,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: isSelected ? preIconFillColor : black,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CustomDialog(
+              title: "Status",
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: inquiryList!.inquiryStatusList!.length,
+                        itemBuilder: (context, index) {
+                          var status = inquiryList.inquiryStatusList![index];
+                          bool isSelected =
+                              selectedId == status.id; // Check if selected
+                          return Card(
+                            color: Colors.white,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedId = status.id!;
+                                  selectedName = status.name!;
+                                  selectedStatusId = status.status!;
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(15),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 15),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isSelected
+                                          ? Icons.check_circle
+                                          : Icons.radio_button_unchecked,
+                                      color: isSelected
+                                          ? preIconFillColor
+                                          : grey_500,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      status.name!,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: isSelected
+                                            ? preIconFillColor
+                                            : black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 45,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (selectedId.isEmpty) {
-                          callSnackBar("Please select a status", "danger");
-                          return;
-                        }
-                        await updateInquiryStatusData(
-                            selectedId, selectedStatusId, selectedName, branchId, createdBy, context);
+                    // if (isLoad)
+                    //   CircularProgressIndicator(),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 45,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (selectedId.isEmpty) {
+                            callSnackBar("Please select a status", danger);
+                            return;
+                          }
+                          setState(() {
+                            inquiryListModel.clear();
+                          });
+                          InquiryModel? fetchedFilteredInquiryData =
+                              await FilterInquiryData(null, null, null,
+                                  branchId, selectedName, context);
 
-                        Navigator.pop(context);
-                        callSnackBar(updationMessage, "success");
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: bv_primaryDarkColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          if (fetchedFilteredInquiryData != null) {
+                            fetchedFilteredInquiryData.inquiries?.forEach((e) {
+                              inquiryListModel.add(e);
+                            });
+                          }
+                          setState(() {
+                            isLoading = false;
+                          });
+                          // await updateInquiryStatusData(
+                          //     selectedId,
+                          //     selectedStatusId,
+                          //     selectedName,
+                          //     branchId,
+                          //     createdBy,
+                          //     context);
+
+                          Navigator.pop(context);
+                          callSnackBar(
+                              fetchedFilteredInquiryData!.message ??
+                                  "Error While get Data",
+                              fetchedFilteredInquiryData.status ?? "info");
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: bv_primaryDarkColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          "FIND",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15),
                         ),
                       ),
-                      child: const Text(
-                        "FIND",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    },
+            );
+          },
+        );
+      },
     );
   }
 
-
 // Handle Menu Selection
-  void handleMenuSelection(int value) async{
+  void handleMenuSelection(int value) async {
     // Show loading dialog
     showLoadingDialog(context);
     // load status list
@@ -267,10 +334,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     // Hide loading dialog when done
     hideLoadingDialog(context);
-    showInquiryStatusDialog(inquiryList,context);
-
+    showInquiryStatusDialog(inquiryList, context);
   }
-
 
   // Updating Filtered Data
   void fetchFilteredInquiryData() async {
@@ -279,12 +344,17 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     });
 
     InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, context
-    );
-
+        null, startDateString, endDateString, branchId, null, context);
 
     setState(() {
-      inquiryData = fetchedFilteredInquiryData;
+      inquiryListModel.clear();
+    });
+    if (fetchedFilteredInquiryData != null) {
+      fetchedFilteredInquiryData.inquiries?.forEach((e) {
+        inquiryListModel.add(e);
+      });
+    }
+    setState(() {
       isLoading = false;
     });
   }
@@ -297,88 +367,125 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     final courseProvider = context.watch<CourseProvider>();
     return Scaffold(
       backgroundColor: white,
-      appBar:
-      widgetAppbarForInquiryReport(
+      appBar: widgetAppbarForInquiryReport(
         context,
         "Inquiry Report",
         DashboardPage(),
-            (menuValue) {
+        (menuValue) {
           handleMenuSelection(menuValue);
-        },(searchQuery) async {
-          InquiryModel? result = await inquirySearchFilter(null, searchQuery, context);
-          if (result != null) {
-            setState(() {
-              inquiryData = result;
-            });
+        },
+        (searchQuery) async {
+          if (searchQuery != "") {
+            InquiryModel? result =
+                await inquirySearchFilter(null, searchQuery, context, branchId);
+            if (result != null) {
+              if (result.status == success) {
+                inquiryListModel.clear();
+                setState(() {
+                  result.inquiries?.forEach((e) {
+                    inquiryListModel.add(e);
+                  });
+                });
+              }
+            }
           }
         },
-            () async{
-          await loadinquiryData();
+        () async {
+          inquiryListModel.clear();
+          page = 1;
+          setState(() {});
+          await loadInquiryData();
         },
-        isSearching, // Pass ValueNotifier
+        isSearching,
+        // Pass ValueNotifier
         searchController, // Pass Controller
       ),
       body: Column(
         children: [
           isLoading
               ? Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) => const InquiryCardSkeleton(),
-            ),
-          )
-              : (inquiryData!.inquiries!.isNotEmpty && inquiryData != null)
-              ? Expanded(
-            child: ListView.builder(
-              itemCount: inquiryData!.inquiries!.length,
-              itemBuilder: (context, index) {
-                final inquiry = inquiryData!.inquiries![index];
-                // Extract course names
-                String courseNames = inquiry.courses!.map((course) => course.name).join(", ");
-                return GestureDetector(
-                  child:
-                  InquiryCard(
-                    title:  "${inquiry.fname} ${inquiry.lname}",
-                    subtitle: courseNames,
-                    menuItems: [
-                      PopupMenuItem<String>(value: 'call', child: Text(call)),
-                      PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                      PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                      PopupMenuItem<String>(value: 'student', child: Text(convertStudent)),
-                    ],
-                    onMenuSelected: (value) async {
-                      if (value == "call") {
-                        makePhoneCall(inquiry.contact!);
-                      }
-                      else if (value == "feedback") {
-                        showLoadingDialog(context);
-                        await loadFeedBackListData(inquiry.id.toString());
-                        hideLoadingDialog(context);
-                        showFeedbackDialog(context,  inquiry.id.toString(), feedbackData);
-                      } else if (value == "settings") {
-                        showNotificationSettingsDialog(context, inquiry.id.toString(), inquiry.notificationDay!);
-
-                      }
-                      else if(value == "student"){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>StudentForm(
-                          id: inquiry.id,
-                          fname: inquiry.fname,
-                          lname: inquiry.lname,
-                        )));
-                      }
-                    },
+                  child: ListView.builder(
+                    itemCount: 10,
+                    itemBuilder: (context, index) =>
+                        const InquiryCardSkeleton(),
                   ),
-                  onTap: (){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>AddInquiryPage(
-                      isEdit: true,
-                      id: inquiry.id,
-                    )));
-                  },
-                );
-              },
-            ),
-          )
-              : DataNotAvailableWidget(message: dataNotAvailable)
+                )
+              : (inquiryListModel.isNotEmpty)
+                  ? Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: inquiryListModel.length,
+                        itemBuilder: (context, index) {
+                          final inquiry = inquiryListModel[index];
+                          // Extract course names
+                          String courseNames = inquiry.courses!
+                              .map((course) => course.name)
+                              .join(", ");
+                          return GestureDetector(
+                            child: InquiryCard(
+                              title: "${inquiry.fname} ${inquiry.lname}",
+                              subtitle: courseNames,
+                              menuItems: [
+                                PopupMenuItem<String>(
+                                    value: 'call', child: Text(call)),
+                                PopupMenuItem<String>(
+                                    value: 'feedback',
+                                    child: Text(feedbackHistory)),
+                                PopupMenuItem<String>(
+                                    value: 'settings',
+                                    child: Text(notificationSettings)),
+                                PopupMenuItem<String>(
+                                    value: 'student',
+                                    child: Text(convertStudent)),
+                              ],
+                              onMenuSelected: (value) async {
+                                if (value == "call") {
+                                  makePhoneCall(inquiry.contact!);
+                                } else if (value == "feedback") {
+                                  showLoadingDialog(context);
+                                  await loadFeedBackListData(
+                                      inquiry.id.toString());
+                                  hideLoadingDialog(context);
+                                  showFeedbackDialog(context,
+                                      inquiry.id.toString(), feedbackData);
+                                } else if (value == "settings") {
+                                  showNotificationSettingsDialog(
+                                      context,
+                                      inquiry.id.toString(),
+                                      inquiry.notificationDay!);
+                                } else if (value == "student") {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => StudentForm(
+                                                id: inquiry.id,
+                                                fname: inquiry.fname,
+                                                lname: inquiry.lname,
+                                              )));
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddInquiryPage(
+                                            isEdit: true,
+                                            id: inquiry.id,
+                                          )));
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  : DataNotAvailableWidget(message: dataNotAvailable),
+          if (isLoadPagination)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
         ],
       ),
       floatingActionButton: CustomSpeedDial(
@@ -460,30 +567,39 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           List<int?> selectedCourseIds = [];
           showDynamicCheckboxDialog(
             context,
-                (selectedCourses) async{
-               selectedCourseIds = selectedCourses.courses!
+            (selectedCourses) async {
+              selectedCourseIds = selectedCourses.courses!
                   .where((c) => c.isChecked == true)
                   .map((c) => c.id)
                   .toList();
               String selectedCourseIdsString = selectedCourseIds.join(",");
-              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, null, null, context);
+
+              setState(() {
+                inquiryListModel.clear();
+              });
+
+              InquiryModel? filteredData = await FilterInquiryData(
+                  selectedCourseIdsString, null, null, branchId, null, context);
+
+              if (filteredData != null) {
+                filteredData.inquiries?.forEach((e) {
+                  inquiryListModel.add(e);
+                });
+              }
               setState(() {
                 inquiryData = filteredData;
               });
-
             },
             courseProvider.course,
             () {
-              // Reset all checkboxes on cancel
               for (var course in courseProvider.course!.courses!) {
                 course.isChecked = false;
               }
               setState(() {});
-              loadinquiryData();
+              loadInquiryData();
             },
           );
         },
-
         backgroundColor: preIconFillColor,
         iconColor: Colors.black,
         iconSize: 25.0,

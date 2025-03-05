@@ -28,7 +28,7 @@ class _UserScreenState extends State<UserScreen> {
     branch_id = userBox.get(branchIdStr).toString();
     Future.microtask(() {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.getUsers(context, "2").then((_) {
+      userProvider.getUsers(context, branch_id).then((_) {
         setState(() {
           allUsers = userProvider.user?.users ?? [];
           filteredUsers = allUsers;

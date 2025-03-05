@@ -6,7 +6,7 @@ import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 
-Future<InquiryModel?> inquirySearchFilter(String? courses_id, String? search, BuildContext context) async {
+Future<InquiryModel?> inquirySearchFilter(String? courses_id, String? search, BuildContext context, String branch_id) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -18,6 +18,7 @@ Future<InquiryModel?> inquirySearchFilter(String? courses_id, String? search, Bu
   await apiService.post<InquiryModel>(
     endpoint: filterInquiry,
     body: {
+      'branch_id': branch_id,
       if (courses_id != null && courses_id.isNotEmpty) 'courses_id': courses_id,
       if (search != null && search.isNotEmpty) 'search': search,
     },

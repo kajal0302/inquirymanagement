@@ -6,7 +6,7 @@ import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 import '../model/inquiryModel.dart';
 
-Future<InquiryModel?> fetchInquiryData(String branch_id, String status, BuildContext context) async {
+Future<InquiryModel?> fetchInquiryDataPagination(String branch_id, String status, BuildContext context, int page , int limit) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -20,6 +20,8 @@ Future<InquiryModel?> fetchInquiryData(String branch_id, String status, BuildCon
     body: {
       'branch_id': branch_id,
       'status': status,
+      "limit" : limit.toString(),
+      "offset" : page.toString()
     },
     fromJson: InquiryModel.fromJson,
     onSuccess: (user) {

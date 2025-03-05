@@ -2,8 +2,9 @@ class InquiryModel {
   String? status;
   String? message;
   List<Inquiries>? inquiries;
+  int? count;
 
-  InquiryModel({this.status, this.message, this.inquiries});
+  InquiryModel({this.status, this.message, this.inquiries,this.count});
 
   InquiryModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
@@ -14,6 +15,7 @@ class InquiryModel {
         inquiries!.add(new Inquiries.fromJson(v));
       });
     }
+    count = json['count'];
   }
 
   Map<String, dynamic> toJson() {
@@ -23,6 +25,7 @@ class InquiryModel {
     if (this.inquiries != null) {
       data['inquiries'] = this.inquiries!.map((v) => v.toJson()).toList();
     }
+    data['count'] = this.count;
     return data;
   }
 }

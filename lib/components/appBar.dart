@@ -8,9 +8,7 @@ import '../common/size.dart';
 AppBar widgetAppBar(BuildContext context, String title, String count) {
   return AppBar(
     backgroundColor: bv_primaryColor,
-    iconTheme: IconThemeData(
-        color:  white
-    ),
+    iconTheme: IconThemeData(color: white),
     title: Center(
       child: Text(
         title,
@@ -24,20 +22,23 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
     actions: [
       IconButton(
         onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => NotificationPage()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => NotificationPage()));
         },
         icon: count != "0"
             ? Badge(
-          label: Text(count),
-          child:  Icon(FontAwesomeIcons.solidBell, size: px22 ,
-            color: white,),
-        )
+                label: Text(count),
+                child: Icon(
+                  FontAwesomeIcons.solidBell,
+                  size: px22,
+                  color: white,
+                ),
+              )
             : Icon(
-          FontAwesomeIcons.solidBell,
-          size: px22,
-          color:  white,
-        ),
+                FontAwesomeIcons.solidBell,
+                size: px22,
+                color: white,
+              ),
       ),
       IconButton(
         onPressed: () => _showPopUpMenu("Settings", (value) {
@@ -55,7 +56,7 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
   );
 }
 
-AppBar buildAppBar(BuildContext context,String title, List<Widget> list) {
+AppBar buildAppBar(BuildContext context, String title, List<Widget> list) {
   return AppBar(
     backgroundColor: primaryColor,
     foregroundColor: Colors.white,
@@ -64,42 +65,45 @@ AppBar buildAppBar(BuildContext context,String title, List<Widget> list) {
   );
 }
 
-
-AppBar widgetAppbarForAboutPage(BuildContext context, String title, Widget destinationScreen,{List<Widget>? trailingIcons}) {
+AppBar widgetAppbarForAboutPage(
+    BuildContext context, String title, Widget destinationScreen,
+    {List<Widget>? trailingIcons}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
     title: Text(
       title,
-      style: TextStyle(color: white, fontWeight: FontWeight.normal, fontSize: px20),
+      style: TextStyle(
+          color: white, fontWeight: FontWeight.normal, fontSize: px20),
     ),
     leading: IconButton(
       onPressed: () {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => destinationScreen));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => destinationScreen));
       },
       icon: Icon(Icons.arrow_back_outlined, size: px20),
     ),
     actions: trailingIcons != null
-        ? trailingIcons.map((icon) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: icon,
-    )).toList()
+        ? trailingIcons
+            .map((icon) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: icon,
+                ))
+            .toList()
         : null,
   );
 }
 
-
 AppBar widgetAppbarForInquiryReport(
-    BuildContext context,
-    String title,
-    Widget destinationScreen,
-    Function(int) onMenuSelected,
-    Function(String) onSearch,
-    VoidCallback onCloseSearch, // Callback for search close
-    ValueNotifier<bool> isSearching, // Pass ValueNotifier from the parent
-    TextEditingController searchController, // Pass controller from the parent
-    ) {
+  BuildContext context,
+  String title,
+  Widget destinationScreen,
+  Function(int) onMenuSelected,
+  Function(String) onSearch,
+  VoidCallback onCloseSearch, // Callback for search close
+  ValueNotifier<bool> isSearching, // Pass ValueNotifier from the parent
+  TextEditingController searchController, // Pass controller from the parent
+) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -108,46 +112,48 @@ AppBar widgetAppbarForInquiryReport(
       builder: (context, searching, child) {
         return searching
             ? Row(
-          children: [
-            Expanded(
-              child: TextField(
-                textInputAction: TextInputAction.search,
-                controller: searchController,
-                style: TextStyle(color: white),
-                decoration: InputDecoration(
-                  hintText: 'Type here to Search',
-                  hintStyle: TextStyle(color: white70),
-                  border: InputBorder.none,
-                ),
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    onSearch(value); // Call the search function
-                  }
-                },
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.close, color: white),
-              onPressed: () {
-                isSearching.value = false;
-                searchController.clear();
-                onSearch(''); // Clear search results
-                onCloseSearch(); // Call a function when closing the search
-              },
-            ),
-          ],
-        )
+                children: [
+                  Expanded(
+                    child: TextField(
+                      textInputAction: TextInputAction.search,
+                      controller: searchController,
+                      style: TextStyle(color: white),
+                      decoration: InputDecoration(
+                        hintText: 'Type here to Search',
+                        hintStyle: TextStyle(color: white70),
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (value) {
+                        if (value.isNotEmpty) {
+                          onSearch(value); // Call the search function
+                        }
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: white),
+                    onPressed: () {
+                      isSearching.value = false;
+                      searchController.clear();
+                      onSearch(''); // Clear search results
+                      onCloseSearch(); // Call a function when closing the search
+                    },
+                  ),
+                ],
+              )
             : Text(
-          searchController.text.isNotEmpty ? searchController.text : title,
-          style: TextStyle(
-              color: white, fontWeight: FontWeight.normal, fontSize: 20),
-        );
+                searchController.text.isNotEmpty
+                    ? searchController.text
+                    : title,
+                style: TextStyle(
+                    color: white, fontWeight: FontWeight.normal, fontSize: 20),
+              );
       },
     ),
     leading: IconButton(
       onPressed: () {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => destinationScreen));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => destinationScreen));
       },
       icon: Icon(Icons.arrow_back_outlined, size: 20),
     ),
@@ -158,11 +164,11 @@ AppBar widgetAppbarForInquiryReport(
           return searching
               ? SizedBox.shrink()
               : IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              isSearching.value = true;
-            },
-          );
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    isSearching.value = true;
+                  },
+                );
         },
       ),
       IconButton(
@@ -181,13 +187,10 @@ AppBar widgetAppbarForInquiryReport(
   );
 }
 
-
-
-
-
-
-void _showPopUpMenu(String label, Function(int) onMenuSelected, BuildContext context) async {
-  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+void _showPopUpMenu(
+    String label, Function(int) onMenuSelected, BuildContext context) async {
+  final RenderBox overlay =
+      Overlay.of(context).context.findRenderObject() as RenderBox;
   await showMenu<int>(
     context: context,
     position: RelativeRect.fromLTRB(
@@ -202,7 +205,8 @@ void _showPopUpMenu(String label, Function(int) onMenuSelected, BuildContext con
         value: 1,
         child: Text(
           label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: black),
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.normal, color: black),
         ),
       ),
     ],
@@ -214,7 +218,6 @@ void _showPopUpMenu(String label, Function(int) onMenuSelected, BuildContext con
 }
 
 void navigation(BuildContext context) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingPage()));
+  Navigator.push(
+      context, MaterialPageRoute(builder: (context) => SettingPage()));
 }
-
-
