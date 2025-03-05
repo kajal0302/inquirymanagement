@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/pages/followUp/apiCall/upcomingInquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
+import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../../common/size.dart';
 import '../../../common/text.dart';
+import '../../../components/customCalender.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
+import '../../course/components/showDynamicCheckboxDialog.dart';
+import '../../course/provider/CourseProvider.dart';
+import '../../inquiry_report/apicall/inquiryFilterApi.dart';
 import '../../inquiry_report/components/inquiryCard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
@@ -27,6 +33,7 @@ class FollowUpPage extends StatefulWidget {
 
 class _FollowUpPageState extends State<FollowUpPage> {
   String branchId = userBox.get(branchIdStr).toString();
+  InquiryModel? inquiryData;
   InquiryModel? todayInquiryData;
   InquiryModel? tomorrowInquiryData;
   InquiryModel? daysInquiryData;
@@ -36,15 +43,24 @@ class _FollowUpPageState extends State<FollowUpPage> {
   String tomorrow = "1";
   String sevenDays = "1";
   bool isLoading = true;
+  int index = 0;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
+  String? startDateString;
+  String? endDateString;
 
 
 
   @override
   void initState() {
     super.initState();
-    fetchUpcomingInquiryForToday();
-    fetchUpcomingInquiryForTomorrow();
-    fetchUpcomingInquiryForDays();
+    fetchUpcomingInquiryByTab(index);
+    Future.microtask(() {
+      Provider.of<CourseProvider>(context, listen: false).getCourse(context);
+    });
   }
 
 
@@ -59,7 +75,6 @@ class _FollowUpPageState extends State<FollowUpPage> {
     return fetchedFeedbackListData;
   }
 
-
   // Method to update upcoming date
   Future <void> loadInquiryStatusListData() async{
     InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
@@ -70,36 +85,86 @@ class _FollowUpPageState extends State<FollowUpPage> {
     }
   }
 
-  // Method to fetch today inquiry Data
-  Future <void> fetchUpcomingInquiryForToday() async {
-    InquiryModel? fetchedTodayInquiryData = await fetchUpcomingInquiryData(today, null, null, branchId, context);
+  // Method for Day Selection
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+    });
+  }
+
+  // Method for range selection
+  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
+    setState(() {
+      _rangeStart = start;
+      _rangeEnd = end;
+      _focusedDay = focusedDay;
+
+      startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
+      endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
+    });
+
+  }
+
+  // Updating Filtered Data
+  void fetchFilteredInquiryData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+        null, startDateString, endDateString, branchId, null, context
+    );
+
+    setState(() {
+      inquiryData = fetchedFilteredInquiryData;
+      isLoading = false;
+    });
+  }
+
+  // Method to fetch  inquiry Data
+  Future<void> fetchUpcomingInquiry(String tabType) async {
+    String? selectedToday;
+    String? selectedTomorrow;
+    String? selectedSevenDays;
+
+    if (tabType == 'today') {
+      selectedToday = "1";
+    } else if (tabType == 'tomorrow') {
+      selectedTomorrow = "1";
+    } else {
+      selectedSevenDays = "1";
+    }
+
+    InquiryModel? fetchedInquiryData = await fetchUpcomingInquiryData(
+      selectedToday,
+      selectedTomorrow,
+      selectedSevenDays,
+      branchId,
+      context,
+    );
+
     if (mounted) {
       setState(() {
-        todayInquiryData = fetchedTodayInquiryData;
-        isLoading=false;
+        inquiryData = fetchedInquiryData;
+        isLoading = false;
       });
     }
   }
 
-  // Method to fetch tomorrow inquiry Data
-  Future <void> fetchUpcomingInquiryForTomorrow() async {
-    InquiryModel? fetchedTomorrowInquiryData = await fetchUpcomingInquiryData(null, tomorrow, null, branchId, context);
-    if (mounted) {
+  void fetchUpcomingInquiryByTab(index) async{
+    if (index == 0) {
+      fetchUpcomingInquiry('today');
+    } else if (index == 1) {
+      fetchUpcomingInquiry('tomorrow');
+    } else if (index == 2) {
+      fetchUpcomingInquiry('sevenDays');
+    } else {
+      InquiryModel? filteredData = await FilterInquiryData(null, null, null, branchId, null, context);
       setState(() {
-        tomorrowInquiryData = fetchedTomorrowInquiryData;
-        isLoading=false;
+        inquiryData = filteredData;
       });
-    }
-  }
 
-  // Method to fetch 7Days inquiry Data
-  Future <void> fetchUpcomingInquiryForDays() async {
-    InquiryModel? fetchedDaysInquiryData = await fetchUpcomingInquiryData(null, null, sevenDays, branchId, context);
-    if (mounted) {
-      setState(() {
-        daysInquiryData = fetchedDaysInquiryData;
-        isLoading=false;
-      });
     }
   }
 
@@ -131,7 +196,6 @@ class _FollowUpPageState extends State<FollowUpPage> {
     );
   }
 
-
   // Add Upcoming Date Dialog Box
   void showUpcomingDateDialog(BuildContext context, String inquiryDate, String inquiryId) {
     showDialog(
@@ -160,6 +224,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final courseProvider = context.watch<CourseProvider>();
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -171,7 +236,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
             "Follow Up",
             style: TextStyle(color: white, fontWeight: FontWeight.normal, fontSize: px20),
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: white,
             unselectedLabelColor: grey_400, // Inactive tab color
             indicatorColor: white, // Underline indicator
@@ -184,6 +249,10 @@ class _FollowUpPageState extends State<FollowUpPage> {
               fontSize: px12,
               fontWeight: FontWeight.normal,
             ),
+            onTap: (index)
+            {
+              fetchUpcomingInquiryByTab(index);
+            },
             tabs: [
               Tab(child: Text( "Today"),),
               Tab(child: Text( "Tomorrow"),),
@@ -193,222 +262,241 @@ class _FollowUpPageState extends State<FollowUpPage> {
           ),
         ),
         body:  TabBarView(
-          children: [
-            // Today TabBar
-            Column(
+         children: [
+           buildInquiryList(),
+           buildInquiryList(),
+           buildInquiryList(),
+           buildInquiryList(),
+         ],
+        ),
+        floatingActionButton: Builder(
+          builder: (context) {
+            int selectedIndex = DefaultTabController.of(context).index ?? 0;
+            return selectedIndex == 3
+                ? Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                isLoading
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (context, index) =>
-                    const NotificationCardSkeleton(),
-                  ),
-                )
-                    : (todayInquiryData?.inquiries?.isNotEmpty ?? false)
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: todayInquiryData?.inquiries?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final todayInquiry = todayInquiryData?.inquiries?[index];
+                FloatingActionButton(
+                  backgroundColor:preIconFillColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color: preIconFillColor,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'Select Date Range',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 600,
+                                  height: 400,
+                                  child: CustomCalendar(
+                                    initialFormat: _calendarFormat,
+                                    initialFocusedDay: _focusedDay,
+                                    initialSelectedDay: _selectedDay,
+                                    initialRangeStart: _rangeStart,
+                                    initialRangeEnd: _rangeEnd,
+                                    onDaySelected: _onDaySelected,
+                                    onRangeSelected: _onRangeSelected,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  if (mounted) {
+                                    setState(() {
+                                      fetchFilteredInquiryData();
+                                    });
+                                  }
+                                },
+                                child: const Text(
+                                  "OK",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
 
-                      // Ensure todayInquiry is not null before accessing properties
-                      if (todayInquiry == null) return SizedBox();
-
-                      String courseNames =
-                          todayInquiry.courses?.map((course) => course.name).join(", ") ?? "No courses available";
-
-                      return
-                        InquiryCard(
-                        title: "${todayInquiry.fname ?? ''} ${todayInquiry.lname ?? ''}",
-                        subtitle: courseNames,
-                        menuItems: [
-                          PopupMenuItem<String>(
-                              value: 'call', child: Text(call)),
-                          PopupMenuItem<String>(
-                              value: 'settings', child: Text(notificationSettings)),
-                          PopupMenuItem<String>(
-                              value: 'feedback', child: Text(feedbackHistory)),
-                          PopupMenuItem<String>(
-                              value: 'date', child: Text(upcomingDate)),
-                          PopupMenuItem<String>(
-                              value: 'status', child: Text(status)),
-                        ],
-                        onMenuSelected: (value) async {
-                          if (value == "call") {
-                            if (todayInquiry.contact != null) {
-                              makePhoneCall(todayInquiry.contact!);
-                            }
-                          } else if (value == "settings") {
-                            showNotificationSettingsDialog(context, todayInquiry.id.toString(),  todayInquiry.notificationDay!);
-                          } else if (value == "feedback") {
-                            showLoadingDialog(context);
-                            await loadFeedBackListData(todayInquiry.id.toString());
-                            hideLoadingDialog(context);
-                            showFeedbackDialog(context,  todayInquiry.id.toString(), feedbackData);
-                          } else if (value == "date") {
-                            showUpcomingDateDialog(context, todayInquiry.inquiryDate!, todayInquiry.id.toString());
-                          } else if (value == "status") {
-                            showLoadingDialog(context);
-                            await loadInquiryStatusListData();
-                            hideLoadingDialog(context);
-                            showInquiryStatusDialog(context, inquiryList);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                )
-                    : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: Center(
-                      child: DataNotAvailableWidget(message: dataNotAvailable)),
+                  },
+                  child: Icon(Icons.calendar_today_outlined, color: white, size: 28),
+                ),
+                SizedBox(height: 16),
+                FloatingActionButton(
+                  backgroundColor: preIconFillColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                  onPressed: () {
+                    List<int?> selectedCourseIds = [];
+                    showDynamicCheckboxDialog(
+                      context,
+                          (selectedCourses) async {
+                        selectedCourseIds = selectedCourses.courses!
+                            .where((c) => c.isChecked == true)
+                            .map((c) => c.id)
+                            .toList();
+                        String selectedCourseIdsString = selectedCourseIds.join(",");
+                        InquiryModel? filteredData = await FilterInquiryData(
+                            selectedCourseIdsString, null, null, null, null, context);
+                        setState(() {
+                          inquiryData = filteredData;
+                        });
+                      },
+                      courseProvider.course,
+                          () {
+                        for (var course in courseProvider.course!.courses!) {
+                          course.isChecked = false;
+                        }
+                        setState(() {});
+                      },
+                    );
+                  },
+                  child: Icon(Icons.filter_list, color: white, size: 28),
                 ),
               ],
-            ),
-            // Tomorrow TabBar
-            Column(
-              children: [
-                isLoading
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (context, index) => const NotificationCardSkeleton(),
-                  ),
-                ) : (tomorrowInquiryData?.inquiries?.isNotEmpty ?? false)
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: tomorrowInquiryData?.inquiries?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final tomorrowInquiry = tomorrowInquiryData?.inquiries?[index];
-
-                      // Ensure tomorrowInquiry is not null before accessing properties
-                      if (tomorrowInquiry == null) return SizedBox();
-                      String courseNames =
-                          tomorrowInquiry.courses?.map((course) => course.name).join(", ") ?? "No courses available";
-                      return InquiryCard(
-                        title:  "${tomorrowInquiry.fname} ${tomorrowInquiry.lname}",
-                        subtitle: courseNames,
-                        menuItems: [
-                          PopupMenuItem<String>(value: 'call', child: Text(call)),
-                          PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                          PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                          PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
-                          PopupMenuItem<String>(value: 'status', child: Text(status)),
-                        ],
-                        onMenuSelected: (value) async {
-                          if (value == "call") {
-                            if (tomorrowInquiry.contact != null) {
-                              makePhoneCall(tomorrowInquiry.contact!);
-                            }
-                          }else if (value == "settings") {
-                            showNotificationSettingsDialog(context, tomorrowInquiry.id.toString(),  tomorrowInquiry.notificationDay!);
-                          } else if (value == "feedback") {
-                            showLoadingDialog(context);
-                            await loadFeedBackListData(tomorrowInquiry.id.toString());
-                            hideLoadingDialog(context);
-                            showFeedbackDialog(context,  tomorrowInquiry.id.toString(), feedbackData);
-                          } else if (value == "date") {
-                            showUpcomingDateDialog(context, tomorrowInquiry.inquiryDate!, tomorrowInquiry.id.toString());
-                          } else if (value == "status") {
-                            showLoadingDialog(context);
-                            await loadInquiryStatusListData();
-                            hideLoadingDialog(context);
-                            showInquiryStatusDialog(context, inquiryList);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ): Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: Center(
-                      child: DataNotAvailableWidget(message: dataNotAvailable)
-                  ),
-                ),
-
-              ],
-            ),
-            // Within 7Days TabBar
-            Column(
-              children: [
-                isLoading
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (context, index) =>
-                    const NotificationCardSkeleton(),
-                  ),
-                )
-                    : (daysInquiryData?.inquiries?.isNotEmpty ?? false)
-                    ? Expanded(
-                  child: ListView.builder(
-                    itemCount: daysInquiryData?.inquiries?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final daysInquiry = daysInquiryData?.inquiries?[index];
-
-                      if (daysInquiry == null) return SizedBox();
-
-                      String courseNames = daysInquiry.courses
-                          ?.map((course) => course.name)
-                          .join(", ") ??
-                          "No courses available";
-
-                      return InquiryCard(
-                        title:
-                        "${daysInquiry.fname ?? ''} ${daysInquiry.lname ?? ''}",
-                        subtitle: courseNames,
-                        menuItems: [
-                          PopupMenuItem<String>(
-                              value: 'call', child: Text(call)),
-                          PopupMenuItem<String>(
-                              value: 'settings', child: Text(notificationSettings)),
-                          PopupMenuItem<String>(
-                              value: 'feedback', child: Text(feedbackHistory)),
-                          PopupMenuItem<String>(
-                              value: 'date', child: Text(upcomingDate)),
-                          PopupMenuItem<String>(
-                              value: 'status', child: Text(status)),
-                        ],
-                        onMenuSelected: (value) async {
-                          if (value == "call") {
-                            if (daysInquiry.contact != null) {
-                              makePhoneCall(daysInquiry.contact!);
-                            }
-                          } else if (value == "settings") {
-                            showNotificationSettingsDialog(context, daysInquiry.id.toString(),  daysInquiry.notificationDay!);
-                          } else if (value == "feedback") {
-                            showLoadingDialog(context);
-                            await loadFeedBackListData(daysInquiry.id.toString());
-                            hideLoadingDialog(context);
-                            showFeedbackDialog(context,  daysInquiry.id.toString(), feedbackData);
-                          } else if (value == "date") {
-                            showUpcomingDateDialog(context, daysInquiry.inquiryDate!, daysInquiry.id.toString());
-                          } else if (value == "status") {
-                            showLoadingDialog(context);
-                            await loadInquiryStatusListData();
-                            hideLoadingDialog(context);
-                            showInquiryStatusDialog(context, inquiryList);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                )
-                    : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: Center(
-                      child: DataNotAvailableWidget(message: dataNotAvailable)),
-                ),
-              ],
-            ),
-            Center(child: Text(" Follow-Ups")),
-          ],
+            )
+                : FloatingActionButton(
+              backgroundColor: preIconFillColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+              onPressed: () {
+                List<int?> selectedCourseIds = [];
+                showDynamicCheckboxDialog(
+                  context,
+                      (selectedCourses) async {
+                    selectedCourseIds = selectedCourses.courses!
+                        .where((c) => c.isChecked == true)
+                        .map((c) => c.id)
+                        .toList();
+                    String selectedCourseIdsString = selectedCourseIds.join(",");
+                    InquiryModel? filteredData = await FilterInquiryData(
+                        selectedCourseIdsString, null, null, null, null, context);
+                    setState(() {
+                      inquiryData = filteredData;
+                    });
+                  },
+                  courseProvider.course,
+                      () {
+                    for (var course in courseProvider.course!.courses!) {
+                      course.isChecked = false;
+                    }
+                    setState(() {});
+                  },
+                );
+              },
+              child: Icon(Icons.filter_list, color: white, size: 30),
+            );
+          },
         ),
       ),
     );
   }
+
+
+  // tabView Widget
+  Widget buildInquiryList() {
+    return Column(
+      children: [
+        isLoading
+            ? Expanded(
+          child: ListView.builder(
+            itemCount: 5,
+            itemBuilder: (context, index) => const NotificationCardSkeleton(),
+          ),
+        )
+            : (inquiryData?.inquiries?.isNotEmpty ?? false)
+            ? Expanded(
+          child: ListView.builder(
+            itemCount: inquiryData?.inquiries?.length ?? 0,
+            itemBuilder: (context, index) {
+              final inquiry = inquiryData?.inquiries?[index];
+
+              if (inquiry == null) return SizedBox();
+
+              String courseNames = inquiry.courses?.map((course) => course.name).join(", ") ?? "No courses available";
+
+              return InquiryCard(
+                title: "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
+                subtitle: courseNames,
+                menuItems: [
+                  PopupMenuItem<String>(value: 'call', child: Text(call)),
+                  PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
+                  PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
+                  PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
+                  PopupMenuItem<String>(value: 'status', child: Text(status)),
+                ],
+                onMenuSelected: (value) async {
+                  if (value == "call" && inquiry.contact != null) {
+                    makePhoneCall(inquiry.contact!);
+                  } else if (value == "settings") {
+                    showNotificationSettingsDialog(context, inquiry.id.toString(), inquiry.notificationDay!);
+                  } else if (value == "feedback") {
+                    showLoadingDialog(context);
+                    await loadFeedBackListData(inquiry.id.toString());
+                    hideLoadingDialog(context);
+                    showFeedbackDialog(context, inquiry.id.toString(), feedbackData);
+                  } else if (value == "date") {
+                    showUpcomingDateDialog(context, inquiry.inquiryDate!, inquiry.id.toString());
+                  } else if (value == "status") {
+                    showLoadingDialog(context);
+                    await loadInquiryStatusListData();
+                    hideLoadingDialog(context);
+                    showInquiryStatusDialog(context, inquiryList);
+                  }
+                },
+              );
+            },
+          ),
+        ) : Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40.0),
+          child: Center(child: DataNotAvailableWidget(message: dataNotAvailable)),
+        ),
+      ],
+    );
+  }
+
 }
+
+
+
+
+
+
+
+
 
 
 
