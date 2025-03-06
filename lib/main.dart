@@ -12,6 +12,7 @@ import 'package:inquirymanagement/pages/login/model/branch.dart';
 import 'package:inquirymanagement/pages/splashScreen.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/notification_service.dart';
+import 'common/color.dart';
 import 'firebase_options.dart';
 
 late Box userBox;
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(scaffoldBackgroundColor: white),
       scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       home: const splashScreenPage(),

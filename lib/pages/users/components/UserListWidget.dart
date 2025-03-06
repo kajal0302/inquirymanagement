@@ -5,6 +5,7 @@ import 'package:inquirymanagement/common/style.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/users/apiCall/UserApi.dart';
+import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 
@@ -61,13 +62,13 @@ class _UserListWidgetState extends State<UserListWidget> {
       color: bv_secondaryLightColor3,
       child: ListTile(
         leading: ClipOval(
-          child: CachedNetworkImage(
+          child: widget.image != "" ? CachedNetworkImage(
             width: 50,
             height: 50,
             imageUrl: widget.image,
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
+          ) : Image.asset(userImg, width: 45, height: 45),
         ),
         title: Text(widget.name, style: primary_heading_4),
         subtitle: Column(

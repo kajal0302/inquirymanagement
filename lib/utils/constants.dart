@@ -39,6 +39,7 @@ const feedbackList = "feedback_list.php";
 const addFeedback = "postfeedback.php";
 
 const notification = "missing_inquiry_report.php";
+const notificationCountUri = "GetNotificationCount.php";
 
 const inquiryStatusList = "inquiry_status_list.php";
 
