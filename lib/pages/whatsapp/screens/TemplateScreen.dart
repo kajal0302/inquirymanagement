@@ -30,6 +30,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../inquiry_report/components/referenceDialog.dart';
+
 class TemplateScreen extends StatefulWidget {
   const TemplateScreen({super.key});
 
@@ -114,6 +116,35 @@ class _TemplateScreenState extends State<TemplateScreen> {
     });
   }
 
+
+  /// Method for Reference Filter
+  void filterInquiriesByReference(String selectedName) async {
+    setState(() {
+      isLoading = true;
+    });
+    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+        selectedCourseIdsString, null, null, branch_id, selectedStatus,selectedName, context);
+    setState(() {
+      if(fetchedFilteredInquiryData != null){
+        filterInquiryData= fetchedFilteredInquiryData.inquiries;
+      }
+      isLoading = false;
+    });
+  }
+
+  /// Add Inquiry Reference Dialog Box
+  void showInquiryReferenceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return InquiryReferenceDialog(
+            onPressed: (String selectedName) async {
+              filterInquiriesByReference(selectedName);
+            });
+        },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,41 +174,70 @@ class _TemplateScreenState extends State<TemplateScreen> {
           ),
         ),
       ]),
-      floatingActionButton: CustomSpeedDial(
-        onCalendarTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return BuildDialogBox(
-                context,
-                'Select Date Range',
-                Align(
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    child: CustomCalendar(
-                      initialFormat: _calendarFormat,
-                      initialFocusedDay: _focusedDay,
-                      initialSelectedDay: _selectedDay,
-                      initialRangeStart: _rangeStart,
-                      initialRangeEnd: _rangeEnd,
-                      onDaySelected: _onDaySelected,
-                      onRangeSelected: _onRangeSelected,
-                    ),
-                  ),
-                ),
-                (bool) {
-                  if (bool) {
-                    loadInquiryData();
-                  }
-                },
-              );
-            },
-          );
-        },
-        onFilterTap: () async {},
-        backgroundColor: primaryColor,
-        iconColor: Colors.white,
-        iconSize: 25.0,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            right: px10,
+            bottom: px10,
+            child:  CustomSpeedDial(
+              onCalendarTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BuildDialogBox(
+                      context,
+                      'Select Date Range',
+                      Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          child: CustomCalendar(
+                            initialFormat: _calendarFormat,
+                            initialFocusedDay: _focusedDay,
+                            initialSelectedDay: _selectedDay,
+                            initialRangeStart: _rangeStart,
+                            initialRangeEnd: _rangeEnd,
+                            onDaySelected: _onDaySelected,
+                            onRangeSelected: _onRangeSelected,
+                          ),
+                        ),
+                      ),
+                          (bool) {
+                        if (bool) {
+                          loadInquiryData();
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+              onFilterTap: () async {},
+              onReferenceTap: () async{
+                showInquiryReferenceDialog(context);
+              },
+              backgroundColor: preIconFillColor,
+              iconColor: white,
+              iconSize: 25.0,
+            ),
+          ),
+          Positioned(
+            left: 10,
+            bottom: px5,
+            child:btnWidget(
+              onClick: (){
+                _loadTemplate();
+              },
+              btnBgColor: primaryColor,
+              btnBrdRadius: BorderRadius.circular(px35),
+              btnLabel: "Select Template",
+              btnLabelColor: white,
+              btnLabelFontSize: px16,
+              btnLabelFontWeight: FontWeight.bold,
+            ),
+          )
+        ],
+
       ),
     );
   }
@@ -188,7 +248,10 @@ class _TemplateScreenState extends State<TemplateScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         buildStudentButton(context),
-        sendData ? submitButton() : const CircularProgressIndicator(),
+        sendData ? submitButton() : const CircularProgressIndicator(
+          color: grey_400,
+          strokeWidth: 2.0,
+        ),
       ],
     );
   }
@@ -483,6 +546,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
         endDateString,
         branch_id,
         selectedStatus,
+        null,
         context);
     setState(() {
       inquiryData = fetchedInquiryListData;

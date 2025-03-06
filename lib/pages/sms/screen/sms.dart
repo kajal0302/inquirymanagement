@@ -20,8 +20,10 @@ import '../../../utils/common.dart';
 import '../../course/components/showDynamicCheckboxDialog.dart';
 import '../../course/provider/CourseProvider.dart';
 import '../../inquiry_report/apicall/inquiryFilterApi.dart';
+import '../../inquiry_report/components/referenceDialog.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
 import '../../notification/components/customDialogBox.dart';
+import '../../notification/components/statusDialog.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 
 class SmsPage extends StatefulWidget {
@@ -73,7 +75,7 @@ class _SmsPageState extends State<SmsPage> {
     });
 
     InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, context);
+        null, startDateString, endDateString, branchId, null,null, context);
 
     setState(() {
       studentFilteredBYCourse = fetchedFilteredInquiryData;
@@ -86,11 +88,9 @@ class _SmsPageState extends State<SmsPage> {
     setState(() {
       isStatusLoading = true;
     });
-
     List<Inquiries> filteredData = studentFilteredBYCourse!.inquiries!
         .where((student) => student.status == selectedName)
         .toList();
-
     Future.delayed(Duration(milliseconds: 500), () {
       setState(() {
         studentFilteredBYCourse = InquiryModel(inquiries: filteredData);
@@ -98,6 +98,21 @@ class _SmsPageState extends State<SmsPage> {
       });
 
       Navigator.pop(context);
+    });
+  }
+
+
+  /// Method for Reference Filter
+  void filterInquiriesByReference(String selectedName) async {
+    setState(() {
+      isLoading = true;
+    });
+    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+        null, null, null, branchId, null,selectedName, context);
+
+    setState(() {
+      studentFilteredBYCourse = fetchedFilteredInquiryData;
+      isLoading = false;
     });
   }
 
@@ -123,115 +138,52 @@ class _SmsPageState extends State<SmsPage> {
 
 
 
-  /// Add Status Dialog Box
-  void showStatusDialog(InquiryStatusModel? inquiryList, BuildContext context) {
+  /// Add Inquiry Status Dialog Box
+  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String selectedId = '';
-        String selectedName = '';
-        String selectedStatusId = '';
+        return InquiryStatusDialog(
+            isInquiryReport: true,
+            inquiryList: inquiryList,
+            onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+              if (studentFilteredBYCourse == null ||
+                  studentFilteredBYCourse!.inquiries!.isEmpty) {
+                Navigator.pop(context);
+                callSnackBar("Please select Students.", "danger");
+              } else if (selectedId.isEmpty) {
+                callSnackBar("Please select a status", "danger");
+              } else {
+                filterInquiriesByStatus(selectedName);
+                callSnackBar("Inquiry fetched successfully!", "success");
+              }
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CustomDialog(
-              title: "Status",
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: inquiryList!.inquiryStatusList!.length,
-                        itemBuilder: (context, index) {
-                          var status = inquiryList.inquiryStatusList![index];
-                          bool isSelected = selectedId == status.id;
-                          return Card(
-                            color: white,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedId = status.id!;
-                                  selectedName = status.name!;
-                                  selectedStatusId = status.status!;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(15),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 15),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isSelected
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
-                                      color: isSelected
-                                          ? preIconFillColor
-                                          : grey_500,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      status.name!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? preIconFillColor
-                                            : black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 45,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (studentFilteredBYCourse == null ||
-                              studentFilteredBYCourse!.inquiries!.isEmpty) {
-                            Navigator.pop(context);
-                            callSnackBar("Please select Students.", "danger");
-                          } else if (selectedId.isEmpty) {
-                            callSnackBar("Please select a status", "danger");
-                          } else {
-                            filterInquiriesByStatus(selectedName);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: bv_primaryDarkColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Text(
-                          "FIND",
-                          style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+            });
+      },
+    );
+  }
+
+
+  /// Add Inquiry Reference Dialog Box
+  void showInquiryReferenceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return InquiryReferenceDialog(
+          onPressed: (String selectedName) async {
+            if (studentFilteredBYCourse == null ||
+                studentFilteredBYCourse!.inquiries!.isEmpty) {
+              Navigator.pop(context);
+              callSnackBar("Please select Students.", "danger");
+            } else if (selectedName.isEmpty) {
+              callSnackBar("Please select reference", "danger");
+            } else {
+              filterInquiriesByReference(selectedName);
+              messageController.clear();
+              callSnackBar("Inquiry fetched successfully!", "success");
+            }
+
+          });
       },
     );
   }
@@ -296,13 +248,7 @@ class _SmsPageState extends State<SmsPage> {
                             .toList();
                         String selectedCourseIdsString =
                             selectedCourseIds.join(",");
-                        InquiryModel? filteredData = await FilterInquiryData(
-                            selectedCourseIdsString,
-                            null,
-                            null,
-                            null,
-                            null,
-                            context);
+                        InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, null, null, null, context);
                         setState(() {
                           studentFilteredBYCourse = filteredData;
                         });
@@ -339,6 +285,7 @@ class _SmsPageState extends State<SmsPage> {
                         return;
                       } else {
                         callSnackBar(data.message.toString(), "success");
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>DashboardPage()));
                       }
                     }
                   },
@@ -546,7 +493,24 @@ class _SmsPageState extends State<SmsPage> {
 
           /// Hide loading dialog when done
           hideLoadingDialog(context);
-          showStatusDialog(inquiryList, context);
+
+          /// Status Dialog
+          showInquiryStatusDialog(context, inquiryList);
+        },
+
+        /// Reference Filter
+        onReferenceTap: () async{
+          /// Show loading dialog
+          showLoadingDialog(context);
+
+          /// load status list
+          await loadInquiryStatusListData();
+
+          /// Hide loading dialog when done
+          hideLoadingDialog(context);
+
+          /// Reference Dialog
+          showInquiryReferenceDialog(context);
         },
         backgroundColor: preIconFillColor,
         iconColor: black,

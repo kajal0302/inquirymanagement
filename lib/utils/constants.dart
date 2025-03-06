@@ -49,7 +49,7 @@ const inquiry = "Inquiry";
 const inquiryDetail = "inquiry_detail.php";
 
 const branch = "branches.php";
-const sms="sendsms.php";
+const sms="sendmultiplesms.php";
 
 const changeUserStatusUri = "change_user_status.php";
 const postInquiriesUri = "postinquiries.php";

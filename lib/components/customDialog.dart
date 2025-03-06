@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/common/color.dart';
 
 class CustomSpeedDial extends StatelessWidget {
   final VoidCallback onCalendarTap;
   final VoidCallback onFilterTap;
+  final VoidCallback? onReferenceTap;
   final Color backgroundColor;
   final Color overlayColor;
   final double overlayOpacity;
@@ -15,6 +17,7 @@ class CustomSpeedDial extends StatelessWidget {
     Key? key,
     required this.onCalendarTap,
     required this.onFilterTap,
+    this.onReferenceTap,
     this.backgroundColor = Colors.blue,
     this.overlayColor = Colors.black,
     this.overlayOpacity = 0.5,
@@ -47,6 +50,11 @@ class CustomSpeedDial extends StatelessWidget {
           backgroundColor: backgroundColor,
           child: Icon(Icons.filter_list,color: iconColor,),
           onTap: onFilterTap,
+        ),
+        SpeedDialChild(
+          backgroundColor: backgroundColor,
+          child: Icon(FontAwesomeIcons.users,color: iconColor,),
+          onTap: onReferenceTap,
         ),
       ],
     );

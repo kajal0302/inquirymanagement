@@ -16,6 +16,7 @@ import 'package:inquirymanagement/utils/urlLauncherMethods.dart';
 import '../../../common/text.dart';
 import '../../../components/appBar.dart';
 import '../apicall/feedbackApi.dart';
+import '../apicall/updateInquiryStatus.dart';
 import '../components/upcomingDateDialog.dart';
 import '../model/feedbackModel.dart';
 
@@ -145,17 +146,28 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   // Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(
-      BuildContext context, InquiryStatusModel? inquiryList) {
+  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return InquiryStatusDialog(
           inquiryList: inquiryList,
+          onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+            await updateInquiryStatusData(
+              selectedId,
+              selectedStatusId,
+              selectedName,
+              branchId,
+              createdBy,
+              context,
+            );
+            callSnackBar(updationMessage, "success");
+          },
         );
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
