@@ -34,6 +34,13 @@ class _DashboardPageState extends State<DashboardPage> {
         await fetchNotificationData(branchId, context);
     if (mounted) {
       setState(() {
+        if (fetchedNotificationData != null &&
+            fetchedNotificationData.inquiries!.isNotEmpty) {
+          notification = fetchedNotificationData;
+          count = fetchedNotificationData.inquiries!.length.toString();
+        } else {
+          count = "0";
+        }
       });
     }
   }
