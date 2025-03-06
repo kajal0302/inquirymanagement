@@ -29,37 +29,60 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
-  List<dynamic> notifications = [];
+  List<Inquiries> notifications = [];
   bool isLoading = true;
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
   TextEditingController feedbackController = TextEditingController();
+  bool isLoadPagination = false;
+  int limit = 20;
+  int totalCount = 0;
+  int page = 1;
+  ScrollController scrollController = new ScrollController();
 
   @override
   void initState() {
     super.initState();
     loadNotificationData();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        if (totalCount > notifications.length) {
+          isLoadPagination = true;
+          page += 1;
+          loadNotificationData();
+          setState(() {});
+        }
+      }
+    });
   }
 
-  /// Method to load notification data
+  // Method to load notification data (Initial & Pagination)
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-        await fetchNotificationData(branchId, context);
+    await fetchNotificationData(branchId, context, page, limit);
+
     if (mounted) {
       setState(() {
         if (fetchedNotificationData != null &&
             fetchedNotificationData.inquiries!.isNotEmpty) {
-          notifications.addAll(fetchedNotificationData.inquiries!);
+
+          if(fetchedNotificationData.status == success){
+            notifications.addAll(fetchedNotificationData.inquiries!);
+            totalCount = fetchedNotificationData.count!;
+          }
         }
+
         isLoading = false;
+        isLoadPagination = false;
       });
     }
   }
 
-  /// Method to load feedback data
+  // Method to load feedback data
   Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
     FeedbackModel? fetchedFeedbackListData =
-        await fetchFeedbackData(inquiryId, context);
+    await fetchFeedbackData(inquiryId, context);
     if (mounted) {
       setState(() {
         feedbackData = fetchedFeedbackListData;
@@ -68,10 +91,10 @@ class _NotificationPageState extends State<NotificationPage> {
     return fetchedFeedbackListData;
   }
 
-  /// Method to update upcoming date
+  // Method to update upcoming date
   Future<void> loadInquiryStatusListData() async {
     InquiryStatusModel? inquiryStatusList =
-        await fetchInquiryStatusList(context);
+    await fetchInquiryStatusList(context);
     if (mounted) {
       setState(() {
         inquiryList = inquiryStatusList;
@@ -79,7 +102,7 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  /// Add Inquiry Notification Dialog Box
+  // Add Inquiry Notification Dialog Box
   void showNotificationSettingsDialog(
       BuildContext context, String inquiryId, String notificationDay) {
     showDialog(
@@ -93,7 +116,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Add Inquiry Feedback Dialog Box
+  // Add Inquiry Feedback Dialog Box
   void showFeedbackDialog(
       BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
     showDialog(
@@ -107,7 +130,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Add Upcoming Date Dialog Box
+  // Add Upcoming Date Dialog Box
   void showUpcomingDateDialog(
       BuildContext context, String inquiryDate, String inquiryId) {
     showDialog(
@@ -121,7 +144,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Add Inquiry Status Dialog Box
+  // Add Inquiry Status Dialog Box
   void showInquiryStatusDialog(
       BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
@@ -142,89 +165,98 @@ class _NotificationPageState extends State<NotificationPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
-          (Route<dynamic> route) => false, // Removes all previous routes
+              (Route<dynamic> route) => false, // Removes all previous routes
         );
       },
       child: Scaffold(
         backgroundColor: white,
         appBar:
-            widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
+        widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
         body: Column(
           children: [
             isLoading
                 ? Expanded(
-                    child: ListView.builder(
-                      itemCount: 5,
-                      itemBuilder: (context, index) =>
-                          const NotificationCardSkeleton(),
-                    ),
-                  )
+              child: ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) =>
+                const NotificationCardSkeleton(),
+              ),
+            )
                 : (notifications.isNotEmpty)
-                    ? Expanded(
-                        child: ListView.builder(
-                          itemCount: notifications.length,
-                          itemBuilder: (context, index) {
-                            final notification = notifications[index];
-                            /// Extract course names
-                            String courseNames = notification.courses!
-                                .map((course) => course.name)
-                                .join(", ");
-                            return InquiryCard(
-                              hasNotificationPage: true,
-                              title:
-                                  "${notification.fname} ${notification.lname}",
-                              subtitle: courseNames,
-                              menuItems: [
-                                PopupMenuItem<String>(
-                                    value: 'call', child: Text(call)),
-                                PopupMenuItem<String>(
-                                    value: 'settings',
-                                    child: Text(notificationSettings)),
-                                PopupMenuItem<String>(
-                                    value: 'feedback',
-                                    child: Text(feedbackHistory)),
-                                PopupMenuItem<String>(
-                                    value: 'date', child: Text(upcomingDate)),
-                                PopupMenuItem<String>(
-                                    value: 'status', child: Text(status)),
-                              ],
-                              onMenuSelected: (value) async {
-                                if (value == "call") {
-                                  makePhoneCall(notification.contact);
-                                } else if (value == "settings") {
-                                  showNotificationSettingsDialog(
-                                      context,
-                                      notification.id.toString(),
-                                      notification.notificationDay);
-                                } else if (value == "feedback") {
-                                  showLoadingDialog(context);
-                                  await loadFeedBackListData(
-                                      notification.id.toString());
-                                  hideLoadingDialog(context);
-                                  showFeedbackDialog(context,
-                                      notification.id.toString(), feedbackData);
-                                } else if (value == "date") {
-                                  showUpcomingDateDialog(
-                                      context,
-                                      notification.inquiryDate,
-                                      notification.id.toString());
-                                } else if (value == "status") {
-                                  showLoadingDialog(context);
-                                  await loadInquiryStatusListData();
-                                  hideLoadingDialog(context);
-                                  showInquiryStatusDialog(context, inquiryList);
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                        child: Center(
-                            child: DataNotAvailableWidget(
-                                message: dataNotAvailable)),
-                      ),
+                ? Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
+                  // Extract course names
+                  String courseNames = notification.courses!
+                      .map((course) => course.name)
+                      .join(", ");
+                  return InquiryCard(
+                    hasNotificationPage: true,
+                    title:
+                    "${notification.fname} ${notification.lname}",
+                    subtitle: courseNames,
+                    menuItems: [
+                      PopupMenuItem<String>(
+                          value: 'call', child: Text(call)),
+                      PopupMenuItem<String>(
+                          value: 'settings',
+                          child: Text(notificationSettings)),
+                      PopupMenuItem<String>(
+                          value: 'feedback',
+                          child: Text(feedbackHistory)),
+                      PopupMenuItem<String>(
+                          value: 'date', child: Text(upcomingDate)),
+                      PopupMenuItem<String>(
+                          value: 'status', child: Text(status)),
+                    ],
+                    onMenuSelected: (value) async {
+                      if (value == "call") {
+                        makePhoneCall(notification.contact ?? "");
+                      } else if (value == "settings") {
+                        showNotificationSettingsDialog(
+                            context,
+                            notification.id.toString(),
+                            notification.notificationDay ??
+                                "unknown");
+                      } else if (value == "feedback") {
+                        showLoadingDialog(context);
+                        await loadFeedBackListData(
+                            notification.id.toString());
+                        hideLoadingDialog(context);
+                        showFeedbackDialog(context,
+                            notification.id.toString(), feedbackData);
+                      } else if (value == "date") {
+                        showUpcomingDateDialog(
+                            context,
+                            notification.inquiryDate ?? "unknown",
+                            notification.id.toString());
+                      } else if (value == "status") {
+                        showLoadingDialog(context);
+                        await loadInquiryStatusListData();
+                        hideLoadingDialog(context);
+                        showInquiryStatusDialog(context, inquiryList);
+                      }
+                    },
+                  );
+                },
+              ),
+            )
+                : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Center(
+                  child: DataNotAvailableWidget(
+                      message: dataNotAvailable)),
+            ),
+            if (isLoadPagination)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
           ],
         ),
       ),
