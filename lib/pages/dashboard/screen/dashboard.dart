@@ -18,6 +18,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  String userType = userBox.get(userTypeStr);
   String branchId = userBox.get(branchIdStr).toString();
   NotificationModel? notification;
   String count = "0";
@@ -63,7 +64,16 @@ class _DashboardPageState extends State<DashboardPage> {
               itemCount: dashboardItems.length,
               itemBuilder: (context, index) {
                 final item = dashboardItems[index];
-                return DashboardListView(item: item);
+
+                if(userType == "Employee"){
+                  if(item['title'] != "Branch" && item['title'] != "User"){
+                    return DashboardListView(item: item);
+                  }
+                }else{
+                  return DashboardListView(item: item);
+                }
+                return null;
+
               },
             ),
           ),

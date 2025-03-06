@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:inquirymanagement/common/text.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/followUp/screen/followUp.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
@@ -19,9 +21,14 @@ final List<Map<String, dynamic>> dashboardItems = [
     'page': AddInquiryPage(),
   },
   {
-    "icon": FontAwesomeIcons.fileAlt,
+    "icon": FontAwesomeIcons.fileLines,
     "title": "Inquiry Report",
     'page': InquiryReportPage()
+  },
+  {
+    "icon": Icons.calendar_today_outlined,
+    "title": "Follow Up",
+    'page': FollowUpPage()
   },
   {
     "icon": Icons.message_outlined,
@@ -29,9 +36,9 @@ final List<Map<String, dynamic>> dashboardItems = [
     'page': SmsPage()
   },
   {
-    "icon": Icons.calendar_today_outlined,
-    "title": "Follow Up",
-    'page': FollowUpPage()
+    "icon": FontAwesomeIcons.whatsapp,
+    "title": "Whatsapp",
+    'page': ContactList()
   },
   {
     "icon": Icons.add_location,
@@ -42,11 +49,6 @@ final List<Map<String, dynamic>> dashboardItems = [
     "icon": Icons.person_add,
     "title": "User",
     'page': UserScreen()
-  },
-  {
-    "icon": FontAwesomeIcons.whatsapp,
-    "title": "Whatsapp",
-    'page': ContactList()
   },
 ];
 
