@@ -41,13 +41,14 @@ class _NotificationPageState extends State<NotificationPage> {
     loadNotificationData();
   }
 
-  // Method to load notification data (Initial & Pagination)
+  /// Method to load notification data
   Future<void> loadNotificationData() async {
-    NotificationModel? fetchedNotificationData = await fetchNotificationData(branchId, context);
-
+    NotificationModel? fetchedNotificationData =
+        await fetchNotificationData(branchId, context);
     if (mounted) {
       setState(() {
-        if (fetchedNotificationData != null && fetchedNotificationData.inquiries!.isNotEmpty) {
+        if (fetchedNotificationData != null &&
+            fetchedNotificationData.inquiries!.isNotEmpty) {
           notifications.addAll(fetchedNotificationData.inquiries!);
         }
         isLoading = false;
@@ -55,13 +56,11 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-
-
-
-  // Method to load feedback data
-  Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
-    FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
-    if(mounted){
+  /// Method to load feedback data
+  Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
+    FeedbackModel? fetchedFeedbackListData =
+        await fetchFeedbackData(inquiryId, context);
+    if (mounted) {
       setState(() {
         feedbackData = fetchedFeedbackListData;
       });
@@ -69,19 +68,20 @@ class _NotificationPageState extends State<NotificationPage> {
     return fetchedFeedbackListData;
   }
 
-  // Method to update upcoming date
-  Future <void> loadInquiryStatusListData() async{
-    InquiryStatusModel? inquiryStatusList = await fetchInquiryStatusList(context);
-    if(mounted){
+  /// Method to update upcoming date
+  Future<void> loadInquiryStatusListData() async {
+    InquiryStatusModel? inquiryStatusList =
+        await fetchInquiryStatusList(context);
+    if (mounted) {
       setState(() {
         inquiryList = inquiryStatusList;
       });
     }
   }
 
-
-  // Add Inquiry Notification Dialog Box
-  void showNotificationSettingsDialog(BuildContext context, String inquiryId, String notificationDay) {
+  /// Add Inquiry Notification Dialog Box
+  void showNotificationSettingsDialog(
+      BuildContext context, String inquiryId, String notificationDay) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -91,11 +91,11 @@ class _NotificationPageState extends State<NotificationPage> {
         );
       },
     );
-
   }
 
-  // Add Inquiry Feedback Dialog Box
-  void showFeedbackDialog(BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
+  /// Add Inquiry Feedback Dialog Box
+  void showFeedbackDialog(
+      BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -107,9 +107,9 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-
-  // Add Upcoming Date Dialog Box
-  void showUpcomingDateDialog(BuildContext context, String inquiryDate, String inquiryId) {
+  /// Add Upcoming Date Dialog Box
+  void showUpcomingDateDialog(
+      BuildContext context, String inquiryDate, String inquiryId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -121,9 +121,9 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-
-  // Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
+  /// Add Inquiry Status Dialog Box
+  void showInquiryStatusDialog(
+      BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -132,11 +132,7 @@ class _NotificationPageState extends State<NotificationPage> {
         );
       },
     );
-
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -146,75 +142,93 @@ class _NotificationPageState extends State<NotificationPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
-              (Route<dynamic> route) => false, // Removes all previous routes
+          (Route<dynamic> route) => false, // Removes all previous routes
         );
       },
       child: Scaffold(
         backgroundColor: white,
-        appBar: widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
+        appBar:
+            widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
         body: Column(
           children: [
             isLoading
                 ? Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) => const NotificationCardSkeleton(),
-              ),
-            )
+                    child: ListView.builder(
+                      itemCount: 5,
+                      itemBuilder: (context, index) =>
+                          const NotificationCardSkeleton(),
+                    ),
+                  )
                 : (notifications.isNotEmpty)
-                ? Expanded(
-              child: ListView.builder(
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  // Extract course names
-                  String courseNames = notification.courses!.map((course) => course.name).join(", ");
-                  return InquiryCard(
-                    hasNotificationPage: true,
-                      title:  "${notification.fname} ${notification.lname}",
-                      subtitle: courseNames,
-                      menuItems: [
-                        PopupMenuItem<String>(value: 'call', child: Text(call)),
-                        PopupMenuItem<String>(value: 'settings', child: Text(notificationSettings)),
-                        PopupMenuItem<String>(value: 'feedback', child: Text(feedbackHistory)),
-                        PopupMenuItem<String>(value: 'date', child: Text(upcomingDate)),
-                        PopupMenuItem<String>(value: 'status', child: Text(status)),
-                      ],
-                    onMenuSelected: (value) async {
-                    if (value == "call") {
-                      makePhoneCall(notification.contact);
-                    } else if (value == "settings") {
-                      showNotificationSettingsDialog(context, notification.id.toString(),  notification.notificationDay);
-
-                    } else if (value == "feedback") {
-                      showLoadingDialog(context);
-                      await loadFeedBackListData(notification.id.toString());
-                      hideLoadingDialog(context);
-                      showFeedbackDialog(context,  notification.id.toString(), feedbackData);
-                    } else if (value == "date") {
-                      showUpcomingDateDialog(context, notification.inquiryDate, notification.id.toString());
-                    } else if (value == "status") {
-                      showLoadingDialog(context);
-                      await loadInquiryStatusListData();
-                      hideLoadingDialog(context);
-                      showInquiryStatusDialog(context, inquiryList);
-                    }
-                  },
-                  );
-                  },
-              ),
-            )
-                : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: Center(
-                child: DataNotAvailableWidget(message: dataNotAvailable)
-              ),
-            ),
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: notifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = notifications[index];
+                            /// Extract course names
+                            String courseNames = notification.courses!
+                                .map((course) => course.name)
+                                .join(", ");
+                            return InquiryCard(
+                              hasNotificationPage: true,
+                              title:
+                                  "${notification.fname} ${notification.lname}",
+                              subtitle: courseNames,
+                              menuItems: [
+                                PopupMenuItem<String>(
+                                    value: 'call', child: Text(call)),
+                                PopupMenuItem<String>(
+                                    value: 'settings',
+                                    child: Text(notificationSettings)),
+                                PopupMenuItem<String>(
+                                    value: 'feedback',
+                                    child: Text(feedbackHistory)),
+                                PopupMenuItem<String>(
+                                    value: 'date', child: Text(upcomingDate)),
+                                PopupMenuItem<String>(
+                                    value: 'status', child: Text(status)),
+                              ],
+                              onMenuSelected: (value) async {
+                                if (value == "call") {
+                                  makePhoneCall(notification.contact);
+                                } else if (value == "settings") {
+                                  showNotificationSettingsDialog(
+                                      context,
+                                      notification.id.toString(),
+                                      notification.notificationDay);
+                                } else if (value == "feedback") {
+                                  showLoadingDialog(context);
+                                  await loadFeedBackListData(
+                                      notification.id.toString());
+                                  hideLoadingDialog(context);
+                                  showFeedbackDialog(context,
+                                      notification.id.toString(), feedbackData);
+                                } else if (value == "date") {
+                                  showUpcomingDateDialog(
+                                      context,
+                                      notification.inquiryDate,
+                                      notification.id.toString());
+                                } else if (value == "status") {
+                                  showLoadingDialog(context);
+                                  await loadInquiryStatusListData();
+                                  hideLoadingDialog(context);
+                                  showInquiryStatusDialog(context, inquiryList);
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                        child: Center(
+                            child: DataNotAvailableWidget(
+                                message: dataNotAvailable)),
+                      ),
           ],
         ),
       ),
     );
-
   }
 
   // Loading Indicator

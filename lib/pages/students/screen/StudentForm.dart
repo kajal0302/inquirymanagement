@@ -24,17 +24,16 @@ import '../components/personalDetails.dart';
 import '../models/courseListModel.dart';
 
 
-bool _isSubmitting = false;
 final _personalDetailsFormKey = GlobalKey<FormState>();
 final _usernamePasswordFormKey = GlobalKey<FormState>();
 final _parentsDetailsFormKey = GlobalKey<FormState>();
 final _courseDetailsFormKey = GlobalKey<FormState>();
 final _installmentDetailsFormKey = GlobalKey<FormState>();
-
 List<String> batchItems = [];
 List<String> batchIds = [];
 String? categoryId;
 PartnerModel? partnerModel;
+bool _isSubmitting = false;
 
 class StudentForm extends StatefulWidget {
   final String? id;
@@ -82,7 +81,6 @@ class _StudentFromState extends State<StudentForm> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() async {
         await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
@@ -105,7 +103,7 @@ class _StudentFromState extends State<StudentForm> {
 
 
 
-  // Method to load BatchList
+  /// Method to load BatchList
   Future<void> loadstudentBatchListData() async {
     StudentBatchListModel? fetchedBatchListData = await fetchStudentBatchListData(context);
     setState(() {
@@ -125,7 +123,7 @@ class _StudentFromState extends State<StudentForm> {
     });
   }
 
-  // Method to load PartnerList
+  /// Method to load PartnerList
   Future<void> fetchData() async{
     partnerModel =
     await fetchPartner(context);
@@ -134,7 +132,7 @@ class _StudentFromState extends State<StudentForm> {
   }
 
 
-  // Load Course List Data
+  /// Load Course List Data
   Future<void> loadstudentCourseListData() async {
     StudentCourseListModel? fetchedCourseListData = await fetchStudentCourseListData(context,categoryId.toString());
     setState(() {
@@ -272,7 +270,7 @@ class _StudentFromState extends State<StudentForm> {
                       print(isInstallmentDetailsFormValid);
 
 
-                      //Message according to forms
+                      /// Message according to forms
                       List<String> invalidForms = [];
 
                       if (!isPersonalDetailsFormValid) invalidForms.add("Personal Details Form");
@@ -281,7 +279,7 @@ class _StudentFromState extends State<StudentForm> {
                       if (!isCourseDetailsFormValid) invalidForms.add("Course Details Form");
                       if (!isInstallmentDetailsFormValid) invalidForms.add("Installment Details Form");
 
-                      // Proceed only if all forms are valid
+                      /// Proceed only if all forms are valid
                       if (invalidForms.isEmpty) {
 
                         String selectedBatchIdsString = selectedBatchIds.join(",");
@@ -312,7 +310,6 @@ class _StudentFromState extends State<StudentForm> {
                             partnerController.text
                         );
 
-                        // Handle the response from the submission
                         if (data != null && data.status == success) {
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>InquiryReportPage()));
                           callSnackBar(data.message.toString(), success);

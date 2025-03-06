@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
 const white= Colors.white;
-const black= Colors.black;
-const green = Colors.green;
-const red = Colors.red;
 const white70 = Colors.white70;
+const transparent= Colors.transparent;
+const colorWhiteTransperent = Color(0x33ffffff);
+
+const black= Colors.black;
+const black54 = Colors.black54;
+const black87 = Colors.black87;
+
+const green = Colors.green;
 const colorGreen_900 = Color(0xFF1B5E20);
 const colorConfirm = Color(0xFF33ee33);
-const transparent= Colors.transparent;
-const blue = Colors.blue;
-const colorGrey = Color(0xFF999999);
-const colorWhiteTransperent = Color(0x33ffffff);
+
+const red = Colors.red;
 const redAccent = Colors.redAccent;
 
 const grey50 = Color(0xFFfafafa);
@@ -21,9 +24,14 @@ const grey_400 = Color(0xFFbdbdbd);
 const grey_500 = Color(0xFF9e9e9e);
 const grey_600 = Color(0xFFe8e8e8);
 const greyInput = Color(0xFFAAAAAA);
+const grey_50 =  Color(0xFFfafafa);
+const grey_100 =  Color(0xFFf5f5f5);
+const grey_200 =  Color(0xFFeeeeee);
+const colorGrey = Color(0xFF999999);
 
 const primaryColor =  Color(0xFF0092b0);
 const lightBlueColor =  Color(0xFFC0FFFF);
+const blue = Colors.blue;
 
 const colorAmber_900 =  Color(0xFFFF6F00);
 const colorThemeOrange = Color(0xFFfd6502);
@@ -32,9 +40,7 @@ const colorBlackAlpha =  Color(0xaa000000);
 const colorThemeBlue = Color(0xFF0032fd);
 
 
-const grey_50 =  Color(0xFFfafafa);
-const grey_100 =  Color(0xFFf5f5f5);
-const grey_200 =  Color(0xFFeeeeee);
+
 
 const bv_primaryColor =  Color(0xFF0092b0);
 const bv_primaryLightColor =  Color(0xFF57c3e2);

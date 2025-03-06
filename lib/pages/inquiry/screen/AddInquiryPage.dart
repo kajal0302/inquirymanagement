@@ -7,7 +7,6 @@ import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/branch/model/branchListModel.dart';
 import 'package:inquirymanagement/pages/course/provider/CourseProvider.dart';
-import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/InquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/PartnerApi.dart';
 import 'package:inquirymanagement/pages/inquiry/apiCall/inquiryDetailApi.dart';
@@ -26,7 +25,8 @@ import '../../../components/branchInputField.dart';
 class AddInquiryPage extends StatefulWidget {
   final bool isEdit;
   final String? id;
-  const AddInquiryPage({super.key,this.isEdit=false,this.id});
+
+  const AddInquiryPage({super.key, this.isEdit = false, this.id});
 
   @override
   State<AddInquiryPage> createState() => _AddInquiryPageState();
@@ -39,8 +39,6 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   PartnerModel? partnerModel;
   late String userId;
   InquiryModel? inquiryDetailData;
-
-
 
   final TextEditingController firstNameTextEditing = TextEditingController();
   final TextEditingController lastNameTextEditing = TextEditingController();
@@ -59,7 +57,6 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   bool _isSubmitting = false;
   bool isLoading = true;
   String profilePic = userImageUri;
-
 
   @override
   void initState() {
@@ -86,55 +83,62 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     }
   }
 
+  /// Method to fetch Inquiry Detail
+  Future<void> loadInquiryDetailData() async {
+    InquiryModel? inquiryDetail =
+        await fetchInquiryDetailData(context, widget.id!);
+    if (mounted) {
+      inquiryDetailData = inquiryDetail;
 
-  // Method to fetch Inquiry Detail
-  Future <void> loadInquiryDetailData() async{
-    InquiryModel? inquiryDetail = await fetchInquiryDetailData(context, widget.id!);
-    if(mounted){
-        inquiryDetailData = inquiryDetail;
-        if (inquiryDetailData != null && inquiryDetailData!.inquiryDetail != null) {
-          firstNameTextEditing.text = inquiryDetailData!.inquiryDetail!.fname ?? '';
-          lastNameTextEditing.text = inquiryDetailData!.inquiryDetail!.lname ?? '';
-          mobileNoTextEditing.text = inquiryDetailData!.inquiryDetail!.mobileno ?? '';
-          referenceByTextEditing.text = inquiryDetailData?.inquiryDetail?.reference ?? '';
-          feedBackTextEditing.text = inquiryDetailData!.inquiryDetail!.feedback ?? '';
-          if (inquiryDetailData?.inquiryDetail?.courses != null &&
-              inquiryDetailData!.inquiryDetail!.courses!.isNotEmpty) {
-            coursesTextEditing.text = inquiryDetailData!.inquiryDetail!.courses!
-                .map((course) => course.name)
-                .join(', ');
-            String courseIds = inquiryDetailData!.inquiryDetail!.courses!
-                .map((course) => course.id.toString().trim())
-                .join(', ');
+      /// Prefill  Data
+      if (inquiryDetailData != null &&
+          inquiryDetailData!.inquiryDetail != null) {
+        firstNameTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.fname ?? '';
+        lastNameTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.lname ?? '';
+        mobileNoTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.mobileno ?? '';
+        referenceByTextEditing.text =
+            inquiryDetailData?.inquiryDetail?.reference ?? '';
+        feedBackTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.feedback ?? '';
+        if (inquiryDetailData?.inquiryDetail?.courses != null &&
+            inquiryDetailData!.inquiryDetail!.courses!.isNotEmpty) {
+          coursesTextEditing.text = inquiryDetailData!.inquiryDetail!.courses!
+              .map((course) => course.name)
+              .join(', ');
+          String courseIds = inquiryDetailData!.inquiryDetail!.courses!
+              .map((course) => course.id.toString().trim())
+              .join(', ');
 
-            coursesIdsTextEditing.value = TextEditingValue(
-              text: courseIds, // Assign formatted string
-              selection: TextSelection.collapsed(offset: courseIds.length),
-            );
-
-          } else {
-            coursesTextEditing.text = '';
-            coursesIdsTextEditing.text = '';
-          }
-          branchTextEditing.text = inquiryDetailData!.inquiryDetail!.branchName ?? '';
-          String formattedDate = DateFormat('yyyy-MM-dd').format(
-              DateFormat('dd/MM/yyyy').parse(inquiryDetailData!.inquiryDetail!.inquiyDate!)
+          coursesIdsTextEditing.value = TextEditingValue(
+            text: courseIds,
+            selection: TextSelection.collapsed(offset: courseIds.length),
           );
-          inquiryDateTextEditing.text = formattedDate ?? '';
-          upcomingTextEditing.text = inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
-          smsTextEditing.text = inquiryDetailData!.inquiryDetail!.smsContent ?? '';
-          partnerTextEditing.text = inquiryDetailData!.inquiryDetail!.partnerId ?? '';
-
-
+        } else {
+          coursesTextEditing.text = '';
+          coursesIdsTextEditing.text = '';
         }
-        setState(() {});
+        branchTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.branchName ?? '';
+        String formattedDate = DateFormat('yyyy-MM-dd').format(
+            DateFormat('dd/MM/yyyy')
+                .parse(inquiryDetailData!.inquiryDetail!.inquiyDate!));
+        inquiryDateTextEditing.text = formattedDate ?? '';
+        upcomingTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.upcomingConfirmDate ?? '';
+        smsTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.smsContent ?? '';
+        partnerTextEditing.text =
+            inquiryDetailData!.inquiryDetail!.partnerId ?? '';
+      }
+      setState(() {});
     }
   }
 
-
-  Future<void> fetchData() async{
-    partnerModel =
-    await fetchPartner(context);
+  Future<void> fetchData() async {
+    partnerModel = await fetchPartner(context);
   }
 
   void _onImagePicked(File file) {
@@ -148,24 +152,24 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
     return [
       {
         "title": "Personal Details",
-        "content":   (widget.isEdit && isLoading) ?
-        _buildLoadingForm():
-        StepOne(
-          firstName: firstNameTextEditing,
-          lastName: lastNameTextEditing,
-          mobileNo: mobileNoTextEditing,
-          feedback: feedBackTextEditing,
-          reference: referenceByTextEditing,
-          partner: partnerTextEditing,
-          partnerModel: partnerModel,
-          isSubmitted: isSubmitted,
-        ),
+        "content": (widget.isEdit && isLoading)
+            ? _buildLoadingForm()
+            : StepOne(
+                firstName: firstNameTextEditing,
+                lastName: lastNameTextEditing,
+                mobileNo: mobileNoTextEditing,
+                feedback: feedBackTextEditing,
+                reference: referenceByTextEditing,
+                partner: partnerTextEditing,
+                partnerModel: partnerModel,
+                isSubmitted: isSubmitted,
+              ),
       },
       {
         "title": "Inquiry Details",
         "content": StepTwo(
           course: coursesTextEditing,
-          coursesId : coursesIdsTextEditing,
+          coursesId: coursesIdsTextEditing,
           branch: branchTextEditing,
           inquiryDate: inquiryDateTextEditing,
           selectBranch: branchTextEditing,
@@ -190,8 +194,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
           widget.isEdit && inquiryDetailData != null
               ? '${inquiryDetailData!.inquiryDetail!.fname ?? ''} ${inquiryDetailData!.inquiryDetail!.lname ?? ''}'
               : "Inquiry Form",
-          []
-      ),
+          []),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(
@@ -226,46 +229,43 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                           return;
                         }
                         var response;
-                        if(widget.isEdit && widget.id!.isNotEmpty)
-                          {
-                            response = await postInquiries(
-                                context,
-                                inquiryDetailData!.inquiryDetail!.slug,
-                                firstNameTextEditing.text,
-                                lastNameTextEditing.text,
-                                branchTextEditing.text,
-                                feedBackTextEditing.text,
-                                referenceByTextEditing.text,
-                                mobileNoTextEditing.text,
-                                partnerTextEditing.text,
-                                coursesIdsTextEditing.text,
-                                "0",
-                                "0",
-                                inquiryDateTextEditing.text,
-                                upcomingTextEditing.text,
-                                "1",
-                                userId);
-                          }
-                        else
-                          {
-                            response = await postInquiries(
-                                context,
-                                null,
-                                firstNameTextEditing.text,
-                                lastNameTextEditing.text,
-                                branchTextEditing.text,
-                                feedBackTextEditing.text,
-                                referenceByTextEditing.text,
-                                mobileNoTextEditing.text,
-                                partnerTextEditing.text,
-                                coursesIdsTextEditing.text,
-                                "0",
-                                "0",
-                                inquiryDateTextEditing.text,
-                                upcomingTextEditing.text,
-                                "1",
-                                userId);
-                          }
+                        if (widget.isEdit && widget.id!.isNotEmpty) {
+                          response = await postInquiries(
+                              context,
+                              inquiryDetailData!.inquiryDetail!.slug,
+                              firstNameTextEditing.text,
+                              lastNameTextEditing.text,
+                              branchTextEditing.text,
+                              feedBackTextEditing.text,
+                              referenceByTextEditing.text,
+                              mobileNoTextEditing.text,
+                              partnerTextEditing.text,
+                              coursesIdsTextEditing.text,
+                              "0",
+                              "0",
+                              inquiryDateTextEditing.text,
+                              upcomingTextEditing.text,
+                              "1",
+                              userId);
+                        } else {
+                          response = await postInquiries(
+                              context,
+                              null,
+                              firstNameTextEditing.text,
+                              lastNameTextEditing.text,
+                              branchTextEditing.text,
+                              feedBackTextEditing.text,
+                              referenceByTextEditing.text,
+                              mobileNoTextEditing.text,
+                              partnerTextEditing.text,
+                              coursesIdsTextEditing.text,
+                              "0",
+                              "0",
+                              inquiryDateTextEditing.text,
+                              upcomingTextEditing.text,
+                              "1",
+                              userId);
+                        }
                         if (response == null) {
                           callSnackBar("Unknown Error Accrued", danger);
                           return;
@@ -297,8 +297,7 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
   }
 }
 
-
-// Widget for Personal Detail Form (Step One) which is used while inquiry Data is loading
+/// Widget for Personal Detail Form (Step One) which is used while inquiry Data is loading
 Widget _buildLoadingForm() {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -310,7 +309,6 @@ Widget _buildLoadingForm() {
         buildDisabledBranchInput("Mobile Number"),
         buildDisabledBranchInput("Select Reference"),
         buildDisabledBranchInput("Feedback"),
-
       ],
     ),
   );
@@ -329,4 +327,3 @@ Widget buildDisabledBranchInput(String label) {
     ),
   );
 }
-

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-
 import '../../../common/color.dart';
 import '../../../components/branchInputField.dart';
 

@@ -8,7 +8,6 @@ import '../../../components/dropDown.dart';
 import '../../../utils/lists.dart';
 import '../../inquiry/models/PartnerModel.dart';
 import '../../login/screen/login.dart';
-import '../screen/StudentForm.dart';
 
 class InstallmentDetails extends StatefulWidget {
   InstallmentDetails({super.key,
@@ -54,7 +53,7 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
   Widget build(BuildContext context) {
     return Form(
       key: widget.formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,  // This ensures validation happens after interaction
+      autovalidateMode: AutovalidateMode.onUserInteraction,  /// This ensures validation happens after interaction
       child: Column(
         children: [
           BranchInputTxt(

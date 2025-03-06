@@ -10,16 +10,24 @@ import '../../../common/text.dart';
 import '../../../components/branchInputField.dart';
 import '../../../utils/common.dart';
 
-
 class AddBranchPage extends StatefulWidget {
   final bool isEdit;
-  final String? branchName;
-  final String? branchAddress;
-  final String? branchContactNo;
-  final String? branchEmail;
-  final String? branchLocation;
-  final String? slug;
-  const AddBranchPage({super.key, this.isEdit = false,this.branchName,this.branchAddress,this.branchContactNo,this.branchEmail,this.branchLocation,this.slug});
+  final String? branchName,
+      branchAddress,
+      branchContactNo,
+      branchEmail,
+      branchLocation,
+      slug;
+
+  const AddBranchPage(
+      {super.key,
+      this.isEdit = false,
+      this.branchName,
+      this.branchAddress,
+      this.branchContactNo,
+      this.branchEmail,
+      this.branchLocation,
+      this.slug});
 
   @override
   State<AddBranchPage> createState() => _AddBranchPageState();
@@ -27,23 +35,7 @@ class AddBranchPage extends StatefulWidget {
 
 class _AddBranchPageState extends State<AddBranchPage> {
   String createdBy = userBox.get(idStr).toString();
-
-  @override
-  void initState() {
-
-    // Prefill the value in edit state
-    if(widget.isEdit){
-      branchName = TextEditingController(text: widget.branchName ?? '');
-      branchAddress = TextEditingController(text: widget.branchAddress ?? '');
-      branchContact = TextEditingController(text: widget.branchContactNo ?? '');
-      branchEmail = TextEditingController(text: widget.branchEmail ?? '');
-      branchLocation = TextEditingController(text: widget.branchLocation ?? '');
-    }
-    super.initState();
-  }
-
-  // Create a GlobalKey for form validation
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();/// Create a GlobalKey for form validation
   bool _isSubmitting = false;
   bool isLoading = false;
 
@@ -54,10 +46,24 @@ class _AddBranchPageState extends State<AddBranchPage> {
   TextEditingController branchLocation = TextEditingController();
 
   @override
+  void initState() {
+    /// Prefill the values in Edit state
+    if (widget.isEdit) {
+      branchName = TextEditingController(text: widget.branchName ?? '');
+      branchAddress = TextEditingController(text: widget.branchAddress ?? '');
+      branchContact = TextEditingController(text: widget.branchContactNo ?? '');
+      branchEmail = TextEditingController(text: widget.branchEmail ?? '');
+      branchLocation = TextEditingController(text: widget.branchLocation ?? '');
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, widget.isEdit ? "Update Branch" : "Add Branch", BranchPage()),
+      appBar: widgetAppbarForAboutPage(context,
+          widget.isEdit ? "Update Branch" : "Add Branch", BranchPage()),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -75,8 +81,9 @@ class _AddBranchPageState extends State<AddBranchPage> {
                     SizedBox(height: 5),
                     BranchInputTxt(
                       label: "Branch Name",
-                      textColor:  widget.isEdit? bv_primaryDarkColor : black,
-                      floatingLabelColor: widget.isEdit? grey_500 : preIconFillColor,
+                      textColor: widget.isEdit ? bv_primaryDarkColor : black,
+                      floatingLabelColor:
+                          widget.isEdit ? grey_500 : preIconFillColor,
                       controller: branchName,
                       validator: (value) {
                         if (_isSubmitting && (value == null || value.isEmpty)) {
@@ -87,8 +94,9 @@ class _AddBranchPageState extends State<AddBranchPage> {
                     ),
                     BranchInputTxt(
                       label: "Branch Address",
-                      textColor:  widget.isEdit? bv_primaryDarkColor : black,
-                      floatingLabelColor: widget.isEdit? grey_500 : preIconFillColor,
+                      textColor: widget.isEdit ? bv_primaryDarkColor : black,
+                      floatingLabelColor:
+                          widget.isEdit ? grey_500 : preIconFillColor,
                       controller: branchAddress,
                       maxLines: 5,
                       keyboardType: TextInputType.streetAddress,
@@ -101,8 +109,9 @@ class _AddBranchPageState extends State<AddBranchPage> {
                     ),
                     BranchInputTxt(
                       label: "Branch Mobile No",
-                      textColor:  widget.isEdit? bv_primaryDarkColor : black,
-                      floatingLabelColor: widget.isEdit? grey_500 : preIconFillColor,
+                      textColor: widget.isEdit ? bv_primaryDarkColor : black,
+                      floatingLabelColor:
+                          widget.isEdit ? grey_500 : preIconFillColor,
                       controller: branchContact,
                       maxLength: 10,
                       keyboardType: TextInputType.phone,
@@ -122,36 +131,35 @@ class _AddBranchPageState extends State<AddBranchPage> {
                         }
                         return null; // No error
                       },
-
                     ),
                     BranchInputTxt(
                       label: "Branch Email",
-                      textColor:  widget.isEdit? bv_primaryDarkColor : black,
-                      floatingLabelColor: widget.isEdit? grey_500 : preIconFillColor,
+                      textColor: widget.isEdit ? bv_primaryDarkColor : black,
+                      floatingLabelColor:
+                          widget.isEdit ? grey_500 : preIconFillColor,
                       controller: branchEmail,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (_isSubmitting) {
-                          //If value is null, it defaults to an empty string ("").
-
                           String trimmedValue = value?.trim() ?? "";
                           if (trimmedValue.isEmpty) {
                             return 'Please enter branch email';
                           }
                           // Regular expression for validating an email
-                          if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                          if (!RegExp(
+                                  r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                               .hasMatch(trimmedValue)) {
                             return 'Please enter a valid email address';
                           }
                         }
                         return null; // No error
                       },
-
                     ),
                     BranchInputTxt(
                       label: "Branch Location",
-                      textColor:  widget.isEdit? bv_primaryDarkColor : black,
-                      floatingLabelColor: widget.isEdit? grey_500 : preIconFillColor,
+                      textColor: widget.isEdit ? bv_primaryDarkColor : black,
+                      floatingLabelColor:
+                          widget.isEdit ? grey_500 : preIconFillColor,
                       controller: branchLocation,
                       validator: (value) {
                         if (_isSubmitting && (value == null || value.isEmpty)) {
@@ -168,7 +176,8 @@ class _AddBranchPageState extends State<AddBranchPage> {
                         child: btnWidget(
                           btnBgColor: bv_primaryDarkColor,
                           btnBrdRadius: BorderRadius.circular(px40),
-                          btnLabel: widget.isEdit ? "UPDATE BRANCH" : "SUBMIT BRANCH",
+                          btnLabel:
+                              widget.isEdit ? "UPDATE BRANCH" : "SUBMIT BRANCH",
                           btnLabelColor: white,
                           btnLabelFontSize: px18,
                           btnLabelFontWeight: FontWeight.bold,
@@ -186,7 +195,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
     );
   }
 
-  // method for adding branch
+  /// Method for Add Branch
   Future<void> submit() async {
     setState(() {
       _isSubmitting = true;
@@ -202,27 +211,12 @@ class _AddBranchPageState extends State<AddBranchPage> {
 
       var data;
 
-      if(widget.isEdit && widget.slug != null){
-        data = await createBranchData(
-            branchname,
-            address,
-            mobileno,
-            email,
-            location,
-            createdBy,
-            widget.slug,
-            context);
-      }
-      else{
-        data = await createBranchData(
-            branchname,
-            address,
-            mobileno,
-            email,
-            location,
-            createdBy,
-           null,
-            context);
+      if (widget.isEdit && widget.slug != null) {
+        data = await createBranchData(branchname, address, mobileno, email,
+            location, createdBy, widget.slug, context);
+      } else {
+        data = await createBranchData(branchname, address, mobileno, email,
+            location, createdBy, null, context);
       }
 
       if (data == null || data.status != success) {
@@ -231,10 +225,8 @@ class _AddBranchPageState extends State<AddBranchPage> {
         });
         callSnackBar("Error in Adding Data", "danger");
         return;
-      }
-      else {
+      } else {
         try {
-
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => BranchPage()),
@@ -259,7 +251,4 @@ class _AddBranchPageState extends State<AddBranchPage> {
       });
     }
   }
-
-
-
 }

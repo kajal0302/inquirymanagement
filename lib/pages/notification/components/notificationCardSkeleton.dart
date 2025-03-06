@@ -20,7 +20,7 @@ class NotificationCardSkeleton extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Leading Icon Placeholder
+            /// Leading Icon Placeholder
             Shimmer.fromColors(
               baseColor: grey_300,
               highlightColor: grey_100,
@@ -55,14 +55,14 @@ class NotificationCardSkeleton extends StatelessWidget {
                     highlightColor: grey_100,
                     child: Container(
                       height: 14,
-                      width: 150, // Limit width for better layout
+                      width: 150,
                       color: white,
                     ),
                   ),
                 ],
               ),
             ),
-            // Trailing Icon Placeholder
+            /// Trailing Icon Placeholder
             Shimmer.fromColors(
               baseColor: grey_300,
               highlightColor: grey_100,

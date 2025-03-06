@@ -20,10 +20,10 @@ class BranchCardSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Skeleton for heading
+            /// Heading Placeholder
             Shimmer.fromColors(
-              baseColor: grey_300,
-              highlightColor: grey_100,
+              baseColor: grey_300, ///primary background color
+              highlightColor: grey_100, ///moving highlight color
               child: Container(
                 width: double.infinity,
                 height: 40,
@@ -36,7 +36,7 @@ class BranchCardSkeleton extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Skeleton for rows
+            /// Skeleton for rows
             _buildSkeletonRow(),
             _buildSkeletonRow(),
             _buildSkeletonRow(),
@@ -46,13 +46,13 @@ class BranchCardSkeleton extends StatelessWidget {
     );
   }
 
-
+/// Row skeleton
   Widget _buildSkeletonRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Row(
         children: [
-          // Icon Placeholder
+          /// Icon Placeholder
           Shimmer.fromColors(
             baseColor: grey_300,
             highlightColor: grey_100,
@@ -67,7 +67,7 @@ class BranchCardSkeleton extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          // Text Placeholder
+          /// Text Placeholder
           Shimmer.fromColors(
             baseColor: grey_300,
             highlightColor: grey_100,

@@ -28,24 +28,22 @@ class _DashboardPageState extends State<DashboardPage> {
     loadNotificationData();
   }
 
-  // Method to load notification data
+  /// Method to load notification data
   Future<void> loadNotificationData() async {
-    NotificationModel? fetchedNotificationData = await fetchNotificationData(branchId, context);
+    NotificationModel? fetchedNotificationData =
+        await fetchNotificationData(branchId, context);
     if (mounted) {
       setState(() {
-        if (fetchedNotificationData != null && fetchedNotificationData.inquiries!.isNotEmpty) {
+        if (fetchedNotificationData != null &&
+            fetchedNotificationData.inquiries!.isNotEmpty) {
           notification = fetchedNotificationData;
           count = fetchedNotificationData.inquiries!.length.toString();
+        } else {
+          count = "0";
         }
-        else
-          {
-            count = "0";
-          }
       });
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +52,14 @@ class _DashboardPageState extends State<DashboardPage> {
       drawer: widgetDrawer(context),
       body: Stack(
         children: [
-
+          /// Background image section
           Positioned.fill(
             child: Image.asset(
               dashboardBackgroundImg,
               fit: BoxFit.cover,
             ),
           ),
-
+          /// List of Cards
           Padding(
             padding: const EdgeInsets.all(px15),
             child: ListView.builder(
@@ -72,7 +70,6 @@ class _DashboardPageState extends State<DashboardPage> {
               },
             ),
           ),
-
         ],
       ),
     );

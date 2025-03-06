@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../common/color.dart';
 
 class CustomDialog extends StatelessWidget {
@@ -44,7 +43,7 @@ class CustomDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Expanded(child: child), // Custom Content Area
+            Expanded(child: child),
           ],
         ),
       ),

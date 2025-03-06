@@ -9,7 +9,6 @@ import '../../branch/model/addBranchModel.dart';
 import '../apicall/updateUpcomingDate.dart';
 import 'customDialogBox.dart';
 
-
 class UpcomingDateDialog extends StatefulWidget {
   final String inquiryDate;
   final String inquiryId;
@@ -29,6 +28,7 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
   SuccessModel? addFeedback;
+
   @override
   void initState() {
     super.initState();
@@ -36,12 +36,11 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
     selectedDate = format.parse(widget.inquiryDate);
   }
 
-
-
-  // Method to update upcoming date
-  Future <void> updateUpcomingDate(String inquiryId,String date ) async{
-    SuccessModel? updatedDateData = await UpdateUpcomingDate(inquiryId, date,branchId,createdBy,context);
-    if(mounted){
+  /// Method to update upcoming date
+  Future<void> updateUpcomingDate(String inquiryId, String date) async {
+    SuccessModel? updatedDateData =
+        await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
+    if (mounted) {
       setState(() {
         addFeedback = updatedDateData;
       });
@@ -57,14 +56,16 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           // Date Selection
           InkWell(
             onTap: () async {
               DateTime? pickedDate = await showDatePicker(
                 context: context,
-                initialDate:DateTime.now(),
-                firstDate:DateTime.now(),
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now(),
                 lastDate: DateTime(2100),
                 builder: (BuildContext context, Widget? child) {
                   return Theme(
@@ -103,18 +104,23 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
                   const Icon(Icons.calendar_today, color: preIconFillColor),
                   const SizedBox(width: 10),
                   Text(
-                    DateFormat('dd-MM-yyyy').format(selectedDate), // Formatted Date
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    DateFormat('dd-MM-yyyy').format(selectedDate),
+                    // Formatted Date
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 30,),
+          SizedBox(
+            height: 30,
+          ),
           ElevatedButton(
-            onPressed: ()  async{
-              String  dateValue =  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
-              await updateUpcomingDate(widget.inquiryId,dateValue );
+            onPressed: () async {
+              String dateValue =
+                  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
+              await updateUpcomingDate(widget.inquiryId, dateValue);
               Navigator.pop(context);
               callSnackBar(updationMessage, "success");
             },
@@ -126,7 +132,8 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
             ),
             child: const Text(
               "UPDATE",
-              style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+              style: TextStyle(
+                  color: white, fontWeight: FontWeight.bold, fontSize: px15),
             ),
           ),
         ],
@@ -134,5 +141,3 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
     );
   }
 }
-
-

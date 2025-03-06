@@ -33,8 +33,8 @@ class _SettingPageState extends State<SettingPage> {
     });
   }
 
-  // Method to load BranchList
-  Future <void> loadBranchListData() async {
+  /// Method to load BranchList
+  Future<void> loadBranchListData() async {
     BranchListModel? fetchedBranchListData = await fetchBranchListData(context);
     if (mounted) {
       setState(() {
@@ -49,17 +49,13 @@ class _SettingPageState extends State<SettingPage> {
     final branchProvider = context.watch<BranchProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: widgetAppbarForAboutPage(
-        context,
-        "Global IT Inquiry",
-        DashboardPage(),
-      ),
+      appBar: widgetAppbarForAboutPage(context, "Global IT Inquiry", DashboardPage(),),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Logout Card with ListTile for better UI
+            /// Logout Card
             Card(
               elevation: 5,
               color: white,
@@ -77,7 +73,7 @@ class _SettingPageState extends State<SettingPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: black,
                   ),
                 ),
                 onTap: () {
@@ -88,41 +84,44 @@ class _SettingPageState extends State<SettingPage> {
 
             SizedBox(height: 30),
 
-            // Branch Selection
+            /// Branch Selection
             Text(
               "Select Branch",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: black,
               ),
             ),
 
             SizedBox(height: 12),
             DropDown(
-                preSelectedValue: branchProvider.branch?.branches != null &&
-                    branchProvider.branch!.branches!.any((b) => b.id.toString() == branchId)
-                    ? branchId
-                    : (branchProvider.branch != null &&
-                    branchProvider.branch!.branches!.isNotEmpty
-                    ? branchProvider.branch!.branches!.first.id.toString()
-                    : null),
-                controller: selectedBranch..text = branchId,  // Set the initial value
-                mapItems: branchProvider.branch?.branches!
-                    .map((b) => {"id": b.id.toString(), "value": b.name.toString()})
-                    .toSet()
-                    .toList(),
-                status: true,
-                lbl: "Select Branch",
+              preSelectedValue: branchProvider.branch?.branches != null &&
+                      branchProvider.branch!.branches!
+                          .any((b) => b.id.toString() == branchId)
+                  ? branchId
+                  : (branchProvider.branch != null &&
+                          branchProvider.branch!.branches!.isNotEmpty
+                      ? branchProvider.branch!.branches!.first.id.toString()
+                      : null),
+              controller: selectedBranch..text = branchId,
+              /// Set the initial value
+              mapItems: branchProvider.branch?.branches!
+                  .map((b) =>
+                      {"id": b.id.toString(), "value": b.name.toString()})
+                  .toSet()
+                  .toList(),
+              status: true,
+              lbl: "Select Branch",
               onChanged: (newBranchId) {
-                selectedBranch.text = newBranchId; // Update the text field
-                userBox.put(branchIdStr, newBranchId); // Store updated branch in userBox
+                selectedBranch.text = newBranchId; /// Update the text field
+                userBox.put(branchIdStr,
+                    newBranchId); /// Store updated branch in userBox
               },
-        )
-        ],
+            )
+          ],
         ),
       ),
     );
-
   }
 }
