@@ -29,57 +29,34 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
-  List<Inquiries> notifications = [];
+  List<dynamic> notifications = [];
   bool isLoading = true;
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
   TextEditingController feedbackController = TextEditingController();
-  bool isLoadPagination = false;
-  int limit = 20;
-  int totalCount = 0;
-  int page = 1;
-  ScrollController scrollController = new ScrollController();
 
   @override
   void initState() {
     super.initState();
     loadNotificationData();
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        if (totalCount > notifications.length) {
-          isLoadPagination = true;
-          page += 1;
-          loadNotificationData();
-          setState(() {});
-        }
-      }
-    });
   }
 
-  // Method to load notification data (Initial & Pagination)
+  /// Method to load notification data
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-        await fetchNotificationData(branchId, context, page, limit);
-
+        await fetchNotificationData(branchId, context);
     if (mounted) {
       setState(() {
         if (fetchedNotificationData != null &&
             fetchedNotificationData.inquiries!.isNotEmpty) {
-
-          if(fetchedNotificationData.status == success){
-            notifications.addAll(fetchedNotificationData.inquiries!);
-            totalCount = fetchedNotificationData.count!;
-          }
+          notifications.addAll(fetchedNotificationData.inquiries!);
         }
-
         isLoading = false;
-        isLoadPagination = false;
       });
     }
   }
 
-  // Method to load feedback data
+  /// Method to load feedback data
   Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
     FeedbackModel? fetchedFeedbackListData =
         await fetchFeedbackData(inquiryId, context);
@@ -91,7 +68,7 @@ class _NotificationPageState extends State<NotificationPage> {
     return fetchedFeedbackListData;
   }
 
-  // Method to update upcoming date
+  /// Method to update upcoming date
   Future<void> loadInquiryStatusListData() async {
     InquiryStatusModel? inquiryStatusList =
         await fetchInquiryStatusList(context);
@@ -102,7 +79,7 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  // Add Inquiry Notification Dialog Box
+  /// Add Inquiry Notification Dialog Box
   void showNotificationSettingsDialog(
       BuildContext context, String inquiryId, String notificationDay) {
     showDialog(
@@ -116,7 +93,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Add Inquiry Feedback Dialog Box
+  /// Add Inquiry Feedback Dialog Box
   void showFeedbackDialog(
       BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
     showDialog(
@@ -130,7 +107,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Add Upcoming Date Dialog Box
+  /// Add Upcoming Date Dialog Box
   void showUpcomingDateDialog(
       BuildContext context, String inquiryDate, String inquiryId) {
     showDialog(
@@ -144,7 +121,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Add Inquiry Status Dialog Box
+  /// Add Inquiry Status Dialog Box
   void showInquiryStatusDialog(
       BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
@@ -185,11 +162,10 @@ class _NotificationPageState extends State<NotificationPage> {
                 : (notifications.isNotEmpty)
                     ? Expanded(
                         child: ListView.builder(
-                          controller: scrollController,
                           itemCount: notifications.length,
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
-                            // Extract course names
+                            /// Extract course names
                             String courseNames = notification.courses!
                                 .map((course) => course.name)
                                 .join(", ");
@@ -214,13 +190,12 @@ class _NotificationPageState extends State<NotificationPage> {
                               ],
                               onMenuSelected: (value) async {
                                 if (value == "call") {
-                                  makePhoneCall(notification.contact ?? "");
+                                  makePhoneCall(notification.contact);
                                 } else if (value == "settings") {
                                   showNotificationSettingsDialog(
                                       context,
                                       notification.id.toString(),
-                                      notification.notificationDay ??
-                                          "unknown");
+                                      notification.notificationDay);
                                 } else if (value == "feedback") {
                                   showLoadingDialog(context);
                                   await loadFeedBackListData(
@@ -231,7 +206,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 } else if (value == "date") {
                                   showUpcomingDateDialog(
                                       context,
-                                      notification.inquiryDate ?? "unknown",
+                                      notification.inquiryDate,
                                       notification.id.toString());
                                 } else if (value == "status") {
                                   showLoadingDialog(context);
@@ -250,13 +225,6 @@ class _NotificationPageState extends State<NotificationPage> {
                             child: DataNotAvailableWidget(
                                 message: dataNotAvailable)),
                       ),
-                if (isLoadPagination)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
           ],
         ),
       ),

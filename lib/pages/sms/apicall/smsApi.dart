@@ -23,8 +23,7 @@ Future<SuccessModel?> SendSms(String mobile_no, String message_content) async {
         fromApi: false,
         endpoint: sms,
         fromJson: (json) => SuccessModel.fromJson(json));
-
-  }on ApiException catch (e) {
+  } on ApiException catch (e) {
     if (e.statusCode == 408) {
       callSnackBar("time out error", danger);
       returnData = null;

@@ -13,15 +13,15 @@ class ContactUsSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Email Section Skeleton
+          /// Email Section Skeleton
           _buildSkeletonRow(Icons.mail),
           SizedBox(height: 20),
 
-          // Contact Section Skeleton
+          /// Contact Section Skeleton
           _buildSkeletonRow(Icons.phone),
           SizedBox(height: 20),
 
-          // Branch List Section Skeleton
+          /// Branch List Section Skeleton
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -40,7 +40,7 @@ class ContactUsSkeleton extends StatelessWidget {
     );
   }
 
-  // Common Skeleton Row for Email & Contact
+  ///Widget for Skeleton Row for Email & Contact
   Widget _buildSkeletonRow(IconData icon) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +63,7 @@ class ContactUsSkeleton extends StatelessWidget {
     );
   }
 
-  // Branch Skeleton Item
+  /// Branch Skeleton Item
   Widget _buildBranchSkeleton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,11 +79,12 @@ class ContactUsSkeleton extends StatelessWidget {
     );
   }
 
-  // Reusable Shimmer Container
-  Widget _buildShimmerContainer({required double width, required double height}) {
+  ///  Shimmer Container
+  Widget _buildShimmerContainer(
+      {required double width, required double height}) {
     return Shimmer.fromColors(
-      baseColor: grey_300,
-      highlightColor: grey_100,
+      baseColor: grey_300, /// primary color
+      highlightColor: grey_100, /// moving highlight color
       child: Container(
         width: width,
         height: height,

@@ -11,6 +11,7 @@ import '../../../common/text.dart';
 import '../../../components/appBar.dart';
 import '../../../components/customCalender.dart';
 import '../../../components/customDialog.dart';
+import '../../../components/dateRangeComponent.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
@@ -294,7 +295,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                           Navigator.pop(context);
                           callSnackBar(
                               fetchedFilteredInquiryData!.message ??
-                                  "Error While get Data",
+                                  "Error While fetch Data",
                               fetchedFilteredInquiryData.status ?? "info");
                         },
                         style: ElevatedButton.styleFrom(
@@ -339,10 +340,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     setState(() {
       isLoading = true;
     });
-
     InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
         null, startDateString, endDateString, branchId, null, context);
-
     setState(() {
       inquiryListModel.clear();
     });
@@ -394,8 +393,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           await loadInquiryData();
         },
         isSearching,
-        // Pass ValueNotifier
-        searchController, // Pass Controller
+        searchController,
       ),
       body: Column(
         children: [
@@ -480,86 +478,53 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: grey_400,
+                  strokeWidth: 2.0,
+                ),
               ),
             )
         ],
       ),
       floatingActionButton: CustomSpeedDial(
+        /// Date Filter
         onCalendarTap: () {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: preIconFillColor,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'Select Date Range',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+              return DateRangeDialog(
+                  widget: Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: 600,
+                      height: 400,
+                      child: CustomCalendar(
+                        initialFormat: _calendarFormat,
+                        initialFocusedDay: _focusedDay,
+                        initialSelectedDay: _selectedDay,
+                        initialRangeStart: _rangeStart,
+                        initialRangeEnd: _rangeEnd,
+                        onDaySelected: _onDaySelected,
+                        onRangeSelected: _onRangeSelected,
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 600,
-                        height: 400,
-                        child: CustomCalendar(
-                          initialFormat: _calendarFormat,
-                          initialFocusedDay: _focusedDay,
-                          initialSelectedDay: _selectedDay,
-                          initialRangeStart: _rangeStart,
-                          initialRangeEnd: _rangeEnd,
-                          onDaySelected: _onDaySelected,
-                          onRangeSelected: _onRangeSelected,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          isLoading = true;
-                        });
-                        if (mounted) {
-                          setState(() {
-                            fetchFilteredInquiryData();
-                          });
-                        }
-                      },
-                      child: const Text(
-                        "OK",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
+                  ),
+                  filterInquiriesByDate: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      isLoading = true;
+                    });
+                    if (mounted) {
+                      setState(() {
+                        fetchFilteredInquiryData();
+                      });
+                    }
+                  });
             },
           );
         },
+
+        /// Course Filter
         onFilterTap: () {
           List<int?> selectedCourseIds = [];
           showDynamicCheckboxDialog(

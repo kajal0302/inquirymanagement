@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/login/screen/login.dart';
@@ -43,7 +42,7 @@ class PersonalDetails extends StatelessWidget {
     return SingleChildScrollView(
       child: Form(
         key: formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,  // This ensures validation happens after interaction
+        autovalidateMode: AutovalidateMode.onUserInteraction,  /// This ensures validation happens after interaction
         child: Column(
           children: [
             BranchInputTxt(
@@ -151,7 +150,7 @@ class PersonalDetails extends StatelessWidget {
                   if (trimmedValue.isEmpty) {
                     return 'Please enter branch email';
                   }
-                  // Regular expression for validating an email
+                  /// Regular expression for validating an email
                   if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                       .hasMatch(trimmedValue)) {
                     return 'Please enter a valid email address';

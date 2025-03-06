@@ -18,7 +18,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  String userType = userBox.get(userTypeStr);
   String branchId = userBox.get(branchIdStr).toString();
   NotificationModel? notification;
   String count = "0";
@@ -29,20 +28,14 @@ class _DashboardPageState extends State<DashboardPage> {
     loadNotificationData();
   }
 
-  // Method to load notification data
+  /// Method to load notification data
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-        await fetchNotificationCount(branchId);
-
-    if (fetchedNotificationData != null) {
-      count = fetchedNotificationData.count.toString();
-    }
-
+        await fetchNotificationData(branchId, context);
     if (mounted) {
       setState(() {
       });
     }
-
   }
 
   @override
@@ -52,28 +45,21 @@ class _DashboardPageState extends State<DashboardPage> {
       drawer: widgetDrawer(context),
       body: Stack(
         children: [
+          /// Background image section
           Positioned.fill(
             child: Image.asset(
               dashboardBackgroundImg,
               fit: BoxFit.cover,
             ),
           ),
+          /// List of Cards
           Padding(
             padding: const EdgeInsets.all(px15),
             child: ListView.builder(
               itemCount: dashboardItems.length,
               itemBuilder: (context, index) {
                 final item = dashboardItems[index];
-
-                if(userType == "Employee"){
-                  if(item['title'] != "Branch" && item['title'] != "User"){
-                    return DashboardListView(item: item);
-                  }
-                }else{
-                  return DashboardListView(item: item);
-                }
-                return null;
-
+                return DashboardListView(item: item);
               },
             ),
           ),

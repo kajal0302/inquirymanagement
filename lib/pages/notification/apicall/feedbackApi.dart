@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
 import '../../../common/text.dart';
 import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';

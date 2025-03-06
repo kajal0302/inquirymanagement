@@ -52,7 +52,7 @@ class UsernameAndPassword extends StatelessWidget {
                   return "Password must be at least 6 characters long";
                 }
               }
-              return null; // No validation errors before clicking submit
+              return null; /// No validation errors before clicking submit
             },
           ),
 

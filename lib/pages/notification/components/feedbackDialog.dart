@@ -10,16 +10,13 @@ import '../apicall/postFeedbackApi.dart';
 import '../model/feedbackModel.dart';
 import 'customDialogBox.dart';
 
-
 class InquiryFeedbackDialog extends StatefulWidget {
   final FeedbackModel? feedbackData;
   final String inquiryId;
 
-  const InquiryFeedbackDialog({
-    Key? key,
-    required this.feedbackData,
-    required this.inquiryId
-  }) : super(key: key);
+  const InquiryFeedbackDialog(
+      {Key? key, required this.feedbackData, required this.inquiryId})
+      : super(key: key);
 
   @override
   _InquiryFeedbackDialogState createState() => _InquiryFeedbackDialogState();
@@ -31,20 +28,22 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
   SuccessModel? addFeedback;
   FeedbackModel? feedbackData;
 
-  // Method to add feedback data
-  Future <void> addFeedbackData(String inquiryId,String feedBack ) async{
-    SuccessModel? addFeedbackData = await createFeedbackData(inquiryId, feedBack,branchId,context);
-    if(mounted){
+  /// Method to add feedback data
+  Future<void> addFeedbackData(String inquiryId, String feedBack) async {
+    SuccessModel? addFeedbackData =
+        await createFeedbackData(inquiryId, feedBack, branchId, context);
+    if (mounted) {
       setState(() {
         addFeedback = addFeedbackData;
       });
     }
   }
 
-  // Method to load feedback data
-  Future <FeedbackModel?> loadFeedBackListData(String inquiryId ) async{
-    FeedbackModel? fetchedFeedbackListData = await fetchFeedbackData(inquiryId ,context);
-    if(mounted){
+  /// Method to load feedback data
+  Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
+    FeedbackModel? fetchedFeedbackListData =
+        await fetchFeedbackData(inquiryId, context);
+    if (mounted) {
       setState(() {
         feedbackData = fetchedFeedbackListData;
       });
@@ -52,8 +51,9 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
     return fetchedFeedbackListData;
   }
 
-  // Add Feedback Dialog Box
-  Future<bool> showAddFeedbackDialog(String inquiryId, BuildContext context) async {
+  /// Add Feedback Dialog Box
+  Future<bool> showAddFeedbackDialog(
+      String inquiryId, BuildContext context) async {
     TextEditingController feedbackController = TextEditingController();
     bool isFeedbackAdded = false;
 
@@ -121,7 +121,10 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
                         ),
                         child: const Text(
                           "Add",
-                          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: px15),
+                          style: TextStyle(
+                              color: white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: px15),
                         ),
                       ),
                     ),
@@ -144,7 +147,10 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
                         ),
                         child: const Text(
                           "Cancel",
-                          style: TextStyle(color: grey_500, fontWeight: FontWeight.bold, fontSize: px15),
+                          style: TextStyle(
+                              color: grey_500,
+                              fontWeight: FontWeight.bold,
+                              fontSize: px15),
                         ),
                       ),
                     ),
@@ -161,94 +167,95 @@ class _InquiryFeedbackDialogState extends State<InquiryFeedbackDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return StatefulBuilder(
-        builder: (context,setState) {
-          return CustomDialog(
-            title: feedbackHistory,
-            height: MediaQuery.of(context).size.height * 0.6,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              children: [
-                // Scrollable Feedback List
-                Expanded(
-                  child: widget.feedbackData == null || widget.feedbackData!.feedbacks == null || widget.feedbackData!.feedbacks!.isEmpty
-                      ? const Center(child: Text(noFeedback))
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          itemCount: widget.feedbackData!.feedbacks!.length,
-                          itemBuilder: (context, index) {
-                            var feedbackItem = widget.feedbackData!.feedbacks![index];
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: grey_100,
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  feedbackItem.createdAt!,
-                                  style: TextStyle(
-                                    fontSize: px14,
-                                    fontWeight: FontWeight.normal,
-                                    color: primaryColor,
+    return StatefulBuilder(builder: (context, setState) {
+      return CustomDialog(
+        title: feedbackHistory,
+        height: MediaQuery.of(context).size.height * 0.6,
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: Column(
+          children: [
+            /// Scrollable Feedback List
+            Expanded(
+              child: widget.feedbackData == null ||
+                      widget.feedbackData!.feedbacks == null ||
+                      widget.feedbackData!.feedbacks!.isEmpty
+                  ? const Center(child: Text(noFeedback))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemCount: widget.feedbackData!.feedbacks!.length,
+                      itemBuilder: (context, index) {
+                        var feedbackItem =
+                            widget.feedbackData!.feedbacks![index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: grey_100,
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: Text(
+                                    feedbackItem.createdAt!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.normal,
+                                      color: primaryColor,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  feedbackItem.feedback!,
-                                  style: TextStyle(
-                                    fontSize: px14,
-                                    fontWeight: FontWeight.bold,
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    feedbackItem.feedback!,
+                                    style: TextStyle(
+                                      fontSize: px14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                                          },
-                                        ),
-                ),
-                // Floating Button for Adding Feedback
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: FloatingActionButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      onPressed: () async {
-                        // Show add feedback dialog
-                        bool isAdded = await showAddFeedbackDialog(widget.inquiryId, context);
-                        if (isAdded) {
-                          // Refresh feedback list after adding
-                          FeedbackModel? updatedData = await loadFeedBackListData(widget.inquiryId);
-                          setState(() {
-                            feedbackData = updatedData;
-                          });
-                        }
+                        );
                       },
-                      backgroundColor: primaryColor,
-                      child: const Icon(Icons.add, color: white),
                     ),
-                  ),
-                ),
-              ],
             ),
-          );
-        }
-    );
+            /// Floating Button for Adding Feedback
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  onPressed: () async {
+                    /// Show add feedback dialog
+                    bool isAdded =
+                        await showAddFeedbackDialog(widget.inquiryId, context);
+                    if (isAdded) {
+                      /// Refresh feedback list after adding
+                      FeedbackModel? updatedData =
+                          await loadFeedBackListData(widget.inquiryId);
+                      setState(() {
+                        feedbackData = updatedData;
+                      });
+                    }
+                  },
+                  backgroundColor: primaryColor,
+                  child: const Icon(Icons.add, color: white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
-
-

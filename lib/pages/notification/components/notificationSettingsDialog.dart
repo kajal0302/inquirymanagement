@@ -33,7 +33,7 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
   String createdBy = userBox.get(idStr).toString();
 
 
-  //  Date Selection Method
+  ///  Date Selection Method
   void _selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -44,7 +44,7 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: preIconFillColor, // background of the date
+              primary: preIconFillColor, /// background of the date
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
@@ -67,6 +67,8 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
     }
   }
 
+
+  ///  Message Dialog for Add message
   Future<void> showMessageDialog(
       String inquiryId,
       String day,
@@ -85,7 +87,7 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              // Feedback TextField
+              /// Feedback TextField
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: TextField(
@@ -111,7 +113,7 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
               ),
 
               const Spacer(),
-              // Buttons Row
+              /// Buttons Row
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
@@ -203,7 +205,7 @@ class _InquiryNotificationDialogState extends State<InquiryNotificationDialog> {
   Widget build(BuildContext context) {
     TextEditingController dateController = TextEditingController();
     TextEditingController dayController = TextEditingController();
-    // Get the index of notificationDay in days list
+    /// Get the index of notificationDay in days list
     int selectedOption = days.indexOf(widget.notificationDay);
     if (selectedOption == -1) {
       selectedOption = 3;

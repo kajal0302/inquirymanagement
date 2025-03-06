@@ -16,7 +16,6 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-
   final String url = "https://globalitinfosolution.com";
 
   Future<void> _launchURL() async {
@@ -25,6 +24,7 @@ class _AboutPageState extends State<AboutPage> {
       throw "Could not launch $url";
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +38,20 @@ class _AboutPageState extends State<AboutPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Image at the top center
+                /// Image at top
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Center(
                     child: Image.asset(
-                      aboutUsLogo, // Replace with your image path
-                      height: 65, // Adjust height as needed
+                      aboutUsLogo,
+                      height: 65,
                     ),
                   ),
                 ),
-                // Solid Line
+                /// Solid Line
                 Container(
                   width: double.infinity,
-                  height: 3, // Thickness of the line
+                  height: 3,
                   color: bv_primaryDarkColor,
                 ),
                 Padding(
@@ -94,7 +94,7 @@ class _AboutPageState extends State<AboutPage> {
 }
 
 
-// widget for content
+/// Widget for content
 class widgetContent extends StatelessWidget {
   final String label;
   const widgetContent({
@@ -108,7 +108,7 @@ class widgetContent extends StatelessWidget {
   }
 }
 
-// widget for subHeading
+/// Widget for subHeading
 class widgetSubHeading extends StatelessWidget {
   final String label;
   const widgetSubHeading({

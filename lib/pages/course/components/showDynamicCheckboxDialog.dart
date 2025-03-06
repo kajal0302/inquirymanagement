@@ -6,10 +6,10 @@ import 'package:inquirymanagement/utils/common.dart';
 import '../../../common/size.dart';
 
 Future<void> showDynamicCheckboxDialog(
-  BuildContext context,
-  Function(CourseModel) onOkPressed,
-  CourseModel? courses,
-  VoidCallback? onCancelPressed,
+    BuildContext context,
+    Function(CourseModel) onOkPressed,
+    CourseModel? courses,
+    VoidCallback? onCancelPressed,
 ) async {
   if (courses == null || courses.courses == null || courses.courses!.isEmpty) {
     return;
