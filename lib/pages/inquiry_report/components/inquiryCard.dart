@@ -97,14 +97,14 @@ class InquiryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       color: bv_secondaryLightColor3,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 5.0),
         leading: Image.asset(userImg, width: 45, height: 45),
         title:
         Stack(
