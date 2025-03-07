@@ -434,6 +434,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
                             "No courses available";
 
                         return InquiryCard(
+                          status: inquiry.status!,
                           title:
                               "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
                           subtitle: courseNames,

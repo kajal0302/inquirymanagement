@@ -150,9 +150,9 @@ class _SmsPageState extends State<SmsPage> {
               if (studentFilteredBYCourse == null ||
                   studentFilteredBYCourse!.inquiries!.isEmpty) {
                 Navigator.pop(context);
-                callSnackBar("Please select Students.", "danger");
+                callSnackBar(noStudent, "danger");
               } else if (selectedId.isEmpty) {
-                callSnackBar("Please select a status", "danger");
+                callSnackBar(noStatus, "danger");
               } else {
                 filterInquiriesByStatus(selectedName);
                 callSnackBar("Inquiry fetched successfully!", "success");
@@ -174,9 +174,9 @@ class _SmsPageState extends State<SmsPage> {
             if (studentFilteredBYCourse == null ||
                 studentFilteredBYCourse!.inquiries!.isEmpty) {
               Navigator.pop(context);
-              callSnackBar("Please select Students.", "danger");
+              callSnackBar(noStudent, "danger");
             } else if (selectedName.isEmpty) {
-              callSnackBar("Please select reference", "danger");
+              callSnackBar(noReference, "danger");
             } else {
               filterInquiriesByReference(selectedName);
               messageController.clear();
@@ -470,7 +470,7 @@ class _SmsPageState extends State<SmsPage> {
                   filterInquiriesByDate: () {
                     if (studentFilteredBYCourse == null) {
                       Navigator.pop(context);
-                      callSnackBar("Please select Students.", "danger");
+                      callSnackBar(noStudent, "danger");
                     } else if (_rangeStart == null) {
                       Navigator.pop(context);
                       callSnackBar("Please select dateRange.", "danger");

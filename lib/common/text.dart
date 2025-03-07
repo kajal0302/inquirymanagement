@@ -36,6 +36,9 @@ const statusStr = "status";
 
 const noFeedback = "No feedback available";
 const updationMessage = "Record Updated Successfully";
+const noStudent = "Please select student";
+const noStatus = "Please select a status";
+const noReference = "Please select reference";
 
 
 const call = "Call";

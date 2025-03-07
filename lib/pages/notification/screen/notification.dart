@@ -205,10 +205,9 @@ class _NotificationPageState extends State<NotificationPage> {
                   String courseNames = notification.courses!
                       .map((course) => course.name)
                       .join(", ");
-                  return InquiryCard(
-                    hasNotificationPage: true,
+                  return InquiryNotificationCard(
                     title:
-                    "${notification.fname} ${notification.lname}",
+                    "${notification.fname ?? ""} ${notification.lname ?? ""}",
                     subtitle: courseNames,
                     menuItems: [
                       PopupMenuItem<String>(

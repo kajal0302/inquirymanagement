@@ -5,6 +5,7 @@ import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSke
 import 'package:inquirymanagement/pages/inquiry_report/components/referenceDialog.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/utils/constants.dart';
+import 'package:inquirymanagement/utils/lists.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
@@ -116,7 +117,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   // Method to load inquiry data
   Future<InquiryModel?> loadInquiryData() async {
     InquiryModel? fetchedInquiryListData = await fetchInquiryDataPagination(
-        branchId, inquiry, context, page, limit);
+        branchId, null, notInStatus,context, page, limit);
     if (mounted) {
       if (fetchedInquiryListData != null &&
           fetchedInquiryListData.status == success) {
@@ -339,13 +340,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         itemCount: inquiryListModel.length,
                         itemBuilder: (context, index) {
                           final inquiry = inquiryListModel[index];
-                          // Extract course names
+                          /// Extract course names
                           String courseNames = inquiry.courses!
                               .map((course) => course.name)
                               .join(", ");
                           return GestureDetector(
                             child: InquiryCard(
-                              title: "${inquiry.fname} ${inquiry.lname}",
+                              status: inquiry.status!,
+                              title: "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
                               subtitle: courseNames,
                               menuItems: [
                                 PopupMenuItem<String>(
