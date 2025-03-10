@@ -237,6 +237,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               filteredDataForReference.inquiries?.forEach((e) {
                 inquiryListModel.add(e);
               });
+              callSnackBar("Inquiry fetched successfully!", "success");
             }
           },
         );

@@ -121,6 +121,7 @@ class _SmsPageState extends State<SmsPage> {
         null, null, null, branchId, null,selectedName,null, context);
 
     setState(() {
+      selectedReference=selectedName;
       studentFilteredBYCourse = fetchedFilteredInquiryData;
       isLoading = false;
     });
@@ -185,26 +186,29 @@ class _SmsPageState extends State<SmsPage> {
       context: context,
       builder: (BuildContext context) {
         return InquiryReferenceDialog(
-          onPressed: (String selectedName) async {
-            selectedReference = selectedName;
-            if (studentFilteredBYCourse == null ||
-                studentFilteredBYCourse!.inquiries!.isEmpty) {
-              callSnackBar(noStudent, "danger");
-            } else if (selectedName.isEmpty) {
-              callSnackBar(noReference, "danger");
-            } else {
-              setState(() {
-                selectedReference=selectedName;
-                messageController.clear();
-              });
-              filterInquiriesByReference(selectedName);
-              callSnackBar("Inquiry fetched successfully!", "success");
-            }
+            selectedReference: selectedReference,
+            onPressed: (String selectedName) async {
+              if (studentFilteredBYCourse == null ||
+                  studentFilteredBYCourse!.inquiries!.isEmpty) {
+                callSnackBar(noStudent, "danger");
+              } else if (selectedName.isEmpty) {
+                callSnackBar(noReference, "danger");
+              } else {
+                InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
+                    null, null, null, branchId, null, selectedName, null, context);
 
-          });
+                setState(() {
+                  selectedReference = selectedName;
+                  studentFilteredBYCourse = fetchedFilteredInquiryData;
+                });
+                callSnackBar("Inquiry fetched successfully!", "success");
+              }
+            }
+        );
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
