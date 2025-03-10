@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
-import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/referenceDialog.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
-import 'package:inquirymanagement/utils/constants.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -22,8 +20,6 @@ import '../../course/provider/CourseProvider.dart';
 import '../../dashboard/screen/dashboard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/apicall/updateInquiryStatus.dart';
-import '../../notification/components/customDialogBox.dart';
 import '../../notification/components/feedbackDialog.dart';
 import '../../notification/components/notificationSettingsDialog.dart';
 import '../../notification/components/statusDialog.dart';
@@ -43,6 +39,8 @@ class InquiryReportPage extends StatefulWidget {
 }
 
 class _InquiryReportPageState extends State<InquiryReportPage> {
+  String selectedReference = '';
+  String selectedStatus = '';
   ScrollController scrollController = ScrollController();
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
@@ -51,15 +49,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   List<Inquiries> inquiryListModel = [];
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
-  InquiryModel? filteredInquiryData;
-  InquiryModel? inquirySearchedData;
+  InquiryModel? filteredInquiryData,inquirySearchedData,fetchedFilteredInquiryData;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  DateTime? _rangeStart;
-  DateTime? _rangeEnd;
-  String? startDateString;
-  String? endDateString;
+  DateTime? _selectedDay,_rangeStart,_rangeEnd;
+  String? startDateString,endDateString,date;
   bool isLoadPagination = false;
   int limit = 20;
   int totalCount = 0;
@@ -99,6 +93,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     setState(() {
       _selectedDay = selectedDay;
       _focusedDay = focusedDay;
+      date = _selectedDay != null ? formatDate(_selectedDay!) : "";
     });
   }
 
@@ -108,7 +103,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       _rangeStart = start;
       _rangeEnd = end;
       _focusedDay = focusedDay;
-
       startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
       endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
     });
@@ -193,20 +187,18 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       context: context,
       builder: (BuildContext context) {
         return InquiryStatusDialog(
+            selectedStatus: selectedStatus,
             isInquiryReport: true,
             inquiryList: inquiryList,
             onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
-              if (selectedId.isEmpty) {
-                callSnackBar("Please select a status", danger);
-                return;
-              }
               setState(() {
+                selectedStatus=selectedId;
                 inquiryListModel.clear();
                 isLoading = true;
               });
 
               InquiryModel? fetchedFilteredInquiryData =
-              await FilterInquiryData(null, null, null, branchId, selectedName, null, context);
+              await FilterInquiryData(null, null, null, branchId, selectedName, null, null, context);
 
               if (fetchedFilteredInquiryData != null) {
                 fetchedFilteredInquiryData.inquiries?.forEach((e) {
@@ -224,29 +216,33 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   /// Add Inquiry Reference Dialog Box
+
+  // Function to show the dialog
   void showInquiryReferenceDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return InquiryReferenceDialog(
-          onPressed: (String selectedName) async{
+          selectedReference: selectedReference,
+          onPressed: (String selectedName) async {
             InquiryModel? filteredDataForReference =
-                await FilterInquiryData(null, null, null, branchId, null, selectedName, context);
+            await FilterInquiryData(null, null, null, branchId, null, selectedName,null ,context);
+
             setState(() {
               inquiryListModel.clear();
+              selectedReference = selectedName;
             });
+
             if (filteredDataForReference != null) {
               filteredDataForReference.inquiries?.forEach((e) {
                 inquiryListModel.add(e);
               });
             }
-
           },
         );
       },
     );
   }
-
 
 
 // Handle Menu Selection
@@ -268,8 +264,18 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     setState(() {
       isLoading = true;
     });
-    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, null,context);
+    InquiryModel? fetchedFilteredInquiryData;
+    if(endDateString!.isEmpty)
+      {
+        fetchedFilteredInquiryData = await FilterInquiryData(
+            null, null, null, branchId, null, null,startDateString,context);
+      }
+    else
+      {
+        fetchedFilteredInquiryData = await FilterInquiryData(
+            null, startDateString, endDateString, branchId, null, null,null,context);
+
+      }
     setState(() {
       inquiryListModel.clear();
     });
@@ -448,7 +454,13 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         fetchFilteredInquiryData();
                       });
                     }
-                  });
+                  },
+                onCancel: (){
+                    _rangeStart=null;
+                    _rangeEnd=null;
+                  loadInquiryData();
+                },
+                  );
             },
           );
         },
@@ -461,16 +473,15 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             (selectedCourses) async {
               selectedCourseIds = selectedCourses.courses!
                   .where((c) => c.isChecked == true)
-                  .map((c) => c.id)
+                  .map((c) =>int.parse(c.id ?? "0"))
                   .toList();
               String selectedCourseIdsString = selectedCourseIds.join(",");
-
               setState(() {
                 inquiryListModel.clear();
               });
 
               InquiryModel? filteredData = await FilterInquiryData(
-                  selectedCourseIdsString, null, null, branchId, null, null,context);
+                  selectedCourseIdsString, null, null, branchId, null, null,null,context);
 
               if (filteredData != null) {
                 filteredData.inquiries?.forEach((e) {
@@ -483,10 +494,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             },
             courseProvider.course,
             () {
-              for (var course in courseProvider.course!.courses!) {
-                course.isChecked = false;
-              }
-              setState(() {});
               loadInquiryData();
             },
           );

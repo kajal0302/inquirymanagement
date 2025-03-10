@@ -28,7 +28,7 @@ class CourseModel {
 }
 
 class Courses {
-  int? id;
+  String? id;
   String? name;
   String? fees;
   String? duration;

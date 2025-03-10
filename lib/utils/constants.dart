@@ -59,7 +59,7 @@ const userUri = "userlist.php";
 const partnerUri = "partner.php";
 
 const apiUrl = "https://api.globalitians.com/globalit_courses_management/";
-const courseUri = "courses.php"+dbName;
+const courseUri = "globalit_course.php"+dbName;
 const cid = "globalit";
 const dbName = "?cid=$cid";
 

@@ -51,22 +51,28 @@ class _CustomCalendarState extends State<CustomCalendar> {
       setState(() {
         _selectedDay = selectedDay;
         _focusedDay = focusedDay;
+        _rangeStart = null;
+        _rangeEnd = null;
       });
       widget.onDaySelected(selectedDay, focusedDay);
     }
   }
 
 
+
   // Method for range selection
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
     setState(() {
-      _selectedDay = null;
+      if (start != null && end != null) {
+        _selectedDay = null;
+      }
       _focusedDay = focusedDay;
       _rangeStart = start;
       _rangeEnd = end;
     });
     widget.onRangeSelected(start, end, focusedDay);
   }
+
 
   @override
   Widget build(BuildContext context) {

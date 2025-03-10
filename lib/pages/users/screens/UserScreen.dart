@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/pages/users/components/UserListWidget.dart';
 
+import '../../../common/color.dart';
+
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
 
@@ -98,7 +100,10 @@ class _UserScreenState extends State<UserScreen> {
         )
       ]),
       body: userProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(
+        color: grey_400,
+        strokeWidth: 2.0,
+      ))
           : filteredUsers.isEmpty
               ? const Center(
                   child: Text("No users found", style: primary_heading_2))

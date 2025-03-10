@@ -46,6 +46,9 @@ class _SmsPageState extends State<SmsPage> {
   List<String> selectedStudentContactNumber = [];
   bool isLoading = true;
   bool isStatusLoading = false;
+  String selectedReference = '';
+  String selectedStatus = '';
+  String selectedCourseIdsString='';
 
   TextEditingController messageController = TextEditingController();
 
@@ -74,9 +77,18 @@ class _SmsPageState extends State<SmsPage> {
       isLoading = true;
     });
 
-    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null,null, context);
+    InquiryModel? fetchedFilteredInquiryData;
+    if(endDateString!.isEmpty)
+    {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null, null, null, branchId, null, null,startDateString,context);
+    }
+    else
+    {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null, startDateString, endDateString, branchId, null, null,null,context);
 
+    }
     setState(() {
       studentFilteredBYCourse = fetchedFilteredInquiryData;
       isLoading = false;
@@ -96,8 +108,6 @@ class _SmsPageState extends State<SmsPage> {
         studentFilteredBYCourse = InquiryModel(inquiries: filteredData);
         isStatusLoading = false;
       });
-
-      Navigator.pop(context);
     });
   }
 
@@ -108,7 +118,7 @@ class _SmsPageState extends State<SmsPage> {
       isLoading = true;
     });
     InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, null, null, branchId, null,selectedName, context);
+        null, null, null, branchId, null,selectedName,null, context);
 
     setState(() {
       studentFilteredBYCourse = fetchedFilteredInquiryData;
@@ -145,15 +155,20 @@ class _SmsPageState extends State<SmsPage> {
       builder: (BuildContext context) {
         return InquiryStatusDialog(
             isInquiryReport: true,
+            selectedStatus: selectedStatus,
             inquiryList: inquiryList,
             onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+
               if (studentFilteredBYCourse == null ||
                   studentFilteredBYCourse!.inquiries!.isEmpty) {
-                Navigator.pop(context);
                 callSnackBar(noStudent, "danger");
               } else if (selectedId.isEmpty) {
                 callSnackBar(noStatus, "danger");
               } else {
+                setState(() {
+                  selectedStatus=selectedId;
+                  isLoading = true;
+                });
                 filterInquiriesByStatus(selectedName);
                 callSnackBar("Inquiry fetched successfully!", "success");
               }
@@ -171,15 +186,18 @@ class _SmsPageState extends State<SmsPage> {
       builder: (BuildContext context) {
         return InquiryReferenceDialog(
           onPressed: (String selectedName) async {
+            selectedReference = selectedName;
             if (studentFilteredBYCourse == null ||
                 studentFilteredBYCourse!.inquiries!.isEmpty) {
-              Navigator.pop(context);
               callSnackBar(noStudent, "danger");
             } else if (selectedName.isEmpty) {
               callSnackBar(noReference, "danger");
             } else {
+              setState(() {
+                selectedReference=selectedName;
+                messageController.clear();
+              });
               filterInquiriesByReference(selectedName);
-              messageController.clear();
               callSnackBar("Inquiry fetched successfully!", "success");
             }
 
@@ -244,21 +262,18 @@ class _SmsPageState extends State<SmsPage> {
                       (selectedCourses) async {
                         selectedCourseIds = selectedCourses.courses!
                             .where((c) => c.isChecked == true)
-                            .map((c) => c.id)
+                            .map((c) => int.parse(c.id ?? "0"))
                             .toList();
-                        String selectedCourseIdsString =
+                         selectedCourseIdsString =
                             selectedCourseIds.join(",");
-                        InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, null, null, null, context);
+                        InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null, null,null, context);
                         setState(() {
                           studentFilteredBYCourse = filteredData;
                         });
                       },
                       courseProvider.course,
                       () {
-                        /// Reset all checkboxes on cancel
-                        for (var course in courseProvider.course!.courses!) {
-                          course.isChecked = false;
-                        }
+                        studentFilteredBYCourse=null;
                         setState(() {});
                       },
                     );
@@ -445,6 +460,7 @@ class _SmsPageState extends State<SmsPage> {
         ],
       ),
       floatingActionButton: CustomSpeedDial(
+        isSms: true,
         /// Date Filter
         onCalendarTap: () {
           showDialog(
@@ -472,14 +488,22 @@ class _SmsPageState extends State<SmsPage> {
                       Navigator.pop(context);
                       callSnackBar(noStudent, "danger");
                     } else if (_rangeStart == null) {
-                      Navigator.pop(context);
-                      callSnackBar("Please select dateRange.", "danger");
+                      callSnackBar("Please select date", "danger");
                     } else {
                       Navigator.pop(context);
                       filterInquiriesByDate();
                       setState(() {});
                     }
+                  },
+                onCancel: () async{
+                  _rangeStart=null;
+                  _rangeEnd=null;
+                  InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null, null,null, context);
+                  setState(() {
+                    studentFilteredBYCourse = filteredData;
                   });
+                },
+              );
             },
           );
         },

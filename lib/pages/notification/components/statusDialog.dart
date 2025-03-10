@@ -10,12 +10,14 @@ class InquiryStatusDialog extends StatefulWidget {
   final bool? isInquiryReport;
   final InquiryStatusModel? inquiryList;
   final Function(String, String, String) onPressed;
+  final String? selectedStatus; //  to keep the previous selection
 
   const InquiryStatusDialog(
       {Key? key,
       this.isInquiryReport = false,
       required this.inquiryList,
-      required this.onPressed})
+      required this.onPressed,
+      this.selectedStatus})
       : super(key: key);
 
   @override
@@ -25,12 +27,23 @@ class InquiryStatusDialog extends StatefulWidget {
 class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
+  String selectedId = '';
+  String selectedName = '';
+  String selectedStatusId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selectedStatus != null) {
+      selectedId = widget.selectedStatus!;
+    } else {
+      selectedId = '';
+      selectedName = '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    String selectedId = '';
-    String selectedName = '';
-    String selectedStatusId = '';
     return StatefulBuilder(builder: (context, setState) {
       return CustomDialog(
         title: "Status",

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';

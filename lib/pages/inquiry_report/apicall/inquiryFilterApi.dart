@@ -6,7 +6,7 @@ import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 
-Future<InquiryModel?> FilterInquiryData(String? courses_id, String? start_date,String? end_date, String? branch_id, String? status,String? referenceBy, BuildContext context) async {
+Future<InquiryModel?> FilterInquiryData(String? courses_id, String? start_date,String? end_date, String? branch_id, String? status,String? referenceBy, String? date, BuildContext context) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -24,6 +24,7 @@ Future<InquiryModel?> FilterInquiryData(String? courses_id, String? start_date,S
       if (branch_id != null && branch_id.isNotEmpty) 'branch_id': branch_id,
       if (status != null && status.isNotEmpty) 'status': status,
       if (referenceBy != null && referenceBy.isNotEmpty) "referenceBy": referenceBy,
+      if (date != null && date.isNotEmpty) "date": date,
     },
     fromJson: InquiryModel.fromJson,
     onSuccess: (data) {

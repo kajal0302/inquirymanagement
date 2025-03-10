@@ -103,8 +103,18 @@ class _FollowUpPageState extends State<FollowUpPage> {
       isLoading = true;
     });
 
-    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, null,context);
+    InquiryModel? fetchedFilteredInquiryData;
+    if(endDateString!.isEmpty)
+    {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null, null, null, branchId, null, null,startDateString,context);
+    }
+    else
+    {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null, startDateString, endDateString, branchId, null, null,null,context);
+
+    }
 
     setState(() {
       inquiryData = fetchedFilteredInquiryData;
@@ -157,7 +167,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
         inquiryData=null;
       });
       InquiryModel? filteredData =
-          await FilterInquiryData(null, null, null, branchId, null, null,context);
+          await FilterInquiryData(null, null, null, branchId, null, null,null,context);
       setState(() {
         inquiryData = filteredData;
       });
@@ -262,6 +272,9 @@ class _FollowUpPageState extends State<FollowUpPage> {
               fontWeight: FontWeight.normal,
             ),
             onTap: (index) {
+              setState(() {
+                index=index;
+              });
               fetchUpcomingInquiryByTab(index);
             },
             tabs: [
@@ -328,7 +341,13 @@ class _FollowUpPageState extends State<FollowUpPage> {
                                         fetchFilteredInquiryData();
                                       });
                                     }
-                                  });
+                                  },
+                                onCancel: (){
+                                  _rangeStart=null;
+                                  _rangeEnd=null;
+                                  fetchUpcomingInquiryByTab(selectedIndex);
+                                },
+                                  );
                             },
                           );
                         },
@@ -347,22 +366,19 @@ class _FollowUpPageState extends State<FollowUpPage> {
                             (selectedCourses) async {
                               selectedCourseIds = selectedCourses.courses!
                                   .where((c) => c.isChecked == true)
-                                  .map((c) => c.id)
+                                  .map((c) => int.parse(c.id ?? "0"))
                                   .toList();
                               String selectedCourseIdsString =
                                   selectedCourseIds.join(",");
-                              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, context);
+                              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, null,context);
                               setState(() {
                                 inquiryData = filteredData;
                               });
                             },
                             courseProvider.course,
-                            () {
-                              for (var course
-                                  in courseProvider.course!.courses!) {
-                                course.isChecked = false;
-                              }
-                              setState(() {});
+                            ()
+                            {
+                              fetchUpcomingInquiryByTab(selectedIndex);
                             },
                           );
                         },
@@ -381,21 +397,18 @@ class _FollowUpPageState extends State<FollowUpPage> {
                         (selectedCourses) async {
                           selectedCourseIds = selectedCourses.courses!
                               .where((c) => c.isChecked == true)
-                              .map((c) => c.id)
+                              .map((c) => int.parse(c.id ?? "0"))
                               .toList();
                           String selectedCourseIdsString =
                               selectedCourseIds.join(",");
-                          InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, context);
+                          InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, null,context);
                           setState(() {
                             inquiryData = filteredData;
                           });
                         },
                         courseProvider.course,
                         () {
-                          for (var course in courseProvider.course!.courses!) {
-                            course.isChecked = false;
-                          }
-                          setState(() {});
+                          fetchUpcomingInquiryByTab(selectedIndex);
                         },
                       );
                     },

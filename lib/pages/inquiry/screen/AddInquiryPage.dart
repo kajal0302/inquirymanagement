@@ -19,7 +19,6 @@ import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../../../components/branchInputField.dart';
 
 class AddInquiryPage extends StatefulWidget {
@@ -207,11 +206,11 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ImageCamera(
-                    image: profilePic,
-                    status: true,
-                    onImagePicked: _onImagePicked,
-                  ),
+                  // ImageCamera(
+                  //   image: profilePic,
+                  //   status: true,
+                  //   onImagePicked: _onImagePicked,
+                  // ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: DynamicStepper(

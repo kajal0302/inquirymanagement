@@ -97,8 +97,8 @@ class StepTwo extends StatelessWidget {
         ),
 
         DateField(
-          firstDate: DateTime(1980, 1, 1),
-          lastDate: DateTime.now(),
+          firstDate: DateTime.now().subtract(Duration(days: 5 * 365)), /// included 5 years before date from today
+          lastDate: DateTime.now().add(Duration(days: 5 * 365)), /// included 5 years in future date from today
           label: "Upcoming Inquiry Date",
           controller: upcomingDate,
           validator: (value) {

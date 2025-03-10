@@ -8,8 +8,9 @@ import '../../notification/components/customDialogBox.dart';
 
 class InquiryReferenceDialog extends StatefulWidget {
   final Function(String) onPressed;
+  final String? selectedReference; //  to keep the previous selection
 
-  const InquiryReferenceDialog({Key? key, required this.onPressed})
+  const InquiryReferenceDialog({Key? key, required this.onPressed,this.selectedReference, })
       : super(key: key);
 
   @override
@@ -21,6 +22,18 @@ class _InquiryReferenceDialogState extends State<InquiryReferenceDialog> {
   String createdBy = userBox.get(idStr).toString();
   String selectedId = '';
   String selectedName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selectedReference != null && referenceBy.contains(widget.selectedReference)) {
+      selectedId = widget.selectedReference!;
+      selectedName = widget.selectedReference!;
+    } else {
+      selectedId = '';
+      selectedName = '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
