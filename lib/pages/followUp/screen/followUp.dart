@@ -33,7 +33,8 @@ class FollowUpPage extends StatefulWidget {
   State<FollowUpPage> createState() => _FollowUpPageState();
 }
 
-class _FollowUpPageState extends State<FollowUpPage> {
+class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMixin {
+  late TabController _tabController;
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
   InquiryModel? inquiryData;
@@ -49,10 +50,25 @@ class _FollowUpPageState extends State<FollowUpPage> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_onTabChanged);
     fetchUpcomingInquiryByTab(index);
     Future.microtask(() {
       Provider.of<CourseProvider>(context, listen: false).getCourse(context);
     });
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging || _tabController.index != null) {
+      fetchUpcomingInquiryByTab(_tabController.index);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
   }
 
   /// Method to load feedback data
@@ -217,17 +233,16 @@ class _FollowUpPageState extends State<FollowUpPage> {
   }
 
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList,String? inquiryId) {
+  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return InquiryStatusDialog(
           inquiryList: inquiryList,
-
           onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
             await updateInquiryStatusData(
-              inquiryId!,
               selectedId,
+              selectedStatusId,
               selectedName,
               branchId,
               createdBy,
@@ -258,6 +273,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
                 color: white, fontWeight: FontWeight.normal, fontSize: px20),
           ),
           bottom: TabBar(
+            controller: _tabController,
             labelColor: white,
             unselectedLabelColor: grey_400,
             // Inactive tab color
@@ -273,9 +289,6 @@ class _FollowUpPageState extends State<FollowUpPage> {
               fontWeight: FontWeight.normal,
             ),
             onTap: (index) {
-              setState(() {
-                index=index;
-              });
               fetchUpcomingInquiryByTab(index);
             },
             tabs: [
@@ -293,6 +306,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
           ),
         ),
         body: TabBarView(
+          controller: _tabController,
           children: [
             buildInquiryList(),
             buildInquiryList(),
@@ -487,7 +501,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
                               showLoadingDialog(context);
                               await loadInquiryStatusListData();
                               hideLoadingDialog(context);
-                              showInquiryStatusDialog(context, inquiryList,inquiry.id.toString());
+                              showInquiryStatusDialog(context, inquiryList);
                             }
                           },
                         );
