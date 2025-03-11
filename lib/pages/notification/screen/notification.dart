@@ -145,8 +145,12 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   // Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context,
-      InquiryStatusModel? inquiryList, String? inquiryId) {
+  void showInquiryStatusDialog(
+      BuildContext context,
+      InquiryStatusModel? inquiryList,
+      String? inquiryId,
+      Function(String selectedId, String selectedStatusId, String selectedName)
+      onStatusUpdate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -154,20 +158,13 @@ class _NotificationPageState extends State<NotificationPage> {
           inquiryList: inquiryList,
           onPressed: (String selectedId, String selectedStatusId,
               String selectedName) async {
-            await updateInquiryStatusData(
-              inquiryId!,
-              selectedId,
-              selectedName,
-              branchId,
-              createdBy,
-              context,
-            );
-            callSnackBar(updationMessage, "success");
+            await onStatusUpdate(selectedId, selectedStatusId, selectedName);
           },
         );
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -248,8 +245,29 @@ class _NotificationPageState extends State<NotificationPage> {
                                   showLoadingDialog(context);
                                   await loadInquiryStatusListData();
                                   hideLoadingDialog(context);
-                                  showInquiryStatusDialog(context, inquiryList,
-                                      notification.id.toString());
+                                  showInquiryStatusDialog(context, inquiryList, notification.id.toString(),
+                                        (String selectedId, String selectedStatusId, String selectedName)
+                                    async {
+                                      await updateInquiryStatusData(
+                                        notification.id.toString(),
+                                        selectedId,
+                                        selectedName,
+                                        branchId,
+                                        createdBy,
+                                        context,
+                                      );
+                                      int index = notifications.indexWhere((item) => item.id ==  notification.id.toString());
+                                      /// Remove item if found and selectedName is not "inquiry"
+                                      if (index != -1 && selectedName != "Inquiry") {
+                                        setState(() {
+                                          notifications.removeAt(index);
+                                        });
+                                      }
+                                      callSnackBar(updationMessage, "success");
+                                      loadNotificationData();
+                                    },
+                                  );
+
                                 }
                               },
                             );
