@@ -13,7 +13,6 @@ class CustomSpeedDial extends StatelessWidget {
   final double overlayOpacity;
   final Color iconColor;
   final double iconSize;
-  final bool isWhatsapp;
   final bool isSms;
 
   const CustomSpeedDial({
@@ -26,7 +25,6 @@ class CustomSpeedDial extends StatelessWidget {
     this.overlayOpacity = 0.5,
     this.iconColor = Colors.black,
     this.iconSize = 25.0,
-    this.isWhatsapp=false,
     this.isSms=false
   }) : super(key: key);
 
@@ -55,7 +53,6 @@ class CustomSpeedDial extends StatelessWidget {
           child: Icon(Icons.calendar_month,color: iconColor,),
           onTap: onCalendarTap,
         ),
-        if(!isWhatsapp)
           SpeedDialChild(
             label:isSms?"Status Filter":"Course Filter",
             labelStyle:

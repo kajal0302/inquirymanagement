@@ -61,6 +61,8 @@ class _TemplateScreenState extends State<TemplateScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay, _rangeStart, _rangeEnd;
   String? startDateString, endDateString;
+  String selectedReference = '';
+  String selectedStatusValue = '';
 
   @override
   void initState() {
@@ -112,46 +114,42 @@ class _TemplateScreenState extends State<TemplateScreen> {
     });
   }
 
-  /// Method for Reference Filter
-  void filterInquiriesByReference(String selectedName) async {
-    if (selectedName.isEmpty) {
-      callSnackBar(noReference, danger);
-      return;
-    }
-    setState(() {
-      isLoading = true;
-    });
-    if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
-      callSnackBar(noStudent, "danger");
-    }
-    else{
-      InquiryModel? fetchedInquiryListData = await FilterInquiryData(
-          selectedCourseIdsString,
-          startDateString,
-          endDateString,
-          branch_id,
-          selectedStatus,
-          selectedName,
-          null,
-          context);
-      setState(() {
-        inquiryData = fetchedInquiryListData;
-        filterInquiryData = inquiryData?.inquiries;
-      });
-    }
-    setState(() {
-      isLoading = false;
-    });
-
-  }
 
   /// Add Inquiry Reference Dialog Box
   void showInquiryReferenceDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return InquiryReferenceDialog(onPressed: (String selectedName) async {
-          filterInquiriesByReference(selectedName);
+        return InquiryReferenceDialog(
+            selectedReference: selectedReference,
+            onPressed: (String selectedName) async {
+          setState(() {
+            isLoading = true;
+          });
+          if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
+            callSnackBar(noStudent, "danger");
+          }
+          if (selectedName.isEmpty) {
+            callSnackBar(noReference, danger);
+            return;
+          }
+            InquiryModel? fetchedInquiryListData = await FilterInquiryData(
+                selectedCourseIdsString,
+                startDateString,
+                endDateString,
+                branch_id,
+                selectedStatus,
+                selectedName,
+                null,
+                context);
+            setState(() {
+              selectedReference = selectedName;
+              inquiryData = fetchedInquiryListData;
+              filterInquiryData = inquiryData?.inquiries;
+            });
+          setState(() {
+            isLoading = false;
+          });
         });
         });
   }
@@ -161,11 +159,21 @@ class _TemplateScreenState extends State<TemplateScreen> {
     return Scaffold(
       backgroundColor: white,
       appBar: buildAppBar(context, "Templates", [
-        IconButton(
-            onPressed: () {
-              showInquiryStatusDialog(context,inquiryList);
-            },
-            icon: Icon(FontAwesomeIcons.ellipsisVertical))
+        PopupMenuButton<String>(
+          color: white,
+          icon: Icon(FontAwesomeIcons.ellipsisVertical),
+          onSelected: (value) {
+            if (value == 'select_template') {
+              _loadTemplate();
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            PopupMenuItem<String>(
+              value: 'select_template',
+              child: Text('Select Template'),
+            ),
+          ],
+        ),
       ]),
       body: Stack(fit: StackFit.expand, children: [
         buildBackgroundImage(),
@@ -185,84 +193,73 @@ class _TemplateScreenState extends State<TemplateScreen> {
           ),
         ),
       ]),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: btnWidget(
-                onClick: () {
-                  _loadTemplate();
+      floatingActionButton: CustomSpeedDial(
+        isSms: true,
+        onCalendarTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DateRangeDialog(
+                widget: Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 600,
+                    height: 400,
+                    child: CustomCalendar(
+                      initialFormat: _calendarFormat,
+                      initialFocusedDay: _focusedDay,
+                      initialSelectedDay: _selectedDay,
+                      initialRangeStart: _rangeStart,
+                      initialRangeEnd: _rangeEnd,
+                      onDaySelected: _onDaySelected,
+                      onRangeSelected: _onRangeSelected,
+                    ),
+                  ),
+                ),
+                filterInquiriesByDate: () {
+                  if (studentFilteredBYCourse == null) {
+                    Navigator.pop(context);
+                    callSnackBar(noStudent, "danger");
+                  } else if (_rangeStart == null) {
+                    callSnackBar("Please select date", "danger");
+                  } else {
+                    Navigator.pop(context);
+                    filterInquiriesByDate();
+                    setState(() {});
+                  }
                 },
-                btnBgColor: primaryColor,
-                btnBrdRadius: BorderRadius.circular(px35),
-                btnLabel: "Select Template",
-                btnLabelColor: white,
-                btnLabelFontSize: px14,
-                btnLabelFontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: CustomSpeedDial(
-              isWhatsapp: true,
-              onCalendarTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return DateRangeDialog(
-                      widget: Align(
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: 600,
-                          height: 400,
-                          child: CustomCalendar(
-                            initialFormat: _calendarFormat,
-                            initialFocusedDay: _focusedDay,
-                            initialSelectedDay: _selectedDay,
-                            initialRangeStart: _rangeStart,
-                            initialRangeEnd: _rangeEnd,
-                            onDaySelected: _onDaySelected,
-                            onRangeSelected: _onRangeSelected,
-                          ),
-                        ),
-                      ),
-                      filterInquiriesByDate: () {
-                        if (studentFilteredBYCourse == null) {
-                          Navigator.pop(context);
-                          callSnackBar(noStudent, "danger");
-                        } else if (_rangeStart == null) {
-                          callSnackBar("Please select date", "danger");
-                        } else {
-                          Navigator.pop(context);
-                          filterInquiriesByDate();
-                          setState(() {});
-                        }
-                      },
-                      onCancel: () async{
-                        _rangeStart=null;
-                        _rangeEnd=null;
-                        InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branch_id, null, null,null, context);
-                        setState(() {
-                          studentFilteredBYCourse = filteredData;
-                        });
-                      },
-                    );
-                  },
-                );
-              },
-              onReferenceTap: () async {
-                showInquiryReferenceDialog(context);
-              },
-              backgroundColor: preIconFillColor,
-              iconColor: white,
-              iconSize: 25.0,
-            ),
-          ),
-        ],
+                onCancel: () async{
+                  startDateString = null;
+                  endDateString = null;
+                  _rangeStart=null;
+                  _rangeEnd=null;
+                  InquiryModel? filteredData = await FilterInquiryData(
+                      selectedCourseIdsString,
+                      startDateString,
+                      endDateString,
+                      branch_id,
+                      null,
+                      null,
+                      null,
+                      context);
+                  setState(() {
+                    studentFilteredBYCourse = filteredData;
+                    filterInquiryData=filteredData!.inquiries;
+                  });
+                },
+              );
+            },
+          );
+        },
+        onFilterTap: (){
+          showInquiryStatusDialog(context, inquiryList);
+        },
+        onReferenceTap: () async {
+          showInquiryReferenceDialog(context);
+        },
+        backgroundColor: preIconFillColor,
+        iconColor: white,
+        iconSize: 25.0,
       ),
 
     );
@@ -608,12 +605,12 @@ class _TemplateScreenState extends State<TemplateScreen> {
     if(endDateString!.isEmpty)
     {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, null, null, branch_id, null, null,startDateString,context);
+          selectedCourseIdsString, null, null, branch_id, null, null,startDateString,context);
     }
     else
     {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, startDateString, endDateString, branch_id, null, null,null,context);
+          selectedCourseIdsString, startDateString, endDateString, branch_id, null, null,null,context);
 
     }
     setState(() {
@@ -769,6 +766,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
       builder: (BuildContext context) {
         return InquiryStatusDialog(
             isInquiryReport: true,
+            selectedStatus: selectedStatusValue,
             inquiryList: inquiryList,
             onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
               if (selectedId.isEmpty) {
@@ -778,6 +776,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
               setState(() {
                 isLoading = true;
                 selectedStatus = selectedName;
+                selectedStatusValue=selectedId;
               });
               loadInquiryData(selectedName);
 

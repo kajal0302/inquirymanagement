@@ -81,12 +81,12 @@ class _SmsPageState extends State<SmsPage> {
     if(endDateString!.isEmpty)
     {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, null, null, branchId, null, null,startDateString,context);
+          selectedCourseIdsString, null, null, branchId, null, null,startDateString,context);
     }
     else
     {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, startDateString, endDateString, branchId, null, null,null,context);
+          selectedCourseIdsString, startDateString, endDateString, branchId, null, null,null,context);
 
     }
     setState(() {
@@ -111,21 +111,6 @@ class _SmsPageState extends State<SmsPage> {
     });
   }
 
-
-  /// Method for Reference Filter
-  void filterInquiriesByReference(String selectedName) async {
-    setState(() {
-      isLoading = true;
-    });
-    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, null, null, branchId, null,selectedName,null, context);
-
-    setState(() {
-      selectedReference=selectedName;
-      studentFilteredBYCourse = fetchedFilteredInquiryData;
-      isLoading = false;
-    });
-  }
 
   /// Method for Day Selection
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -195,7 +180,7 @@ class _SmsPageState extends State<SmsPage> {
                 callSnackBar(noReference, "danger");
               } else {
                 InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-                    null, null, null, branchId, null, selectedName, null, context);
+                    selectedCourseIdsString, null, null, branchId, null, selectedName, null, context);
 
                 setState(() {
                   selectedReference = selectedName;
