@@ -35,9 +35,21 @@ class _CourseListTileState extends State<CourseListTile> {
   void _toggleCheckbox() {
     setState(() {
       preCheckedValue = !preCheckedValue;
-      widget.isChecked(preCheckedValue);
     });
+    widget.isChecked(preCheckedValue);
   }
+
+
+  @override
+  void didUpdateWidget(CourseListTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.status != widget.status) {
+      setState(() {
+        preCheckedValue = widget.status;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,36 +59,6 @@ class _CourseListTileState extends State<CourseListTile> {
         elevation: 3,
         color: bv_secondaryLightColor3,
         child: ListTile(
-          // leading: CircleAvatar(
-          //   backgroundColor: primaryColor.withOpacity(0.2),
-          //   child: ClipOval(
-          //     child: widget.imageUrl != null && widget.imageUrl!.isNotEmpty
-          //         ? CachedNetworkImage(
-          //             imageUrl: widget.imageUrl!,
-          //             placeholder: (context, url) =>
-          //                 CircularProgressIndicator(),
-          //             errorWidget: (context, url, error) => Center(
-          //               child: Text(
-          //                 widget.name[0].toUpperCase(),
-          //                 style: TextStyle(
-          //                     color: white,
-          //                     fontWeight: FontWeight.bold,
-          //                     fontSize: px20),
-          //               ),
-          //             ),
-          //             fit: BoxFit.cover,
-          //           )
-          //         : Center(
-          //             child: Text(
-          //               widget.name[0].toUpperCase(),
-          //               style: TextStyle(
-          //                   color: white,
-          //                   fontWeight: FontWeight.bold,
-          //                   fontSize: px20),
-          //             ),
-          //           ),
-          //   ),
-          // ),
           title: Text(
             widget.name,
             style: primary_heading_3_bold,

@@ -15,6 +15,9 @@ void showBottomSheetCom(
     builder: (BuildContext context) {
       return DraggableScrollableSheet(
         expand: false,
+        initialChildSize: 0.5, // Starts at 50% of screen height
+        minChildSize: 0.3, // Can be dragged to 30% of screen height
+        maxChildSize: 0.8, // Can be expanded to 80% of screen height
         builder: (context, scrollController) {
           return StatefulBuilder(
             builder: (context, setState) {
@@ -36,6 +39,7 @@ void showBottomSheetCom(
                           ),
                         ),
                         Checkbox(
+                          activeColor: primaryColor,
                           value: _isAllSelected,
                           onChanged: (bool? value) {
                             setState(() {

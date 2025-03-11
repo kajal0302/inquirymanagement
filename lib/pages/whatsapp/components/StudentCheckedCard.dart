@@ -69,6 +69,7 @@ class StudentCheckedCard extends StatelessWidget {
                 ],
               ),
               Checkbox(
+                activeColor: primaryColor,
                 value: isChecked,
                 onChanged: (val) {
                   onChange(val ?? false); // Directly pass the new value

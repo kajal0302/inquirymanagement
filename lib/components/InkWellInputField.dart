@@ -47,7 +47,9 @@ class InkWellInputField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
-        onTap: ()=>showDynamicCheckboxDialog(context,onOkPressed, courses,() {},),
+        onTap: ()=>showDynamicCheckboxDialog(context,onOkPressed, courses,(){
+          controller.clear();
+        }),
         child: TextFormField(
           style: TextStyle(color: textColor),
           validator: validator,

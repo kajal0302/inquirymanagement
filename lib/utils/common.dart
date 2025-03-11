@@ -42,6 +42,11 @@ void callSnackBar(String text, String type) {
   scaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.only(
+        bottom: 5,
+        left: 16,
+        right: 16,
+      ),
       backgroundColor: color,
       content: Row(
         children: [

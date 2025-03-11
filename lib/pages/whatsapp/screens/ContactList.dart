@@ -47,7 +47,7 @@ class _ContactListState extends State<ContactList> {
             ),
           );
         },
-        backgroundColor: primaryColor,
+        backgroundColor: preIconFillColor,
         child: const Icon(Icons.add,color: white,),
       ),
       body: contactListModel != null

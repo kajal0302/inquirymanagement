@@ -1,41 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:inquirymanagement/utils/lists.dart';
 import '../../../common/color.dart';
 import '../../../common/text.dart';
 import '../../../main.dart';
 import '../../../utils/common.dart';
-import '../model/inquiryStatusListModel.dart';
-import 'customDialogBox.dart';
+import '../../notification/components/customDialogBox.dart';
 
-class InquiryStatusDialog extends StatefulWidget {
-  final bool? isInquiryReport;
-  final InquiryStatusModel? inquiryList;
-  final Function(String, String, String) onPressed;
-  final String? selectedStatus; //  to keep the previous selection
+class InquiryReferenceDialog extends StatefulWidget {
+  final Function(String) onPressed;
+  final String? selectedReference; //  to keep the previous selection
 
-  const InquiryStatusDialog(
-      {Key? key,
-      this.isInquiryReport = false,
-      required this.inquiryList,
-      required this.onPressed,
-      this.selectedStatus})
+  const InquiryReferenceDialog({Key? key, required this.onPressed,this.selectedReference, })
       : super(key: key);
 
   @override
-  _InquiryStatusDialogState createState() => _InquiryStatusDialogState();
+  _InquiryReferenceDialogState createState() => _InquiryReferenceDialogState();
 }
 
-class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
+class _InquiryReferenceDialogState extends State<InquiryReferenceDialog> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
   String selectedId = '';
   String selectedName = '';
-  String selectedStatusId = '';
 
   @override
   void initState() {
     super.initState();
-    if (widget.selectedStatus != null) {
-      selectedId = widget.selectedStatus!;
+    if (widget.selectedReference != null && referenceBy.contains(widget.selectedReference)) {
+      selectedId = widget.selectedReference!;
+      selectedName = widget.selectedReference!;
     } else {
       selectedId = '';
       selectedName = '';
@@ -46,7 +39,7 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
   Widget build(BuildContext context) {
     return StatefulBuilder(builder: (context, setState) {
       return CustomDialog(
-        title: "Status",
+        title: "Reference",
         height: MediaQuery.of(context).size.height * 0.5,
         width: MediaQuery.of(context).size.width * 0.8,
         child: Padding(
@@ -55,10 +48,10 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: widget.inquiryList!.inquiryStatusList!.length,
+                  itemCount: referenceBy.length-1,
                   itemBuilder: (context, index) {
-                    var status = widget.inquiryList!.inquiryStatusList![index];
-                    bool isSelected = selectedId == status.id;
+                    var reference = referenceBy[index+1];
+                    bool isSelected = selectedId == reference;
 
                     return Card(
                       color: Colors.white,
@@ -69,9 +62,8 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            selectedId = status.id!;
-                            selectedName = status.name!;
-                            selectedStatusId = status.status!;
+                            selectedId = reference;
+                            selectedName = reference;
                           });
                         },
                         borderRadius: BorderRadius.circular(15),
@@ -88,7 +80,7 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                status.name!,
+                                reference,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -110,11 +102,10 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (selectedId.isEmpty) {
-                      callSnackBar("Please select a status", "danger");
+                      callSnackBar("Please select a reference", "danger");
                       return;
                     }
-                    widget.onPressed(
-                        selectedId, selectedStatusId, selectedName);
+                    widget.onPressed(selectedName);
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -123,8 +114,8 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(
-                    widget.isInquiryReport! ? "FIND" : "UPDATE",
+                  child: const Text(
+                    "FIND",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -139,3 +130,4 @@ class _InquiryStatusDialogState extends State<InquiryStatusDialog> {
     });
   }
 }
+

@@ -16,7 +16,7 @@ Future<void> showDynamicCheckboxDialog(
   }
 
   TextEditingController _searchController = TextEditingController();
-  List<Courses> filteredCourses = List.from(courses.courses!);
+  List<Courses> filteredCourses = courses.courses!;
   ValueNotifier<bool> isSearching = ValueNotifier(false);
 
   return showDialog<void>(
@@ -101,27 +101,35 @@ Future<void> showDynamicCheckboxDialog(
               width: MediaQuery.of(context).size.width * 0.9,
               constraints: BoxConstraints(maxHeight: 400),
               child: SingleChildScrollView(
-                child: Column(
-                  children: filteredCourses.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    var course = entry.value;
-                    var name = course.name!.length > 8
-                        ? '${course.name!.substring(0, 8)}...'
-                        : course.name;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: CourseListTile(
-                        name: name!,
-                        status: course.isChecked ?? false,
-                        isChecked: (status) {
-                          setState(() {
-                            courses.courses![index].isChecked = status;
-                          });
-                        },
-                        imageUrl: course.image,
-                      ),
-                    );
-                  }).toList(),
+                child: SizedBox(
+                  height: 350, // Set an appropriate height
+                  child: ListView.builder(
+                    itemCount: filteredCourses.length,
+                    itemBuilder: (context, index) {
+                      var course =filteredCourses[index];
+                      var name = course.name!.length > 8
+                          ? '${course.name!.substring(0, 8)}...'
+                          : course.name;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: CourseListTile(
+                          name: name!,
+                          status: course.isChecked ?? false,
+                          isChecked: (status) {
+                            setState(() {
+                              // Update the original list to reflect changes
+                              int originalIndex = courses.courses!
+                                  .indexWhere((c) => c.id == course.id);
+                              if (originalIndex != -1) {
+                                courses.courses![originalIndex].isChecked = status;
+                              }
+                            });
+                          },
+                          imageUrl: course.image,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -160,10 +168,14 @@ Future<void> showDynamicCheckboxDialog(
                 height: 42,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (onCancelPressed != null) {
-                      onCancelPressed(); // Call the custom cancel function
-                    }
-                    Navigator.pop(context, false);
+                  // Reset the isChecked value for all courses
+                  for (var course in courses.courses!) {
+                  course.isChecked = false;
+                  }
+                  if (onCancelPressed != null) {
+                    onCancelPressed();
+                  }
+                  Navigator.pop(context, false);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: white,

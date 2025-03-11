@@ -6,7 +6,7 @@ import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 import '../model/inquiryModel.dart';
 
-Future<InquiryModel?> fetchInquiryData(String branch_id, String status, BuildContext context) async {
+Future<InquiryModel?> fetchInquiryData(String branch_id, String status,String? referenceBy, BuildContext context) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -20,6 +20,7 @@ Future<InquiryModel?> fetchInquiryData(String branch_id, String status, BuildCon
     body: {
       'branch_id': branch_id,
       'status': status,
+      if (referenceBy != null) "referenceBy": referenceBy,
     },
     fromJson: InquiryModel.fromJson,
     onSuccess: (user) {

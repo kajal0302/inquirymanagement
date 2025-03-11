@@ -58,10 +58,11 @@ Map<IconData, String> sideMenu = {
 };
 
 //List for reference field in Inquiry page
-const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Global IT Partner"];
+const referenceBy=["Select Reference","Self","Friend","Online Advertisement","Website","Global IT Partner"];
 const days=["After 2 days","After 7 days","After 15 days","After 1 month"];
 const genderList=["Male","Female"];
 const userRoleList=["Employee","Admin"];
+const notInStatus=["Student","Not Interested"];
 
 bool EmailValidator(String val){
   return RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(val.trim());

@@ -49,7 +49,7 @@ const inquiry = "Inquiry";
 const inquiryDetail = "inquiry_detail.php";
 
 const branch = "branches.php";
-const sms="sendsms.php";
+const sms="sendmultiplesms.php";
 
 const changeUserStatusUri = "change_user_status.php";
 const postInquiriesUri = "postinquiries.php";
@@ -59,7 +59,7 @@ const userUri = "userlist.php";
 const partnerUri = "partner.php";
 
 const apiUrl = "https://api.globalitians.com/globalit_courses_management/";
-const courseUri = "courses.php"+dbName;
+const courseUri = "globalit_course.php"+dbName;
 const cid = "globalit";
 const dbName = "?cid=$cid";
 

@@ -94,7 +94,7 @@ class _InstallmentDetailsState extends State<InstallmentDetails> {
           ),
 
           SizedBox(height: 10,),
-          if (selectedReference!.trim().toLowerCase() == "global it partner") ...[
+          if (selectedReference?.trim().toLowerCase() == "global it partner") ...[
             TextWidget(
               labelAlignment: Alignment.topLeft,
               label: "Select Partner",

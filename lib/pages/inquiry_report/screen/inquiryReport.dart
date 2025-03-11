@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
-import 'package:inquirymanagement/pages/inquiry_report/apicall/inquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
+import 'package:inquirymanagement/pages/inquiry_report/components/referenceDialog.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
-import 'package:inquirymanagement/utils/constants.dart';
+import 'package:inquirymanagement/utils/lists.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
@@ -20,10 +20,9 @@ import '../../course/provider/CourseProvider.dart';
 import '../../dashboard/screen/dashboard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/apicall/updateInquiryStatus.dart';
-import '../../notification/components/customDialogBox.dart';
 import '../../notification/components/feedbackDialog.dart';
 import '../../notification/components/notificationSettingsDialog.dart';
+import '../../notification/components/statusDialog.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 import '../../students/screen/StudentForm.dart';
@@ -40,6 +39,8 @@ class InquiryReportPage extends StatefulWidget {
 }
 
 class _InquiryReportPageState extends State<InquiryReportPage> {
+  String selectedReference = '';
+  String selectedStatus = '';
   ScrollController scrollController = ScrollController();
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
@@ -48,15 +49,11 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   List<Inquiries> inquiryListModel = [];
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
-  InquiryModel? filteredInquiryData;
-  InquiryModel? inquirySearchedData;
+  InquiryModel? filteredInquiryData,inquirySearchedData,fetchedFilteredInquiryData;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  DateTime? _rangeStart;
-  DateTime? _rangeEnd;
-  String? startDateString;
-  String? endDateString;
+  DateTime? _selectedDay,_rangeStart,_rangeEnd;
+  String? startDateString,endDateString,date;
   bool isLoadPagination = false;
   int limit = 20;
   int totalCount = 0;
@@ -96,6 +93,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     setState(() {
       _selectedDay = selectedDay;
       _focusedDay = focusedDay;
+      date = _selectedDay != null ? formatDate(_selectedDay!) : "";
     });
   }
 
@@ -105,7 +103,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       _rangeStart = start;
       _rangeEnd = end;
       _focusedDay = focusedDay;
-
       startDateString = _rangeStart != null ? formatDate(_rangeStart!) : "";
       endDateString = _rangeEnd != null ? formatDate(_rangeEnd!) : "";
     });
@@ -114,7 +111,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   // Method to load inquiry data
   Future<InquiryModel?> loadInquiryData() async {
     InquiryModel? fetchedInquiryListData = await fetchInquiryDataPagination(
-        branchId, inquiry, context, page, limit);
+        branchId, null, notInStatus,context, page, limit);
     if (mounted) {
       if (fetchedInquiryListData != null &&
           fetchedInquiryListData.status == success) {
@@ -183,145 +180,71 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     );
   }
 
-  // Add Status Dialog Box
-  void showInquiryStatusDialog(
-      InquiryStatusModel? inquiryList, BuildContext context) {
+
+  /// Add Inquiry Status Dialog Box
+  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String selectedId = '';
-        String selectedName = '';
-        String selectedStatusId = '';
+        return InquiryStatusDialog(
+            selectedStatus: selectedStatus,
+            isInquiryReport: true,
+            inquiryList: inquiryList,
+            onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+              setState(() {
+                selectedStatus=selectedId;
+                inquiryListModel.clear();
+                isLoading = true;
+              });
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CustomDialog(
-              title: "Status",
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: inquiryList!.inquiryStatusList!.length,
-                        itemBuilder: (context, index) {
-                          var status = inquiryList.inquiryStatusList![index];
-                          bool isSelected =
-                              selectedId == status.id; // Check if selected
-                          return Card(
-                            color: Colors.white,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedId = status.id!;
-                                  selectedName = status.name!;
-                                  selectedStatusId = status.status!;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(15),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 15),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isSelected
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
-                                      color: isSelected
-                                          ? preIconFillColor
-                                          : grey_500,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      status.name!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? preIconFillColor
-                                            : black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    // if (isLoad)
-                    //   CircularProgressIndicator(),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 45,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (selectedId.isEmpty) {
-                            callSnackBar("Please select a status", danger);
-                            return;
-                          }
-                          setState(() {
-                            inquiryListModel.clear();
-                          });
-                          InquiryModel? fetchedFilteredInquiryData =
-                              await FilterInquiryData(null, null, null,
-                                  branchId, selectedName, context);
+              InquiryModel? fetchedFilteredInquiryData =
+              await FilterInquiryData(null, null, null, branchId, selectedName, null, null, context);
 
-                          if (fetchedFilteredInquiryData != null) {
-                            fetchedFilteredInquiryData.inquiries?.forEach((e) {
-                              inquiryListModel.add(e);
-                            });
-                          }
-                          setState(() {
-                            isLoading = false;
-                          });
-                          // await updateInquiryStatusData(
-                          //     selectedId,
-                          //     selectedStatusId,
-                          //     selectedName,
-                          //     branchId,
-                          //     createdBy,
-                          //     context);
+              if (fetchedFilteredInquiryData != null) {
+                fetchedFilteredInquiryData.inquiries?.forEach((e) {
+                  inquiryListModel.add(e);
+                });
+              }
+              callSnackBar("Inquiry fetched successfully!", "success");
 
-                          Navigator.pop(context);
-                          callSnackBar(
-                              fetchedFilteredInquiryData!.message ??
-                                  "Error While fetch Data",
-                              fetchedFilteredInquiryData.status ?? "info");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: bv_primaryDarkColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Text(
-                          "FIND",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+              setState(() {
+                isLoading = false;
+              });
+            });
+      },
+    );
+  }
+
+  /// Add Inquiry Reference Dialog Box
+
+  // Function to show the dialog
+  void showInquiryReferenceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return InquiryReferenceDialog(
+          selectedReference: selectedReference,
+          onPressed: (String selectedName) async {
+            InquiryModel? filteredDataForReference =
+            await FilterInquiryData(null, null, null, branchId, null, selectedName,null ,context);
+
+            setState(() {
+              inquiryListModel.clear();
+              selectedReference = selectedName;
+            });
+
+            if (filteredDataForReference != null) {
+              filteredDataForReference.inquiries?.forEach((e) {
+                inquiryListModel.add(e);
+              });
+              callSnackBar("Inquiry fetched successfully!", "success");
+            }
           },
         );
       },
     );
   }
+
 
 // Handle Menu Selection
   void handleMenuSelection(int value) async {
@@ -332,7 +255,9 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
     // Hide loading dialog when done
     hideLoadingDialog(context);
-    showInquiryStatusDialog(inquiryList, context);
+    showInquiryStatusDialog(context, inquiryList);
+
+
   }
 
   // Updating Filtered Data
@@ -340,8 +265,18 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     setState(() {
       isLoading = true;
     });
-    InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-        null, startDateString, endDateString, branchId, null, context);
+    InquiryModel? fetchedFilteredInquiryData;
+    if(endDateString!.isEmpty)
+      {
+        fetchedFilteredInquiryData = await FilterInquiryData(
+            null, null, null, branchId, null, null,startDateString,context);
+      }
+    else
+      {
+        fetchedFilteredInquiryData = await FilterInquiryData(
+            null, startDateString, endDateString, branchId, null, null,null,context);
+
+      }
     setState(() {
       inquiryListModel.clear();
     });
@@ -412,13 +347,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         itemCount: inquiryListModel.length,
                         itemBuilder: (context, index) {
                           final inquiry = inquiryListModel[index];
-                          // Extract course names
+                          /// Extract course names
                           String courseNames = inquiry.courses!
                               .map((course) => course.name)
                               .join(", ");
                           return GestureDetector(
                             child: InquiryCard(
-                              title: "${inquiry.fname} ${inquiry.lname}",
+                              status: inquiry.status!,
+                              title: "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
                               subtitle: courseNames,
                               menuItems: [
                                 PopupMenuItem<String>(
@@ -519,7 +455,13 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                         fetchFilteredInquiryData();
                       });
                     }
-                  });
+                  },
+                onCancel: (){
+                    _rangeStart=null;
+                    _rangeEnd=null;
+                  loadInquiryData();
+                },
+                  );
             },
           );
         },
@@ -532,16 +474,15 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             (selectedCourses) async {
               selectedCourseIds = selectedCourses.courses!
                   .where((c) => c.isChecked == true)
-                  .map((c) => c.id)
+                  .map((c) =>int.parse(c.id ?? "0"))
                   .toList();
               String selectedCourseIdsString = selectedCourseIds.join(",");
-
               setState(() {
                 inquiryListModel.clear();
               });
 
               InquiryModel? filteredData = await FilterInquiryData(
-                  selectedCourseIdsString, null, null, branchId, null, context);
+                  selectedCourseIdsString, null, null, branchId, null, null,null,context);
 
               if (filteredData != null) {
                 filteredData.inquiries?.forEach((e) {
@@ -554,13 +495,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             },
             courseProvider.course,
             () {
-              for (var course in courseProvider.course!.courses!) {
-                course.isChecked = false;
-              }
-              setState(() {});
               loadInquiryData();
             },
           );
+        },
+
+        /// Reference Filter
+        onReferenceTap: (){
+          showInquiryReferenceDialog(context);
         },
         backgroundColor: preIconFillColor,
         iconColor: Colors.black,
