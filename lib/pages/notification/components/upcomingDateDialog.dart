@@ -12,12 +12,16 @@ import 'customDialogBox.dart';
 class UpcomingDateDialog extends StatefulWidget {
   final String inquiryDate;
   final String inquiryId;
+  final Function(
+          String inquiryId, String date, String branchId, String createdBy)
+      updateDate;
 
-  const UpcomingDateDialog({
-    Key? key,
-    required this.inquiryDate,
-    required this.inquiryId,
-  }) : super(key: key);
+  const UpcomingDateDialog(
+      {Key? key,
+      required this.inquiryDate,
+      required this.inquiryId,
+      required this.updateDate})
+      : super(key: key);
 
   @override
   _UpcomingDateDialogState createState() => _UpcomingDateDialogState();
@@ -27,7 +31,8 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
   late DateTime selectedDate;
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
-  SuccessModel? addFeedback;
+
+  // SuccessModel? addFeedback;
 
   @override
   void initState() {
@@ -38,13 +43,15 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
 
   /// Method to update upcoming date
   Future<void> updateUpcomingDate(String inquiryId, String date) async {
-    SuccessModel? updatedDateData =
-        await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
-    if (mounted) {
-      setState(() {
-        addFeedback = updatedDateData;
-      });
-    }
+    widget.updateDate(inquiryId.toString(), date.toString(),
+        branchId.toString(), createdBy.toString());
+    // SuccessModel? updatedDateData =
+    //     await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
+    // if (mounted) {
+    //   setState(() {
+    //     addFeedback = updatedDateData;
+    //   });
+    // }
   }
 
   @override
@@ -62,11 +69,12 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
           // Date Selection
           InkWell(
             onTap: () async {
+              DateTime now = DateTime.now();
               DateTime? pickedDate = await showDatePicker(
                 context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime(2100),
+                initialDate: now.add(Duration(days: 1)),
+                firstDate: now.add(Duration(days: 1)), // Correct dynamic addition
+                lastDate: now.add(Duration(days: 5 * 365)),
                 builder: (BuildContext context, Widget? child) {
                   return Theme(
                     data: ThemeData.light().copyWith(

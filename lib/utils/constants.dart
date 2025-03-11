@@ -63,7 +63,6 @@ const courseUri = "globalit_course.php"+dbName;
 const cid = "globalit";
 const dbName = "?cid=$cid";
 
-
 const branchUri = "branches.php"+dbName;
 const batchUri = "batches.php"+dbName;
 const categoryUri = "categories.php"+dbName;

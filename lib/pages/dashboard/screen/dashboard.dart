@@ -21,7 +21,7 @@ class _DashboardPageState extends State<DashboardPage> {
   String userType = userBox.get(userTypeStr);
   String branchId = userBox.get(branchIdStr).toString();
   NotificationModel? notification;
-  String count = "0";
+  String count = userBox.get(countHiv) ?? "0";
 
   @override
   void initState() {
@@ -40,6 +40,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     if (mounted) {
       setState(() {
+        userBox.put(countHiv, count);
       });
     }
 

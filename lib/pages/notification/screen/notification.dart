@@ -5,6 +5,7 @@ import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCard.dart';
 import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
+import 'package:inquirymanagement/pages/notification/apicall/updateUpcomingDate.dart';
 import 'package:inquirymanagement/pages/notification/components/feedbackDialog.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationSettingsDialog.dart';
@@ -132,16 +133,11 @@ class _NotificationPageState extends State<NotificationPage> {
 
   // Add Upcoming Date Dialog Box
   void showUpcomingDateDialog(
-      BuildContext context, String inquiryDate, String inquiryId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return UpcomingDateDialog(
-          inquiryDate: inquiryDate,
-          inquiryId: inquiryId,
-        );
-      },
-    );
+      BuildContext context, String inquiryDate, String inquiryId,
+      Function(String inquiryId, String date, String branchId,
+          String createdBy) callBack
+      ) {
+
   }
 
   // Add Inquiry Status Dialog Box
@@ -150,7 +146,7 @@ class _NotificationPageState extends State<NotificationPage> {
       InquiryStatusModel? inquiryList,
       String? inquiryId,
       Function(String selectedId, String selectedStatusId, String selectedName)
-      onStatusUpdate) {
+          onStatusUpdate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -164,7 +160,6 @@ class _NotificationPageState extends State<NotificationPage> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -237,18 +232,38 @@ class _NotificationPageState extends State<NotificationPage> {
                                   showFeedbackDialog(context,
                                       notification.id.toString(), feedbackData);
                                 } else if (value == "date") {
-                                  showUpcomingDateDialog(
-                                      context,
-                                      notification.inquiryDate ?? "unknown",
-                                      notification.id.toString());
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return UpcomingDateDialog(
+                                        inquiryDate: notification.inquiryDate ?? "unknown",
+                                        inquiryId: notification.id.toString(),
+                                        updateDate: (String inquiryId, String date, String branchId,
+                                            String createdBy) async {
+                                          var data = await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
+                                          if(data != null && data.status == success){
+                                            setState(() {
+                                              notifications.removeAt(index);
+                                            });
+                                            callSnackBar(data.message.toString(), success);
+                                          }else{
+                                            callSnackBar("Unknown Error", danger);
+                                          }
+                                        },
+                                      );
+                                    },
+                                  );
                                 } else if (value == "status") {
                                   showLoadingDialog(context);
                                   await loadInquiryStatusListData();
                                   hideLoadingDialog(context);
-                                  showInquiryStatusDialog(context, inquiryList, notification.id.toString(),
-                                        (String selectedId, String selectedStatusId, String selectedName)
-                                    async {
-                                      await updateInquiryStatusData(
+                                  showInquiryStatusDialog(
+                                    context,
+                                    inquiryList,
+                                    notification.id.toString(),
+                                    (String selectedId, String selectedStatusId,
+                                        String selectedName) async {
+                                      var data = await updateInquiryStatusData(
                                         notification.id.toString(),
                                         selectedId,
                                         selectedName,
@@ -256,18 +271,29 @@ class _NotificationPageState extends State<NotificationPage> {
                                         createdBy,
                                         context,
                                       );
-                                      int index = notifications.indexWhere((item) => item.id ==  notification.id.toString());
-                                      /// Remove item if found and selectedName is not "inquiry"
-                                      if (index != -1 && selectedName != "Inquiry") {
+
+                                      if ("Inquiry" == selectedName) {
+                                        if (data != null &&
+                                            data.status == success) {
+                                          callSnackBar(
+                                              updationMessage, success);
+                                        }
+                                        return;
+                                      }
+
+                                      if (data != null &&
+                                          data.status == success) {
                                         setState(() {
                                           notifications.removeAt(index);
                                         });
+                                        callSnackBar(updationMessage, success);
+                                      } else {
+                                        callSnackBar(
+                                            "Error While Delete Message",
+                                            danger);
                                       }
-                                      callSnackBar(updationMessage, "success");
-                                      loadNotificationData();
                                     },
                                   );
-
                                 }
                               },
                             );

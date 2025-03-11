@@ -26,6 +26,7 @@ const branchIdStr = "branch_id";
 const branchNameStr = "branch_name";
 const branchAddressStr = "branch_address";
 const branchStr = "branch";
+const countHiv = "count";
 
 const admin = 'Admin';
 const idStr = "id";

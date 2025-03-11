@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/pages/followUp/apiCall/upcomingInquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
+import 'package:inquirymanagement/pages/notification/apicall/updateUpcomingDate.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/size.dart';
@@ -211,6 +212,15 @@ class _FollowUpPageState extends State<FollowUpPage> {
         return UpcomingDateDialog(
           inquiryDate: inquiryDate,
           inquiryId: inquiryId,
+          updateDate: (String inquiryId, String date, String branchId,
+              String createdBy) async {
+            var data = await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
+            if(data != null && data.status == success){
+              callSnackBar(data.message.toString(), success);
+            }else{
+              callSnackBar("Unknown Error", danger);
+            }
+          },
         );
       },
     );

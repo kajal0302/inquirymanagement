@@ -9,7 +9,7 @@ import 'customDialogBox.dart';
 class InquiryStatusDialog extends StatefulWidget {
   final bool? isInquiryReport;
   final InquiryStatusModel? inquiryList;
-  final Function(String, String, String) onPressed;
+  final Function(String selectedId, String selectedStatusId,String selectedName) onPressed;
   final String? selectedStatus; //  to keep the previous selection
 
   const InquiryStatusDialog(
