@@ -21,6 +21,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   bool isLoading = true;
+  String userType = userBox.get(userTypeStr);
   String branchId = userBox.get(branchIdStr).toString();
   BranchListModel? branchList;
   TextEditingController selectedBranch = TextEditingController();
@@ -49,13 +50,19 @@ class _SettingPageState extends State<SettingPage> {
     final branchProvider = context.watch<BranchProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: widgetAppbarForAboutPage(context, "Global IT Inquiry", DashboardPage(),),
+      appBar: widgetAppbarForAboutPage(
+        context,
+        "Global IT Inquiry",
+        DashboardPage(),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             /// Logout Card
+
             Card(
               elevation: 5,
               color: white,
@@ -85,6 +92,7 @@ class _SettingPageState extends State<SettingPage> {
             SizedBox(height: 30),
 
             /// Branch Selection
+
             Text(
               "Select Branch",
               style: TextStyle(
@@ -105,6 +113,7 @@ class _SettingPageState extends State<SettingPage> {
                       ? branchProvider.branch!.branches!.first.id.toString()
                       : null),
               controller: selectedBranch..text = branchId,
+
               /// Set the initial value
               mapItems: branchProvider.branch?.branches!
                   .map((b) =>
@@ -114,9 +123,12 @@ class _SettingPageState extends State<SettingPage> {
               status: true,
               lbl: "Select Branch",
               onChanged: (newBranchId) {
-                selectedBranch.text = newBranchId; /// Update the text field
-                userBox.put(branchIdStr,
-                    newBranchId); /// Store updated branch in userBox
+                selectedBranch.text = newBranchId;
+
+                /// Update the text field
+                userBox.put(branchIdStr, newBranchId);
+
+                /// Store updated branch in userBox
               },
             )
           ],

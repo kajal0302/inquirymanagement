@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:inquirymanagement/common/text.dart';
+import 'package:inquirymanagement/main.dart';
 import 'package:inquirymanagement/pages/notification/screen/notification.dart';
 import 'package:inquirymanagement/pages/setting/screen/setting.dart';
 import '../common/color.dart';
@@ -40,18 +42,19 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
                 color: white,
               ),
       ),
-      IconButton(
-        onPressed: () => _showPopUpMenu("Settings", (value) {
-          if (value == 1) {
-            navigation(context);
-          }
-        }, context),
-        icon: Icon(
-          Icons.more_vert,
-          size: 22,
-          color: white,
+      if(userBox.get(userTypeStr) == admin)
+        IconButton(
+          onPressed: () => _showPopUpMenu("Settings", (value) {
+            if (value == 1) {
+              navigation(context);
+            }
+          }, context),
+          icon: Icon(
+            Icons.more_vert,
+            size: 22,
+            color: white,
+          ),
         ),
-      ),
     ],
   );
 }
@@ -219,5 +222,9 @@ void _showPopUpMenu(
 
 void navigation(BuildContext context) {
   Navigator.push(
-      context, MaterialPageRoute(builder: (context) => SettingPage()));
+    context,
+    MaterialPageRoute(
+      builder: (context) => SettingPage(),
+    ),
+  );
 }

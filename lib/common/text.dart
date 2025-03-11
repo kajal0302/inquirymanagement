@@ -27,6 +27,7 @@ const branchNameStr = "branch_name";
 const branchAddressStr = "branch_address";
 const branchStr = "branch";
 
+const admin = 'Admin';
 const idStr = "id";
 const nameStr = "name";
 const usernameStr = "username";
