@@ -243,7 +243,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   }
 
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
+  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList,String inquiryId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -251,8 +251,8 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
           inquiryList: inquiryList,
           onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
             await updateInquiryStatusData(
+              inquiryId,
               selectedId,
-              selectedStatusId,
               selectedName,
               branchId,
               createdBy,
@@ -511,7 +511,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                               showLoadingDialog(context);
                               await loadInquiryStatusListData();
                               hideLoadingDialog(context);
-                              showInquiryStatusDialog(context, inquiryList);
+                              showInquiryStatusDialog(context, inquiryList,inquiry.id.toString());
                             }
                           },
                         );
