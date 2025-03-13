@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/main.dart';
+import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/students/apicall/addStudentApi.dart';
 import 'package:inquirymanagement/pages/students/apicall/batchListApi.dart';
@@ -9,6 +10,7 @@ import 'package:inquirymanagement/pages/students/models/batchListModel.dart';
 import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
 import 'package:inquirymanagement/pages/students/provider/categoryProvider.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
+import 'package:inquirymanagement/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../common/text.dart';
 import '../../../components/DynamicStepper.dart';
@@ -23,7 +25,6 @@ import '../components/parentDetails.dart';
 import '../components/personalDetails.dart';
 import '../models/courseListModel.dart';
 
-
 final _personalDetailsFormKey = GlobalKey<FormState>();
 final _usernamePasswordFormKey = GlobalKey<FormState>();
 final _parentsDetailsFormKey = GlobalKey<FormState>();
@@ -36,11 +37,9 @@ PartnerModel? partnerModel;
 bool _isSubmitting = false;
 
 class StudentForm extends StatefulWidget {
-  final String? id;
-  final String? fname;
-  final String? lname;
+  final Inquiries? inquiry;
 
-  const StudentForm({super.key, this.id, this.fname,this.lname});
+  const StudentForm({super.key, this.inquiry});
 
   @override
   State<StudentForm> createState() => _StudentFromState();
@@ -81,8 +80,17 @@ class _StudentFromState extends State<StudentForm> {
   @override
   void initState() {
     super.initState();
+
+    firstnameController.text = widget.inquiry!.fname!;
+    lastnameController.text = widget.inquiry!.lname!;
+    mobileController.text = widget.inquiry!.contact!;
+    whatsappController.text = widget.inquiry!.contact!;
+    joiningDateController.text = widget.inquiry!.inquiryDate!;
+    branchController.text = widget.inquiry!.branchName!;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() async {
+
         await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
         final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
         await categoryProvider.getCategory(context);
@@ -230,7 +238,7 @@ class _StudentFromState extends State<StudentForm> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "${widget.fname} ${widget.lname}", InquiryReportPage()),
+      appBar: widgetAppbarForAboutPage(context, "${widget.inquiry!.fname} ${widget.inquiry!.lname}", InquiryReportPage()),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(

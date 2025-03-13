@@ -49,11 +49,12 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   List<Inquiries> inquiryListModel = [];
   FeedbackModel? feedbackData;
   InquiryStatusModel? inquiryList;
-  InquiryModel? filteredInquiryData,inquirySearchedData,fetchedFilteredInquiryData;
+  InquiryModel? filteredInquiryData, inquirySearchedData,
+      fetchedFilteredInquiryData;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay,_rangeStart,_rangeEnd;
-  String? startDateString,endDateString,date;
+  DateTime? _selectedDay, _rangeStart, _rangeEnd;
+  String? startDateString, endDateString, date;
   bool isLoadPagination = false;
   int limit = 20;
   int totalCount = 0;
@@ -111,7 +112,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   // Method to load inquiry data
   Future<InquiryModel?> loadInquiryData() async {
     InquiryModel? fetchedInquiryListData = await fetchInquiryDataPagination(
-        branchId, null, notInStatus,context, page, limit);
+        branchId, null, notInStatus, context, page, limit);
     if (mounted) {
       if (fetchedInquiryListData != null &&
           fetchedInquiryListData.status == success) {
@@ -132,7 +133,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   // Method to load feedback data
   Future<FeedbackModel?> loadFeedBackListData(String inquiryId) async {
     FeedbackModel? fetchedFeedbackListData =
-        await fetchFeedbackData(inquiryId, context);
+    await fetchFeedbackData(inquiryId, context);
     if (mounted) {
       setState(() {
         feedbackData = fetchedFeedbackListData;
@@ -144,7 +145,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   // Method to load Status Data
   Future<void> loadInquiryStatusListData() async {
     InquiryStatusModel? inquiryStatusList =
-        await fetchInquiryStatusList(context);
+    await fetchInquiryStatusList(context);
     if (mounted) {
       setState(() {
         inquiryList = inquiryStatusList;
@@ -153,8 +154,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Inquiry Notification Setting Dialog Box
-  void showNotificationSettingsDialog(
-      BuildContext context, String inquiryId, String notificationDay) {
+  void showNotificationSettingsDialog(BuildContext context, String inquiryId,
+      String notificationDay) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -167,8 +168,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
   }
 
   // Add Inquiry Feedback Dialog Box
-  void showFeedbackDialog(
-      BuildContext context, String inquiryId, FeedbackModel? feedbackData) {
+  void showFeedbackDialog(BuildContext context, String inquiryId,
+      FeedbackModel? feedbackData) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -182,7 +183,8 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
 
 
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
+  void showInquiryStatusDialog(BuildContext context,
+      InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -190,15 +192,24 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             selectedStatus: selectedStatus,
             isInquiryReport: true,
             inquiryList: inquiryList,
-            onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+            onPressed: (String selectedId, String selectedStatusId,
+                String selectedName) async {
               setState(() {
-                selectedStatus=selectedId;
+                selectedStatus = selectedId;
                 inquiryListModel.clear();
                 isLoading = true;
               });
 
               InquiryModel? fetchedFilteredInquiryData =
-              await FilterInquiryData(null, null, null, branchId, selectedName, null, null, context);
+              await FilterInquiryData(
+                  null,
+                  null,
+                  null,
+                  branchId,
+                  selectedName,
+                  null,
+                  null,
+                  context);
 
               if (fetchedFilteredInquiryData != null) {
                 fetchedFilteredInquiryData.inquiries?.forEach((e) {
@@ -226,7 +237,15 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           selectedReference: selectedReference,
           onPressed: (String selectedName) async {
             InquiryModel? filteredDataForReference =
-            await FilterInquiryData(null, null, null, branchId, null, selectedName,null ,context);
+            await FilterInquiryData(
+                null,
+                null,
+                null,
+                branchId,
+                null,
+                selectedName,
+                null,
+                context);
 
             setState(() {
               inquiryListModel.clear();
@@ -256,8 +275,6 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
     // Hide loading dialog when done
     hideLoadingDialog(context);
     showInquiryStatusDialog(context, inquiryList);
-
-
   }
 
   // Updating Filtered Data
@@ -266,17 +283,28 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
       isLoading = true;
     });
     InquiryModel? fetchedFilteredInquiryData;
-    if(endDateString!.isEmpty)
-      {
-        fetchedFilteredInquiryData = await FilterInquiryData(
-            null, null, null, branchId, null, null,startDateString,context);
-      }
-    else
-      {
-        fetchedFilteredInquiryData = await FilterInquiryData(
-            null, startDateString, endDateString, branchId, null, null,null,context);
-
-      }
+    if (endDateString!.isEmpty) {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null,
+          null,
+          null,
+          branchId,
+          null,
+          null,
+          startDateString,
+          context);
+    }
+    else {
+      fetchedFilteredInquiryData = await FilterInquiryData(
+          null,
+          startDateString,
+          endDateString,
+          branchId,
+          null,
+          null,
+          null,
+          context);
+    }
     setState(() {
       inquiryListModel.clear();
     });
@@ -302,13 +330,13 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         context,
         "Inquiry Report",
         DashboardPage(),
-        (menuValue) {
+            (menuValue) {
           handleMenuSelection(menuValue);
         },
-        (searchQuery) async {
+            (searchQuery) async {
           if (searchQuery != "") {
             InquiryModel? result =
-                await inquirySearchFilter(null, searchQuery, context, branchId);
+            await inquirySearchFilter(null, searchQuery, context, branchId);
             if (result != null) {
               if (result.status == success) {
                 inquiryListModel.clear();
@@ -321,7 +349,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
             }
           }
         },
-        () async {
+            () async {
           inquiryListModel.clear();
           page = 1;
           setState(() {});
@@ -334,82 +362,83 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         children: [
           isLoading
               ? Expanded(
-                  child: ListView.builder(
-                    itemCount: 10,
-                    itemBuilder: (context, index) =>
-                        const InquiryCardSkeleton(),
-                  ),
-                )
+            child: ListView.builder(
+              itemCount: 10,
+              itemBuilder: (context, index) =>
+              const InquiryCardSkeleton(),
+            ),
+          )
               : (inquiryListModel.isNotEmpty)
-                  ? Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: inquiryListModel.length,
-                        itemBuilder: (context, index) {
-                          final inquiry = inquiryListModel[index];
-                          /// Extract course names
-                          String courseNames = inquiry.courses!
-                              .map((course) => course.name)
-                              .join(", ");
-                          return GestureDetector(
-                            child: InquiryCard(
-                              status: inquiry.status!,
-                              title: "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
-                              subtitle: courseNames,
-                              menuItems: [
-                                PopupMenuItem<String>(
-                                    value: 'call', child: Text(call)),
-                                PopupMenuItem<String>(
-                                    value: 'feedback',
-                                    child: Text(feedbackHistory)),
-                                PopupMenuItem<String>(
-                                    value: 'settings',
-                                    child: Text(notificationSettings)),
-                                PopupMenuItem<String>(
-                                    value: 'student',
-                                    child: Text(convertStudent)),
-                              ],
-                              onMenuSelected: (value) async {
-                                if (value == "call") {
-                                  makePhoneCall(inquiry.contact!);
-                                } else if (value == "feedback") {
-                                  showLoadingDialog(context);
-                                  await loadFeedBackListData(
-                                      inquiry.id.toString());
-                                  hideLoadingDialog(context);
-                                  showFeedbackDialog(context,
-                                      inquiry.id.toString(), feedbackData);
-                                } else if (value == "settings") {
-                                  showNotificationSettingsDialog(
-                                      context,
-                                      inquiry.id.toString(),
-                                      inquiry.notificationDay!);
-                                } else if (value == "student") {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => StudentForm(
-                                                id: inquiry.id,
-                                                fname: inquiry.fname,
-                                                lname: inquiry.lname,
-                                              )));
-                                }
-                              },
-                            ),
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddInquiryPage(
-                                            isEdit: true,
-                                            id: inquiry.id,
-                                          )));
-                            },
-                          );
-                        },
-                      ),
-                    )
-                  : DataNotAvailableWidget(message: dataNotAvailable),
+              ? Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: inquiryListModel.length,
+              itemBuilder: (context, index) {
+                final inquiry = inquiryListModel[index];
+
+                /// Extract course names
+                String courseNames = inquiry.courses!
+                    .map((course) => course.name)
+                    .join(", ");
+                return GestureDetector(
+                  child: InquiryCard(
+                    status: inquiry.status!,
+                    title: "${inquiry.fname ?? ''} ${inquiry.lname ?? ''}",
+                    subtitle: courseNames,
+                    menuItems: [
+                      PopupMenuItem<String>(
+                          value: 'call', child: Text(call)),
+                      PopupMenuItem<String>(
+                          value: 'feedback',
+                          child: Text(feedbackHistory)),
+                      PopupMenuItem<String>(
+                          value: 'settings',
+                          child: Text(notificationSettings)),
+                      PopupMenuItem<String>(
+                          value: 'student',
+                          child: Text(convertStudent)),
+                    ],
+                    onMenuSelected: (value) async {
+                      if (value == "call") {
+                        makePhoneCall(inquiry.contact!);
+                      } else if (value == "feedback") {
+                        showLoadingDialog(context);
+                        await loadFeedBackListData(
+                            inquiry.id.toString());
+                        hideLoadingDialog(context);
+                        showFeedbackDialog(context,
+                            inquiry.id.toString(), feedbackData);
+                      } else if (value == "settings") {
+                        showNotificationSettingsDialog(
+                            context,
+                            inquiry.id.toString(),
+                            inquiry.notificationDay!);
+                      } else if (value == "student") {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    StudentForm(
+                                      inquiry : inquiry,
+                                    )));
+                      }
+                    },
+                  ),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                AddInquiryPage(
+                                  isEdit: true,
+                                  id: inquiry.id,
+                                )));
+                  },
+                );
+              },
+            ),
+          )
+              : DataNotAvailableWidget(message: dataNotAvailable),
           if (isLoadPagination)
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -423,45 +452,46 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
         ],
       ),
       floatingActionButton: CustomSpeedDial(
+
         /// Date Filter
         onCalendarTap: () {
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return DateRangeDialog(
-                  widget: Align(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: 600,
-                      height: 400,
-                      child: CustomCalendar(
-                        initialFormat: _calendarFormat,
-                        initialFocusedDay: _focusedDay,
-                        initialSelectedDay: _selectedDay,
-                        initialRangeStart: _rangeStart,
-                        initialRangeEnd: _rangeEnd,
-                        onDaySelected: _onDaySelected,
-                        onRangeSelected: _onRangeSelected,
-                      ),
+                widget: Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 600,
+                    height: 400,
+                    child: CustomCalendar(
+                      initialFormat: _calendarFormat,
+                      initialFocusedDay: _focusedDay,
+                      initialSelectedDay: _selectedDay,
+                      initialRangeStart: _rangeStart,
+                      initialRangeEnd: _rangeEnd,
+                      onDaySelected: _onDaySelected,
+                      onRangeSelected: _onRangeSelected,
                     ),
                   ),
-                  filterInquiriesByDate: () {
-                    Navigator.pop(context);
+                ),
+                filterInquiriesByDate: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    isLoading = true;
+                  });
+                  if (mounted) {
                     setState(() {
-                      isLoading = true;
+                      fetchFilteredInquiryData();
                     });
-                    if (mounted) {
-                      setState(() {
-                        fetchFilteredInquiryData();
-                      });
-                    }
-                  },
-                onCancel: (){
-                    _rangeStart=null;
-                    _rangeEnd=null;
+                  }
+                },
+                onCancel: () {
+                  _rangeStart = null;
+                  _rangeEnd = null;
                   loadInquiryData();
                 },
-                  );
+              );
             },
           );
         },
@@ -471,10 +501,10 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
           List<int?> selectedCourseIds = [];
           showDynamicCheckboxDialog(
             context,
-            (selectedCourses) async {
+                (selectedCourses) async {
               selectedCourseIds = selectedCourses.courses!
                   .where((c) => c.isChecked == true)
-                  .map((c) =>int.parse(c.id ?? "0"))
+                  .map((c) => int.parse(c.id ?? "0"))
                   .toList();
               String selectedCourseIdsString = selectedCourseIds.join(",");
               setState(() {
@@ -482,7 +512,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               });
 
               InquiryModel? filteredData = await FilterInquiryData(
-                  selectedCourseIdsString, null, null, branchId, null, null,null,context);
+                  selectedCourseIdsString,
+                  null,
+                  null,
+                  branchId,
+                  null,
+                  null,
+                  null,
+                  context);
 
               if (filteredData != null) {
                 filteredData.inquiries?.forEach((e) {
@@ -494,14 +531,14 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
               });
             },
             courseProvider.course,
-            () {
+                () {
               loadInquiryData();
             },
           );
         },
 
         /// Reference Filter
-        onReferenceTap: (){
+        onReferenceTap: () {
           showInquiryReferenceDialog(context);
         },
         backgroundColor: preIconFillColor,

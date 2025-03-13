@@ -1,6 +1,5 @@
 const urlInquiryManagement = "https://api.globalitians.com/globalit_inquiry/";
 
-
 ////// api url
 const quotation = "https://quotation.globalitinfosolution.com";
 const quotationImage = "$quotation/storage/app/";
