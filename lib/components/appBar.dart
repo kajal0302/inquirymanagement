@@ -7,7 +7,9 @@ import 'package:inquirymanagement/pages/setting/screen/setting.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 
-AppBar widgetAppBar(BuildContext context, String title, String count) {
+
+/// AppBar used in dashboard and followUp Page
+AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDashboard,{PreferredSizeWidget? bottom}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -42,7 +44,7 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
                 color: white,
               ),
       ),
-      if(userBox.get(userTypeStr) == admin)
+      if(isDashboard == true && userBox.get(userTypeStr) == admin)
         IconButton(
           onPressed: () => _showPopUpMenu("Settings", (value) {
             if (value == 1) {
@@ -56,19 +58,13 @@ AppBar widgetAppBar(BuildContext context, String title, String count) {
           ),
         ),
     ],
+    bottom: bottom,
   );
 }
 
-AppBar buildAppBar(BuildContext context, String title, List<Widget> list) {
-  return AppBar(
-    backgroundColor: primaryColor,
-    foregroundColor: Colors.white,
-    title: Text(title),
-    actions: list,
-  );
-}
 
-AppBar widgetAppbarForAboutPage(
+/// AppBar used in almost all the Pages
+AppBar customPageAppBar(
     BuildContext context, String title, Widget destinationScreen,
     {List<Widget>? trailingIcons}) {
   return AppBar(
@@ -88,107 +84,24 @@ AppBar widgetAppbarForAboutPage(
     ),
     actions: trailingIcons != null
         ? trailingIcons
-            .map((icon) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: icon,
-                ))
-            .toList()
+        .map((icon) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: icon,
+    ))
+        .toList()
         : null,
   );
 }
 
-AppBar widgetAppbarForInquiryReport(
-  BuildContext context,
-  String title,
-  Widget destinationScreen,
-  Function(int) onMenuSelected,
-  Function(String) onSearch,
-  VoidCallback onCloseSearch, // Callback for search close
-  ValueNotifier<bool> isSearching, // Pass ValueNotifier from the parent
-  TextEditingController searchController, // Pass controller from the parent
-) {
+AppBar buildAppBar(BuildContext context, String title, List<Widget> list) {
   return AppBar(
-    backgroundColor: bv_primaryColor,
-    iconTheme: IconThemeData(color: white),
-    title: ValueListenableBuilder<bool>(
-      valueListenable: isSearching,
-      builder: (context, searching, child) {
-        return searching
-            ? Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      textInputAction: TextInputAction.search,
-                      controller: searchController,
-                      style: TextStyle(color: white),
-                      decoration: InputDecoration(
-                        hintText: 'Type here to Search',
-                        hintStyle: TextStyle(color: white70),
-                        border: InputBorder.none,
-                      ),
-                      onSubmitted: (value) {
-                        if (value.isNotEmpty) {
-                          onSearch(value); // Call the search function
-                        }
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close, color: white),
-                    onPressed: () {
-                      isSearching.value = false;
-                      searchController.clear();
-                      onSearch(''); // Clear search results
-                      onCloseSearch(); // Call a function when closing the search
-                    },
-                  ),
-                ],
-              )
-            : Text(
-                searchController.text.isNotEmpty
-                    ? searchController.text
-                    : title,
-                style: TextStyle(
-                    color: white, fontWeight: FontWeight.normal, fontSize: 20),
-              );
-      },
-    ),
-    leading: IconButton(
-      onPressed: () {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => destinationScreen));
-      },
-      icon: Icon(Icons.arrow_back_outlined, size: 20),
-    ),
-    actions: [
-      ValueListenableBuilder<bool>(
-        valueListenable: isSearching,
-        builder: (context, searching, child) {
-          return searching
-              ? SizedBox.shrink()
-              : IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    isSearching.value = true;
-                  },
-                );
-        },
-      ),
-      IconButton(
-        onPressed: () => _showPopUpMenu("Find By Status", (value) {
-          if (value == 1) {
-            onMenuSelected(value);
-          }
-        }, context),
-        icon: Icon(
-          Icons.more_vert,
-          size: 22,
-          color: white,
-        ),
-      ),
-    ],
+    backgroundColor: primaryColor,
+    foregroundColor: Colors.white,
+    title: Text(title),
+    actions: list,
   );
 }
+
 
 void _showPopUpMenu(
     String label, Function(int) onMenuSelected, BuildContext context) async {

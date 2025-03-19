@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../../common/color.dart';
-import '../../../common/size.dart';
-import '../../../common/text.dart';
-import '../../../main.dart';
-import '../../../utils/common.dart';
-import '../../branch/model/addBranchModel.dart';
-import '../apicall/feedbackApi.dart';
-import '../apicall/postFeedbackApi.dart';
-import '../model/feedbackModel.dart';
+import '../common/color.dart';
+import '../common/size.dart';
+import '../common/text.dart';
+import '../main.dart';
+import '../utils/common.dart';
+import '../pages/branch/model/addBranchModel.dart';
+import '../pages/notification/apicall/feedbackApi.dart';
+import '../pages/notification/apicall/postFeedbackApi.dart';
+import '../pages/notification/model/feedbackModel.dart';
 import 'customDialogBox.dart';
 
 class InquiryFeedbackDialog extends StatefulWidget {

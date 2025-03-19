@@ -128,7 +128,6 @@ void showLogoutDialog(BuildContext context) {
 
 
   // Widget for Showing Message If data is not available
-
   class DataNotAvailableWidget extends StatelessWidget {
     final String message;
     final Color textColor;

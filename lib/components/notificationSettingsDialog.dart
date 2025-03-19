@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../common/color.dart';
-import '../../../common/size.dart';
-import '../../../common/text.dart';
-import '../../../components/alertBox.dart';
-import '../../../components/dateField.dart';
-import '../../../main.dart';
-import '../../../utils/common.dart';
-import '../../../utils/lists.dart';
-import '../../login/screen/login.dart';
-import '../apicall/updateNotificationDay.dart';
-import '../screen/notification.dart';
+import '../common/color.dart';
+import '../common/size.dart';
+import '../common/text.dart';
+import 'alertBox.dart';
+import 'dateField.dart';
+import '../main.dart';
+import '../utils/common.dart';
+import '../utils/lists.dart';
+import '../pages/login/screen/login.dart';
+import '../pages/notification/apicall/updateNotificationDay.dart';
+import '../pages/notification/screen/notification.dart';
 import 'customDialogBox.dart';
 
 

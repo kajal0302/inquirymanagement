@@ -51,7 +51,7 @@ class _BranchPageState extends State<BranchPage> {
       },
       child: Scaffold(
           backgroundColor: white,
-          appBar: widgetAppbarForAboutPage(
+          appBar: customPageAppBar(
               context, "Branch List", DashboardPage(),
               trailingIcons: [
                 IconButton(

@@ -6,10 +6,10 @@ import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCard.da
 import 'package:inquirymanagement/pages/notification/apicall/inquiryStatusListApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/notificationApi.dart';
 import 'package:inquirymanagement/pages/notification/apicall/updateUpcomingDate.dart';
-import 'package:inquirymanagement/pages/notification/components/feedbackDialog.dart';
+import 'package:inquirymanagement/components/feedbackDialog.dart';
 import 'package:inquirymanagement/pages/notification/components/notificationCardSkeleton.dart';
-import 'package:inquirymanagement/pages/notification/components/notificationSettingsDialog.dart';
-import 'package:inquirymanagement/pages/notification/components/statusDialog.dart';
+import 'package:inquirymanagement/components/notificationSettingsDialog.dart';
+import 'package:inquirymanagement/components/statusDialog.dart';
 import 'package:inquirymanagement/pages/notification/model/inquiryStatusListModel.dart';
 import 'package:inquirymanagement/pages/notification/model/notificationModel.dart';
 import 'package:inquirymanagement/utils/common.dart';
@@ -18,7 +18,7 @@ import '../../../common/text.dart';
 import '../../../components/appBar.dart';
 import '../apicall/feedbackApi.dart';
 import '../apicall/updateInquiryStatus.dart';
-import '../components/upcomingDateDialog.dart';
+import '../../../components/upcomingDateDialog.dart';
 import '../model/feedbackModel.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -175,7 +175,7 @@ class _NotificationPageState extends State<NotificationPage> {
       child: Scaffold(
         backgroundColor: white,
         appBar:
-            widgetAppbarForAboutPage(context, "Notifications", DashboardPage()),
+        customPageAppBar(context, "Notifications", DashboardPage()),
         body: Column(
           children: [
             isLoading

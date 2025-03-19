@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/common/text.dart';
-import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/size.dart';
+import '../../../components/appBar.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -27,9 +27,10 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+      Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "About Us", DashboardPage()),
+      appBar: customPageAppBar(context, "About Us", DashboardPage()),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 8.0),
@@ -67,7 +68,7 @@ class _AboutPageState extends State<AboutPage> {
                       widgetSubHeading(label: "Products"),
                       widgetContent(label: products,),
                       widgetSubHeading(label: "Achievements"),
-                      widgetContent(label: products,),
+                      widgetContent(label: achievements,),
                       widgetSubHeading(label: "Founded"),
                       widgetContent(label: founded,),
                       widgetSubHeading(label: "For More Info Visit : "),

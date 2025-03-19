@@ -238,7 +238,7 @@ class _StudentFromState extends State<StudentForm> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "${widget.inquiry!.fname} ${widget.inquiry!.lname}", InquiryReportPage()),
+      appBar: customPageAppBar(context, "${widget.inquiry!.fname} ${widget.inquiry!.lname}", InquiryReportPage()),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(
@@ -249,10 +249,10 @@ class _StudentFromState extends State<StudentForm> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(height: 5,),
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage(userImg),
-              ),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage(userImg),
+                ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.8,
                   child:
@@ -328,7 +328,7 @@ class _StudentFromState extends State<StudentForm> {
                         String errorMessage = "Please fix errors in the following forms: ${invalidForms.join(', ')}";
                         callSnackBar(errorMessage, "danger");
                       }
-                  },
+                    },
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -340,4 +340,5 @@ class _StudentFromState extends State<StudentForm> {
     );
   }
 }
+
 
