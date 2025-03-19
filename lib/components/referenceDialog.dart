@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/utils/lists.dart';
-import '../../../common/color.dart';
-import '../../../common/text.dart';
-import '../../../main.dart';
-import '../../../utils/common.dart';
-import '../../notification/components/customDialogBox.dart';
+import '../common/color.dart';
+import '../common/text.dart';
+import '../main.dart';
+import '../utils/common.dart';
+import 'customDialogBox.dart';
 
 class InquiryReferenceDialog extends StatefulWidget {
   final Function(String) onPressed;

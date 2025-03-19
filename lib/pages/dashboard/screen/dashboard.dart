@@ -32,7 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
   // Method to load notification data
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-    await fetchNotificationCount(branchId);
+    await fetchNotificationCount(branchId,null);
 
     if (fetchedNotificationData != null) {
       count = fetchedNotificationData.count.toString();
@@ -49,7 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widgetAppBar(context, appName, count),
+      appBar: widgetAppBar(context, appName, count,true),
       drawer: widgetDrawer(context),
       body: Stack(
         children: [

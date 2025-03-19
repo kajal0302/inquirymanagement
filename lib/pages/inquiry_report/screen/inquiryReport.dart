@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/inquiry_report/components/inquiryCardSkeleton.dart';
-import 'package:inquirymanagement/pages/inquiry_report/components/referenceDialog.dart';
+import 'package:inquirymanagement/components/referenceDialog.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/utils/lists.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../common/color.dart';
 import '../../../common/text.dart';
-import '../../../components/appBar.dart';
 import '../../../components/customCalender.dart';
 import '../../../components/customDialog.dart';
 import '../../../components/dateRangeComponent.dart';
@@ -20,15 +19,16 @@ import '../../course/provider/CourseProvider.dart';
 import '../../dashboard/screen/dashboard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/components/feedbackDialog.dart';
-import '../../notification/components/notificationSettingsDialog.dart';
-import '../../notification/components/statusDialog.dart';
+import '../../../components/feedbackDialog.dart';
+import '../../../components/notificationSettingsDialog.dart';
+import '../../../components/statusDialog.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 import '../../students/screen/StudentForm.dart';
 import '../apicall/inquiryApiPagination.dart';
 import '../apicall/inquiryFilterApi.dart';
 import '../apicall/inquirySearchFilter.dart';
+import '../components/appBar.dart';
 import '../components/inquiryCard.dart';
 
 class InquiryReportPage extends StatefulWidget {
@@ -392,6 +392,7 @@ class _InquiryReportPageState extends State<InquiryReportPage> {
                                                 id: inquiry.id,
                                                 fname: inquiry.fname,
                                                 lname: inquiry.lname,
+                                                contact: inquiry.contact,
                                               )));
                                 }
                               },

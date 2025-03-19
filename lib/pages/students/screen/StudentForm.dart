@@ -39,8 +39,9 @@ class StudentForm extends StatefulWidget {
   final String? id;
   final String? fname;
   final String? lname;
+  final String? contact;
 
-  const StudentForm({super.key, this.id, this.fname,this.lname});
+  const StudentForm({super.key, this.id, this.fname,this.lname,this.contact});
 
   @override
   State<StudentForm> createState() => _StudentFromState();
@@ -82,6 +83,13 @@ class _StudentFromState extends State<StudentForm> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(widget.id!.isNotEmpty)
+        {
+          firstnameController.text=widget.fname ?? '';
+          lastnameController.text = widget.lname ?? '';
+          mobileController.text=widget.contact ?? '';
+
+        }
       Future.microtask(() async {
         await Provider.of<StudentBranchProvider>(context, listen: false).getBranch(context);
         final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
@@ -230,7 +238,7 @@ class _StudentFromState extends State<StudentForm> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "${widget.fname} ${widget.lname}", InquiryReportPage()),
+      appBar: customPageAppBar(context, "${widget.fname ?? ''} ${widget.lname ?? ''}", InquiryReportPage()),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(

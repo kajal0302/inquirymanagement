@@ -28,8 +28,8 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../components/dateRangeComponent.dart';
-import '../../inquiry_report/components/referenceDialog.dart';
-import '../../notification/components/statusDialog.dart';
+import '../../../components/referenceDialog.dart';
+import '../../../components/statusDialog.dart';
 
 class TemplateScreen extends StatefulWidget {
   const TemplateScreen({super.key});
