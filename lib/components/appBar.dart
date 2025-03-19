@@ -64,9 +64,7 @@ AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDas
 
 
 /// AppBar used in almost all the Pages
-AppBar customPageAppBar(
-    BuildContext context, String title, Widget destinationScreen,
-    {List<Widget>? trailingIcons}) {
+AppBar customPageAppBar(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),

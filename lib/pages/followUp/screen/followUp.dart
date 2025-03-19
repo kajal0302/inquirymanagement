@@ -52,6 +52,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   DateTime? _selectedDay, _rangeEnd, _rangeStart;
   String? startDateString, endDateString;
   NotificationModel? notification;
+  bool? isFollowUp=true;
   String count = userBox.get(countHiv) ?? "0";
 
   @override
@@ -542,6 +543,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                                   MaterialPageRoute(
                                       builder: (context) => StudentForm(
                                         inquiry: inquiry,
+                                        isFollowUp: isFollowUp,
                                       )));
                             }
                           },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/main.dart';
+import 'package:inquirymanagement/pages/followUp/screen/followUp.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/students/apicall/addStudentApi.dart';
@@ -10,7 +11,6 @@ import 'package:inquirymanagement/pages/students/models/batchListModel.dart';
 import 'package:inquirymanagement/pages/students/provider/branchProvider.dart';
 import 'package:inquirymanagement/pages/students/provider/categoryProvider.dart';
 import 'package:inquirymanagement/utils/asset_paths.dart';
-import 'package:inquirymanagement/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../common/text.dart';
 import '../../../components/DynamicStepper.dart';
@@ -38,8 +38,9 @@ bool _isSubmitting = false;
 
 class StudentForm extends StatefulWidget {
   final Inquiries? inquiry;
+  final bool? isFollowUp;
 
-  const StudentForm({super.key, this.inquiry});
+  const StudentForm({super.key, this.inquiry,this.isFollowUp});
 
   @override
   State<StudentForm> createState() => _StudentFromState();
@@ -81,12 +82,12 @@ class _StudentFromState extends State<StudentForm> {
   void initState() {
     super.initState();
 
-    firstnameController.text = widget.inquiry!.fname!;
-    lastnameController.text = widget.inquiry!.lname!;
-    mobileController.text = widget.inquiry!.contact!;
-    whatsappController.text = widget.inquiry!.contact!;
-    joiningDateController.text = widget.inquiry!.inquiryDate!;
-    branchController.text = widget.inquiry!.branchName!;
+    firstnameController.text = widget.inquiry!.fname ?? '';
+    lastnameController.text = widget.inquiry!.lname ?? '';
+    mobileController.text = widget.inquiry!.contact ?? '';
+    whatsappController.text = widget.inquiry!.contact ?? '';
+    joiningDateController.text = widget.inquiry!.inquiryDate ?? '';
+    branchController.text = widget.inquiry!.branchName ?? '';
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() async {
@@ -98,13 +99,17 @@ class _StudentFromState extends State<StudentForm> {
         if (categoryProvider.category != null &&
             categoryProvider.category!.categories != null &&
             categoryProvider.category!.categories!.isNotEmpty) {
-          setState(() {
-            categoryId = categoryProvider.category!.categories!.first.id.toString();
-          });
+          if(mounted)
+            {
+              setState(() {
+                categoryId = categoryProvider.category!.categories!.first.id.toString();
+              });
+            }
         }
         await loadstudentCourseListData();
         loadstudentBatchListData();
         fetchData();
+
       });
     });
   }
@@ -114,21 +119,24 @@ class _StudentFromState extends State<StudentForm> {
   /// Method to load BatchList
   Future<void> loadstudentBatchListData() async {
     StudentBatchListModel? fetchedBatchListData = await fetchStudentBatchListData(context);
-    setState(() {
-      if (fetchedBatchListData != null && fetchedBatchListData.batches != null &&
-          fetchedBatchListData.batches!.isNotEmpty)
+    if(mounted)
       {
-        batchItems =
-            fetchedBatchListData.batches!.map((item) => item.name ?? '').toList();
-        batchIds = fetchedBatchListData.batches!
-            .map((item) => item.id.toString() ?? '')
-            .toList();
-      } else
-      {
-        batchItems = [];
+        setState(() {
+          if (fetchedBatchListData != null && fetchedBatchListData.batches != null &&
+              fetchedBatchListData.batches!.isNotEmpty)
+          {
+            batchItems =
+                fetchedBatchListData.batches!.map((item) => item.name ?? '').toList();
+            batchIds = fetchedBatchListData.batches!
+                .map((item) => item.id.toString() ?? '')
+                .toList();
+          } else
+          {
+            batchItems = [];
+          }
+          isLoading = false;
+        });
       }
-      isLoading = false;
-    });
   }
 
   /// Method to load PartnerList
@@ -143,19 +151,22 @@ class _StudentFromState extends State<StudentForm> {
   /// Load Course List Data
   Future<void> loadstudentCourseListData() async {
     StudentCourseListModel? fetchedCourseListData = await fetchStudentCourseListData(context,categoryId.toString());
-    setState(() {
-      if (fetchedCourseListData != null &&
-          fetchedCourseListData.courses != null &&
-          fetchedCourseListData.courses!.isNotEmpty) {
-        courseItemsWithFee = fetchedCourseListData.courses!.map((item) => {
-          "id": item.id.toString(),
-          "value": item.name ?? '',
-          "total_fee": int.tryParse(item.fees ?? '0') ?? 0,
-        }).toList();
-      } else {
-        courseItems = [];
+    if(mounted)
+      {
+        setState(() {
+          if (fetchedCourseListData != null &&
+              fetchedCourseListData.courses != null &&
+              fetchedCourseListData.courses!.isNotEmpty) {
+            courseItemsWithFee = fetchedCourseListData.courses!.map((item) => {
+              "id": item.id.toString(),
+              "value": item.name ?? '',
+              "total_fee": int.tryParse(item.fees ?? '0') ?? 0,
+            }).toList();
+          } else {
+            courseItems = [];
+          }
+        });
       }
-    });
   }
 
 
@@ -238,7 +249,7 @@ class _StudentFromState extends State<StudentForm> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
-      appBar: customPageAppBar(context, "${widget.inquiry!.fname} ${widget.inquiry!.lname}", InquiryReportPage()),
+      appBar: customPageAppBar(context, "${widget.inquiry!.fname ?? ''} ${widget.inquiry!.lname ?? ''}", widget.isFollowUp! ? FollowUpPage() : InquiryReportPage()),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(
