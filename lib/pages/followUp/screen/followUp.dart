@@ -15,6 +15,7 @@ import '../../../utils/common.dart';
 import '../../../utils/urlLauncherMethods.dart';
 import '../../course/components/showDynamicCheckboxDialog.dart';
 import '../../course/provider/CourseProvider.dart';
+import '../../dashboard/screen/dashboard.dart';
 import '../../inquiry_report/apicall/inquiryFilterApi.dart';
 import '../../inquiry_report/components/inquiryCard.dart';
 import '../../notification/apicall/feedbackApi.dart';
@@ -294,187 +295,198 @@ class _FollowUpPageState extends State<FollowUpPage>
     final courseProvider = context.watch<CourseProvider>();
     return DefaultTabController(
       length: 4,
-      child: Scaffold(
-        backgroundColor: white,
-        appBar: widgetAppBar(
-          context,
-          "Follow Up",
-          count,
-          false,
-          bottom: TabBar(
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, Object? result) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardPage()),
+                (Route<dynamic> route) =>
+            false, /// This removes all the previous routes
+          );
+        },
+        child: Scaffold(
+          backgroundColor: white,
+          appBar: widgetAppBar(
+            context,
+            "Follow Up",
+            count,
+            false,
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: white,
+              unselectedLabelColor: grey_400,
+              // Inactive tab color
+              indicatorColor: white,
+              // Underline indicator
+              indicatorWeight: 0.1,
+              labelStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelStyle: TextStyle(
+                fontSize: px12,
+                fontWeight: FontWeight.normal,
+              ),
+              onTap: (index) {
+                fetchUpcomingInquiryByTab(index);
+              },
+              tabs: [
+                Tab(
+                  child: Text("Today"),
+                ),
+                Tab(
+                  child: Text("Tomorrow"),
+                ),
+                Tab(
+                  child: Text("Within 7 Days"),
+                ),
+                Tab(child: Icon(Icons.calendar_month))
+              ],
+            ),
+          ),
+          body: TabBarView(
             controller: _tabController,
-            labelColor: white,
-            unselectedLabelColor: grey_400,
-            // Inactive tab color
-            indicatorColor: white,
-            // Underline indicator
-            indicatorWeight: 0.1,
-            labelStyle: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontSize: px12,
-              fontWeight: FontWeight.normal,
-            ),
-            onTap: (index) {
-              fetchUpcomingInquiryByTab(index);
-            },
-            tabs: [
-              Tab(
-                child: Text("Today"),
-              ),
-              Tab(
-                child: Text("Tomorrow"),
-              ),
-              Tab(
-                child: Text("Within 7 Days"),
-              ),
-              Tab(child: Icon(Icons.calendar_month))
+            children: [
+              buildInquiryList(),
+              buildInquiryList(),
+              buildInquiryList(),
+              buildInquiryList(),
             ],
           ),
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            buildInquiryList(),
-            buildInquiryList(),
-            buildInquiryList(),
-            buildInquiryList(),
-          ],
-        ),
-        floatingActionButton: Builder(
-          builder: (context) {
-            int selectedIndex = _tabController.index ?? 0;
-            return selectedIndex == 3
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FloatingActionButton(
-                        backgroundColor: preIconFillColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return DateRangeDialog(
-                                widget: Align(
-                                  alignment: Alignment.center,
-                                  child: SizedBox(
-                                    width: 600,
-                                    height: 400,
-                                    child: CustomCalendar(
-                                      initialFormat: _calendarFormat,
-                                      initialFocusedDay: _focusedDay,
-                                      initialSelectedDay: _selectedDay,
-                                      initialRangeStart: _rangeStart,
-                                      initialRangeEnd: _rangeEnd,
-                                      onDaySelected: _onDaySelected,
-                                      onRangeSelected: _onRangeSelected,
+          floatingActionButton: Builder(
+            builder: (context) {
+              int selectedIndex = _tabController.index ?? 0;
+              return selectedIndex == 3
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FloatingActionButton(
+                          backgroundColor: preIconFillColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return DateRangeDialog(
+                                  widget: Align(
+                                    alignment: Alignment.center,
+                                    child: SizedBox(
+                                      width: 600,
+                                      height: 400,
+                                      child: CustomCalendar(
+                                        initialFormat: _calendarFormat,
+                                        initialFocusedDay: _focusedDay,
+                                        initialSelectedDay: _selectedDay,
+                                        initialRangeStart: _rangeStart,
+                                        initialRangeEnd: _rangeEnd,
+                                        onDaySelected: _onDaySelected,
+                                        onRangeSelected: _onRangeSelected,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                filterInquiriesByDate: () {
-                                  Navigator.pop(context);
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  if (mounted) {
+                                  filterInquiriesByDate: () {
+                                    Navigator.pop(context);
                                     setState(() {
-                                      fetchFilteredInquiryData();
+                                      isLoading = true;
                                     });
-                                  }
-                                },
-                                onCancel: () {
-                                  // _rangeStart = null;
-                                  // _rangeEnd = null;
-                                  // fetchUpcomingInquiryByTab(selectedIndex);
-                                },
-                              );
-                            },
-                          );
-                        },
-                        child: Icon(Icons.calendar_today_outlined,
-                            color: white, size: 28),
-                      ),
-                      SizedBox(height: 16),
-                      FloatingActionButton(
-                        backgroundColor: preIconFillColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)),
-                        onPressed: () {
-                          List<int?> selectedCourseIds = [];
-                          showDynamicCheckboxDialog(
-                            context,
-                            (selectedCourses) async {
-                              selectedCourseIds = selectedCourses.courses!
-                                  .where((c) => c.isChecked == true)
-                                  .map((c) => int.parse(c.id ?? "0"))
-                                  .toList();
-                              String selectedCourseIdsString =
-                                  selectedCourseIds.join(",");
-                              InquiryModel? filteredData =
-                                  await FilterInquiryData(
-                                      selectedCourseIdsString,
-                                      null,
-                                      null,
-                                      branchId,
-                                      null,
-                                      null,
-                                      null,
-                                      context);
-                              setState(() {
-                                inquiryData = filteredData;
-                              });
-                            },
-                            courseProvider.course,
-                            () {
-                              fetchUpcomingInquiryByTab(selectedIndex);
-                            },
-                          );
-                        },
-                        child: Icon(Icons.filter_list, color: white, size: 28),
-                      ),
-                    ],
-                  )
-                : FloatingActionButton(
-                    backgroundColor: preIconFillColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50)),
-                    onPressed: () {
-                      List<int?> selectedCourseIds = [];
-                      showDynamicCheckboxDialog(
-                        context,
-                        (selectedCourses) async {
-                          selectedCourseIds = selectedCourses.courses!
-                              .where((c) => c.isChecked == true)
-                              .map((c) => int.parse(c.id ?? "0"))
-                              .toList();
-                          String selectedCourseIdsString =
-                              selectedCourseIds.join(",");
-                          InquiryModel? filteredData = await FilterInquiryData(
-                              selectedCourseIdsString,
-                              null,
-                              null,
-                              branchId,
-                              null,
-                              null,
-                              null,
-                              context);
-                          setState(() {
-                            inquiryData = filteredData;
-                          });
-                        },
-                        courseProvider.course,
-                        () {
-                          fetchUpcomingInquiryByTab(selectedIndex);
-                        },
-                      );
-                    },
-                    child: Icon(Icons.filter_list, color: white, size: 30),
-                  );
-          },
+                                    if (mounted) {
+                                      setState(() {
+                                        fetchFilteredInquiryData();
+                                      });
+                                    }
+                                  },
+                                  onCancel: () {
+                                    // _rangeStart = null;
+                                    // _rangeEnd = null;
+                                    // fetchUpcomingInquiryByTab(selectedIndex);
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(Icons.calendar_today_outlined,
+                              color: white, size: 28),
+                        ),
+                        SizedBox(height: 16),
+                        FloatingActionButton(
+                          backgroundColor: preIconFillColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          onPressed: () {
+                            List<int?> selectedCourseIds = [];
+                            showDynamicCheckboxDialog(
+                              context,
+                              (selectedCourses) async {
+                                selectedCourseIds = selectedCourses.courses!
+                                    .where((c) => c.isChecked == true)
+                                    .map((c) => int.parse(c.id ?? "0"))
+                                    .toList();
+                                String selectedCourseIdsString =
+                                    selectedCourseIds.join(",");
+                                InquiryModel? filteredData =
+                                    await FilterInquiryData(
+                                        selectedCourseIdsString,
+                                        null,
+                                        null,
+                                        branchId,
+                                        null,
+                                        null,
+                                        null,
+                                        context);
+                                setState(() {
+                                  inquiryData = filteredData;
+                                });
+                              },
+                              courseProvider.course,
+                              () {
+                                fetchUpcomingInquiryByTab(selectedIndex);
+                              },
+                            );
+                          },
+                          child: Icon(Icons.filter_list, color: white, size: 28),
+                        ),
+                      ],
+                    )
+                  : FloatingActionButton(
+                      backgroundColor: preIconFillColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      onPressed: () {
+                        List<int?> selectedCourseIds = [];
+                        showDynamicCheckboxDialog(
+                          context,
+                          (selectedCourses) async {
+                            selectedCourseIds = selectedCourses.courses!
+                                .where((c) => c.isChecked == true)
+                                .map((c) => int.parse(c.id ?? "0"))
+                                .toList();
+                            String selectedCourseIdsString =
+                                selectedCourseIds.join(",");
+                            InquiryModel? filteredData = await FilterInquiryData(
+                                selectedCourseIdsString,
+                                null,
+                                null,
+                                branchId,
+                                null,
+                                null,
+                                null,
+                                context);
+                            setState(() {
+                              inquiryData = filteredData;
+                            });
+                          },
+                          courseProvider.course,
+                          () {
+                            fetchUpcomingInquiryByTab(selectedIndex);
+                          },
+                        );
+                      },
+                      child: Icon(Icons.filter_list, color: white, size: 30),
+                    );
+            },
+          ),
         ),
       ),
     );
