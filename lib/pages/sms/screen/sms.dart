@@ -20,10 +20,10 @@ import '../../../utils/common.dart';
 import '../../course/components/showDynamicCheckboxDialog.dart';
 import '../../course/provider/CourseProvider.dart';
 import '../../inquiry_report/apicall/inquiryFilterApi.dart';
-import '../../inquiry_report/components/referenceDialog.dart';
+import '../../../components/referenceDialog.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
-import '../../notification/components/customDialogBox.dart';
-import '../../notification/components/statusDialog.dart';
+import '../../../components/customDialogBox.dart';
+import '../../../components/statusDialog.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
 
 class SmsPage extends StatefulWidget {
@@ -200,7 +200,7 @@ class _SmsPageState extends State<SmsPage> {
     final courseProvider = context.watch<CourseProvider>();
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "SMS", DashboardPage()),
+      appBar: customPageAppBar(context, "SMS", DashboardPage()),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,

@@ -62,7 +62,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context,
+      appBar: customPageAppBar(context,
           widget.isEdit ? "Update Branch" : "Add Branch", BranchPage()),
       body: SingleChildScrollView(
         child: Padding(

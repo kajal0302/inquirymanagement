@@ -41,7 +41,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: widgetAppbarForAboutPage(context, "Contact Us", DashboardPage()),
+      appBar: customPageAppBar(context, "Contact Us", DashboardPage()),
       body: SingleChildScrollView(
         child: isLoading
             ? ContactUsSkeleton()

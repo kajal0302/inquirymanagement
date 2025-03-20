@@ -50,7 +50,7 @@ class _SettingPageState extends State<SettingPage> {
     final branchProvider = context.watch<BranchProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: widgetAppbarForAboutPage(
+      appBar: customPageAppBar(
         context,
         "Global IT Inquiry",
         DashboardPage(),

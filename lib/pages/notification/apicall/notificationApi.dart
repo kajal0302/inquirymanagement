@@ -41,7 +41,7 @@ Future<NotificationModel?> fetchNotificationData(String branch_id, BuildContext 
 }
 
 
-Future<NotificationModel?> fetchNotificationCount(String branch_id) async {
+Future<NotificationModel?> fetchNotificationCount(String branch_id,String? status) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -54,6 +54,7 @@ Future<NotificationModel?> fetchNotificationCount(String branch_id) async {
     endpoint: notificationCountUri,
     body: {
       'branch_id': branch_id,
+      if(status != null && status.isNotEmpty)'status' : status
     },
     fromJson: NotificationModel.fromJson,
     onSuccess: (user) {

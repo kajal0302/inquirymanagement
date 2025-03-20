@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/common/color.dart';
+import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/pages/followUp/apiCall/upcomingInquiryApi.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/pages/notification/apicall/updateUpcomingDate.dart';
@@ -18,14 +19,17 @@ import '../../inquiry_report/apicall/inquiryFilterApi.dart';
 import '../../inquiry_report/components/inquiryCard.dart';
 import '../../notification/apicall/feedbackApi.dart';
 import '../../notification/apicall/inquiryStatusListApi.dart';
+import '../../notification/apicall/notificationApi.dart';
 import '../../notification/apicall/updateInquiryStatus.dart';
-import '../../notification/components/feedbackDialog.dart';
+import '../../../components/feedbackDialog.dart';
 import '../../notification/components/notificationCardSkeleton.dart';
-import '../../notification/components/notificationSettingsDialog.dart';
-import '../../notification/components/statusDialog.dart';
-import '../../notification/components/upcomingDateDialog.dart';
+import '../../../components/notificationSettingsDialog.dart';
+import '../../../components/statusDialog.dart';
+import '../../../components/upcomingDateDialog.dart';
 import '../../notification/model/feedbackModel.dart';
 import '../../notification/model/inquiryStatusListModel.dart';
+import '../../notification/model/notificationModel.dart';
+import '../../students/screen/StudentForm.dart';
 
 class FollowUpPage extends StatefulWidget {
   const FollowUpPage({super.key});
@@ -47,10 +51,14 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay, _rangeEnd, _rangeStart;
   String? startDateString, endDateString;
+  NotificationModel? notification;
+  bool? isFollowUp=true;
+  String count = userBox.get(countHiv) ?? "0";
 
   @override
   void initState() {
     super.initState();
+    loadNotificationData();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_onTabChanged);
     fetchUpcomingInquiryByTab(index);
@@ -70,6 +78,23 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
+  }
+
+  // Method to load notification data
+  Future<void> loadNotificationData() async {
+    NotificationModel? fetchedNotificationData =
+    await fetchNotificationCount(branchId,null);
+
+    if (fetchedNotificationData != null) {
+      count = fetchedNotificationData.count.toString();
+    }
+
+    if (mounted) {
+      setState(() {
+        userBox.put(countHiv, count);
+      });
+    }
+
   }
 
   /// Method to load feedback data
@@ -274,14 +299,11 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
       length: 4,
       child: Scaffold(
         backgroundColor: white,
-        appBar: AppBar(
-          backgroundColor: bv_primaryColor,
-          iconTheme: IconThemeData(color: white),
-          title: Text(
-            "Follow Up",
-            style: TextStyle(
-                color: white, fontWeight: FontWeight.normal, fontSize: px20),
-          ),
+        appBar:  widgetAppBar(
+          context,
+          "Follow Up",
+          count,
+          false,
           bottom: TabBar(
             controller: _tabController,
             labelColor: white,
@@ -326,7 +348,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
         ),
         floatingActionButton: Builder(
           builder: (context) {
-            int selectedIndex = DefaultTabController.of(context).index ?? 0;
+            int selectedIndex = _tabController.index ?? 0;
             return selectedIndex == 3
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
@@ -489,6 +511,8 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                                 value: 'date', child: Text(upcomingDate)),
                             PopupMenuItem<String>(
                                 value: 'status', child: Text(status)),
+                            PopupMenuItem<String>(
+                                value: 'student', child: Text(convertStudent)),
                           ],
                           onMenuSelected: (value) async {
                             if (value == "call" && inquiry.contact != null) {
@@ -512,6 +536,15 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                               await loadInquiryStatusListData();
                               hideLoadingDialog(context);
                               showInquiryStatusDialog(context, inquiryList,inquiry.id.toString());
+                            }
+                            else if (value == "student") {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => StudentForm(
+                                        inquiry: inquiry,
+                                        isFollowUp: isFollowUp,
+                                      )));
                             }
                           },
                         );

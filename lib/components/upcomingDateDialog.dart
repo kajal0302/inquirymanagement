@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../common/color.dart';
-import '../../../common/size.dart';
-import '../../../common/text.dart';
-import '../../../main.dart';
-import '../../../utils/common.dart';
-import '../../branch/model/addBranchModel.dart';
-import '../apicall/updateUpcomingDate.dart';
+import '../common/color.dart';
+import '../common/size.dart';
+import '../common/text.dart';
+import '../main.dart';
+import '../utils/common.dart';
+import '../pages/branch/model/addBranchModel.dart';
+import '../pages/notification/apicall/updateUpcomingDate.dart';
 import 'customDialogBox.dart';
 
 class UpcomingDateDialog extends StatefulWidget {

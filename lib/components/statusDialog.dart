@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../common/color.dart';
-import '../../../common/text.dart';
-import '../../../main.dart';
-import '../../../utils/common.dart';
-import '../model/inquiryStatusListModel.dart';
+import '../common/color.dart';
+import '../common/text.dart';
+import '../main.dart';
+import '../utils/common.dart';
+import '../pages/notification/model/inquiryStatusListModel.dart';
 import 'customDialogBox.dart';
 
 class InquiryStatusDialog extends StatefulWidget {
