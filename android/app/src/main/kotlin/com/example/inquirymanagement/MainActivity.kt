@@ -1,4 +1,4 @@
-package com.example.inquirymanagement
+package com.globalitinfosolution.inquirymanagementapplication
 
 import io.flutter.embedding.android.FlutterActivity
 

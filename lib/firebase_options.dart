@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '375692166236',
     projectId: 'inquirymanagement-90d7e',
     storageBucket: 'inquirymanagement-90d7e.firebasestorage.app',
-    iosBundleId: 'com.example.inquirymanagement',
+    iosBundleId: 'com.globalitinfosolution.inquirymanagementapplication',
   );
 }

@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "375692166236",
-    "project_id": "inquirymanagement-90d7e",
-    "storage_bucket": "inquirymanagement-90d7e.firebasestorage.app"
+    "project_number": "1015834167870",
+    "project_id": "gitinquiry",
+    "storage_bucket": "gitinquiry.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:375692166236:android:0620aefd8241519a7e5299",
+        "mobilesdk_app_id": "1:1015834167870:android:e749c77e1d395b8b169f6f",
         "android_client_info": {
-          "package_name": "com.example.inquirymanagement"
+          "package_name": "com.globalitinfosolution.inquirymanagementapplication"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1015834167870-gu86l765a7rqfpbaea37blef9s2tm03i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDXq9C-0Yhc86tV2nrvQHeqaSWndZHu11g"
+          "current_key": "AIzaSyA6BoISkMDp87hnEn90ZzoWU572Nm4UdGQ"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015834167870-gu86l765a7rqfpbaea37blef9s2tm03i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
