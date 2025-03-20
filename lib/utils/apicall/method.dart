@@ -76,7 +76,6 @@ class ApiService{
     }
   }
 
-
   Future<void> post<modelName>({
     bool? wp,
     bool? temp,

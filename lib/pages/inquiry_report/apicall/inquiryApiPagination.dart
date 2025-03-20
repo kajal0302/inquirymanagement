@@ -20,7 +20,7 @@ Future<InquiryModel?> fetchInquiryDataPagination(String branch_id, String? statu
     'branch_id': branch_id,
     if (status != null && status.isNotEmpty) 'status': status,
     if (notInStatus != null && notInStatus.isNotEmpty)
-      'notInStatus': jsonEncode(notInStatus),
+    'notInStatus': jsonEncode(notInStatus),
     "limit": limit.toString(),
     "offset": page.toString(),
   };

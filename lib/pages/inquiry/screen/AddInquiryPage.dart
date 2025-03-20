@@ -223,6 +223,9 @@ class _AddInquiryPageState extends State<AddInquiryPage> {
 
                         await Future.delayed(const Duration(milliseconds: 50));
 
+                        // print("--------------");
+                        // print(coursesIdsTextEditing.text);
+                        // return;
                         if (!_formKey.currentState!.validate()) {
                           callSnackBar("All Fields Are Required", danger);
                           return;
