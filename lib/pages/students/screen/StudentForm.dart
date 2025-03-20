@@ -249,7 +249,7 @@ class _StudentFromState extends State<StudentForm> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     return Scaffold(
       backgroundColor: white,
-      appBar: customPageAppBar(context, "${widget.inquiry!.fname ?? ''} ${widget.inquiry!.lname ?? ''}", widget.isFollowUp! ? FollowUpPage() : InquiryReportPage()),
+      appBar: customPageAppBar(context, "${widget.inquiry!.fname ?? ''} ${widget.inquiry!.lname ?? ''}", widget.isFollowUp ?? false ? FollowUpPage() : InquiryReportPage()),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Center(
