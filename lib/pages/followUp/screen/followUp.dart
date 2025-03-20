@@ -38,7 +38,8 @@ class FollowUpPage extends StatefulWidget {
   State<FollowUpPage> createState() => _FollowUpPageState();
 }
 
-class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMixin {
+class _FollowUpPageState extends State<FollowUpPage>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
@@ -52,7 +53,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   DateTime? _selectedDay, _rangeEnd, _rangeStart;
   String? startDateString, endDateString;
   NotificationModel? notification;
-  bool? isFollowUp=true;
+  bool? isFollowUp = true;
   String count = userBox.get(countHiv) ?? "0";
 
   @override
@@ -83,7 +84,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   // Method to load notification data
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-    await fetchNotificationCount(branchId,null);
+        await fetchNotificationCount(branchId, "fallup");
 
     if (fetchedNotificationData != null) {
       count = fetchedNotificationData.count.toString();
@@ -94,7 +95,6 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
         userBox.put(countHiv, count);
       });
     }
-
   }
 
   /// Method to load feedback data
@@ -146,16 +146,12 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
     });
 
     InquiryModel? fetchedFilteredInquiryData;
-    if(endDateString!.isEmpty)
-    {
+    if (endDateString!.isEmpty) {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, null, null, branchId, null, null,startDateString,context);
-    }
-    else
-    {
-      fetchedFilteredInquiryData = await FilterInquiryData(
-          null, startDateString, endDateString, branchId, null, null,null,context);
-
+          null, null, null, branchId, null, null, startDateString, context);
+    } else {
+      fetchedFilteredInquiryData = await FilterInquiryData(null,
+          startDateString, endDateString, branchId, null, null, null, context);
     }
 
     setState(() {
@@ -178,7 +174,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
       selectedSevenDays = "1";
     }
     setState(() {
-      inquiryData=null;
+      inquiryData = null;
     });
 
     InquiryModel? fetchedInquiryData = await fetchUpcomingInquiryData(
@@ -206,10 +202,10 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
       fetchUpcomingInquiry('sevenDays');
     } else {
       setState(() {
-        inquiryData=null;
+        inquiryData = null;
       });
-      InquiryModel? filteredData =
-          await FilterInquiryData(null, null, null, branchId, null, null,null,context);
+      InquiryModel? filteredData = await FilterInquiryData(
+          null, null, null, branchId, null, null, null, context);
       setState(() {
         inquiryData = filteredData;
       });
@@ -255,10 +251,11 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
           inquiryId: inquiryId,
           updateDate: (String inquiryId, String date, String branchId,
               String createdBy) async {
-            var data = await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
-            if(data != null && data.status == success){
+            var data = await UpdateUpcomingDate(
+                inquiryId, date, branchId, createdBy, context);
+            if (data != null && data.status == success) {
               callSnackBar(data.message.toString(), success);
-            }else{
+            } else {
               callSnackBar("Unknown Error", danger);
             }
           },
@@ -268,13 +265,15 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
   }
 
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList,String inquiryId) {
+  void showInquiryStatusDialog(
+      BuildContext context, InquiryStatusModel? inquiryList, String inquiryId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return InquiryStatusDialog(
           inquiryList: inquiryList,
-          onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+          onPressed: (String selectedId, String selectedStatusId,
+              String selectedName) async {
             await updateInquiryStatusData(
               inquiryId,
               selectedId,
@@ -290,8 +289,6 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final courseProvider = context.watch<CourseProvider>();
@@ -299,7 +296,7 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
       length: 4,
       child: Scaffold(
         backgroundColor: white,
-        appBar:  widgetAppBar(
+        appBar: widgetAppBar(
           context,
           "Follow Up",
           count,
@@ -362,39 +359,39 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                             context: context,
                             builder: (BuildContext context) {
                               return DateRangeDialog(
-                                  widget: Align(
-                                    alignment: Alignment.center,
-                                    child: SizedBox(
-                                      width: 600,
-                                      height: 400,
-                                      child: CustomCalendar(
-                                        initialFormat: _calendarFormat,
-                                        initialFocusedDay: _focusedDay,
-                                        initialSelectedDay: _selectedDay,
-                                        initialRangeStart: _rangeStart,
-                                        initialRangeEnd: _rangeEnd,
-                                        onDaySelected: _onDaySelected,
-                                        onRangeSelected: _onRangeSelected,
-                                      ),
+                                widget: Align(
+                                  alignment: Alignment.center,
+                                  child: SizedBox(
+                                    width: 600,
+                                    height: 400,
+                                    child: CustomCalendar(
+                                      initialFormat: _calendarFormat,
+                                      initialFocusedDay: _focusedDay,
+                                      initialSelectedDay: _selectedDay,
+                                      initialRangeStart: _rangeStart,
+                                      initialRangeEnd: _rangeEnd,
+                                      onDaySelected: _onDaySelected,
+                                      onRangeSelected: _onRangeSelected,
                                     ),
                                   ),
-                                  filterInquiriesByDate: () {
-                                    Navigator.pop(context);
+                                ),
+                                filterInquiriesByDate: () {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  if (mounted) {
                                     setState(() {
-                                      isLoading = true;
+                                      fetchFilteredInquiryData();
                                     });
-                                    if (mounted) {
-                                      setState(() {
-                                        fetchFilteredInquiryData();
-                                      });
-                                    }
-                                  },
-                                onCancel: (){
-                                  _rangeStart=null;
-                                  _rangeEnd=null;
-                                  fetchUpcomingInquiryByTab(selectedIndex);
+                                  }
                                 },
-                                  );
+                                onCancel: () {
+                                  // _rangeStart = null;
+                                  // _rangeEnd = null;
+                                  // fetchUpcomingInquiryByTab(selectedIndex);
+                                },
+                              );
                             },
                           );
                         },
@@ -417,14 +414,22 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                                   .toList();
                               String selectedCourseIdsString =
                                   selectedCourseIds.join(",");
-                              InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, null,context);
+                              InquiryModel? filteredData =
+                                  await FilterInquiryData(
+                                      selectedCourseIdsString,
+                                      null,
+                                      null,
+                                      branchId,
+                                      null,
+                                      null,
+                                      null,
+                                      context);
                               setState(() {
                                 inquiryData = filteredData;
                               });
                             },
                             courseProvider.course,
-                            ()
-                            {
+                            () {
                               fetchUpcomingInquiryByTab(selectedIndex);
                             },
                           );
@@ -448,7 +453,15 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                               .toList();
                           String selectedCourseIdsString =
                               selectedCourseIds.join(",");
-                          InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null,null, null,context);
+                          InquiryModel? filteredData = await FilterInquiryData(
+                              selectedCourseIdsString,
+                              null,
+                              null,
+                              branchId,
+                              null,
+                              null,
+                              null,
+                              context);
                           setState(() {
                             inquiryData = filteredData;
                           });
@@ -535,16 +548,16 @@ class _FollowUpPageState extends State<FollowUpPage> with TickerProviderStateMix
                               showLoadingDialog(context);
                               await loadInquiryStatusListData();
                               hideLoadingDialog(context);
-                              showInquiryStatusDialog(context, inquiryList,inquiry.id.toString());
-                            }
-                            else if (value == "student") {
+                              showInquiryStatusDialog(
+                                  context, inquiryList, inquiry.id.toString());
+                            } else if (value == "student") {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => StudentForm(
-                                        inquiry: inquiry,
-                                        isFollowUp: isFollowUp,
-                                      )));
+                                            inquiry: inquiry,
+                                            isFollowUp: isFollowUp,
+                                          )));
                             }
                           },
                         );

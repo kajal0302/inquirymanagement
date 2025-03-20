@@ -5,13 +5,13 @@ import '../common/color.dart';
 class DateRangeDialog extends StatelessWidget {
   final Widget widget;
   final VoidCallback filterInquiriesByDate;
-  final VoidCallback? onCancel;
+  final VoidCallback onCancel;
 
   const DateRangeDialog({
     Key? key,
     required this.widget,
     required this.filterInquiriesByDate,
-     this.onCancel
+    required this.onCancel
   });
 
   @override
@@ -49,7 +49,7 @@ class DateRangeDialog extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
-                  onCancel!();
+                  onCancel();
                   Navigator.pop(context);
                 },
                 child: Text(

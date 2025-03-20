@@ -22,7 +22,8 @@ import '../../../components/upcomingDateDialog.dart';
 import '../model/feedbackModel.dart';
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({super.key});
+  final bool isDashboard;
+  const NotificationPage({super.key,this.isDashboard = false});
 
   @override
   State<NotificationPage> createState() => _NotificationPageState();
@@ -62,7 +63,7 @@ class _NotificationPageState extends State<NotificationPage> {
   // Method to load notification data (Initial & Pagination)
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-        await fetchNotificationData(branchId, context, page, limit);
+        await fetchNotificationData(branchId, context, page, limit,widget.isDashboard);
 
     if (mounted) {
       setState(() {

@@ -32,7 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
   // Method to load notification data
   Future<void> loadNotificationData() async {
     NotificationModel? fetchedNotificationData =
-    await fetchNotificationCount(branchId,null);
+    await fetchNotificationCount(branchId,"dashboard");
 
     if (fetchedNotificationData != null) {
       count = fetchedNotificationData.count.toString();

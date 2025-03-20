@@ -6,7 +6,7 @@ import '../../../utils/apicall/method.dart';
 import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 
-Future<NotificationModel?> fetchNotificationData(String branch_id, BuildContext context, int? page, int? limit) async {
+Future<NotificationModel?> fetchNotificationData(String branch_id, BuildContext context, int? page, int? limit,bool isDashboard) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){
     callSnackBar(noInternetStr,"def");
@@ -20,7 +20,8 @@ Future<NotificationModel?> fetchNotificationData(String branch_id, BuildContext 
     body: {
       'branch_id': branch_id,
       if(page != null) 'offset' : page.toString(),
-      if(limit != null) 'limit': limit.toString()
+      if(limit != null) 'limit': limit.toString(),
+      'status' : isDashboard ? "dashboard" : "fallup"
     },
     fromJson: NotificationModel.fromJson,
     onSuccess: (user) {

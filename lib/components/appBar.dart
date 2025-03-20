@@ -25,9 +25,10 @@ AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDas
     ),
     actions: [
       IconButton(
+        // padding: EdgeInsets.only(right: 10),
         onPressed: () {
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => NotificationPage()));
+              MaterialPageRoute(builder: (context) => NotificationPage(isDashboard:isDashboard ?? false)));
         },
         icon: count != "0"
             ? Badge(
