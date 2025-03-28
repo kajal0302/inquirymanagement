@@ -40,13 +40,14 @@ const addFeedback = "postfeedback.php";
 const notification = "missing_inquiry_report.php";
 const notificationCountUri = "GetNotificationCount.php";
 
-const inquiryStatusList = "inqruiry_status_list.php";
+const inquiryStatusList = "inquiry_status_list.php";
 
+const updateApi = "updateAvailable.php";
 const inquiries = "inquiries.php";
-const filterInquiry = "inquiry_filter.php";  // have to pass a parameter for status
+const filterInquiry = "inquiry_filter.php";
 const inquiry = "Inquiry";
 const inquiryDetail = "inquiry_detail.php";
-
+const appUrl = "https://play.google.com/store/apps/details?id=com.globalitinfosolution.inquirymanagementapplication&pcampaignid=web_share";
 const branch = "branches.php";
 const sms="sendmultiplesms.php";
 

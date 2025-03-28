@@ -6,7 +6,6 @@ import 'package:inquirymanagement/utils/apicall/ApiService.dart';
 import 'package:inquirymanagement/utils/common.dart';
 import 'package:inquirymanagement/utils/constants.dart';
 
-
 Future<InquiryModel?> fetchInquiryDataPagination(String branch_id, String? status, List<String>? notInStatus, BuildContext context, int page , int limit) async {
   bool checkInternet = await checkConnection();
   if(!checkInternet){

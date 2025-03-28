@@ -555,7 +555,7 @@ class _FollowUpPageState extends State<FollowUpPage>
                                   context, inquiry.id.toString(), feedbackData);
                             } else if (value == "date") {
                               showUpcomingDateDialog(context,
-                                  inquiry.inquiryDate!, inquiry.id.toString());
+                                  inquiry.upcomingConfirmDate!, inquiry.id.toString());
                             } else if (value == "status") {
                               showLoadingDialog(context);
                               await loadInquiryStatusListData();

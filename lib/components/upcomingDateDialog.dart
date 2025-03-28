@@ -32,26 +32,19 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
 
-  // SuccessModel? addFeedback;
-
   @override
   void initState() {
     super.initState();
     DateFormat format = DateFormat("dd-MM-yyyy");
     selectedDate = format.parse(widget.inquiryDate);
+    print(">>>>>>>>>>>>>>>");
+    print(widget.inquiryDate);
   }
 
   /// Method to update upcoming date
   Future<void> updateUpcomingDate(String inquiryId, String date) async {
     widget.updateDate(inquiryId.toString(), date.toString(),
         branchId.toString(), createdBy.toString());
-    // SuccessModel? updatedDateData =
-    //     await UpdateUpcomingDate(inquiryId, date, branchId, createdBy, context);
-    // if (mounted) {
-    //   setState(() {
-    //     addFeedback = updatedDateData;
-    //   });
-    // }
   }
 
   @override
