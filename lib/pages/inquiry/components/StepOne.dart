@@ -8,11 +8,12 @@ import 'package:inquirymanagement/utils/lists.dart';
 class StepOne extends StatefulWidget {
   const StepOne({
     super.key,
-    required this.firstName,
-    required this.lastName,
+    required this.fname,
+    required this.lname,
     required this.mobileNo,
-    required this.feedback,
+    required this.emailId,
     required this.reference,
+    required this.feedback,
     required this.partnerModel,
     required this.partner,
     required this.isSubmitted,
@@ -20,9 +21,10 @@ class StepOne extends StatefulWidget {
 
   final PartnerModel? partnerModel;
 
-  final TextEditingController firstName,
-      lastName,
+  final TextEditingController fname,
+      lname,
       mobileNo,
+      emailId,
       feedback,
       partner,
       reference;
@@ -58,21 +60,21 @@ class _StepOneState extends State<StepOne> {
           label: "First Name",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: widget.firstName,
+          controller: widget.fname,
           maxLength: 50,
-          validator: (value) {
+          validator: (value){
             return widget.isSubmitted && (value == null || value.isEmpty)
-                ? 'Please Enter First Name'
-                : null;
+            ? 'Please enter First Name'
+            : null;
           },
         ),
         BranchInputTxt(
           label: "Last Name",
+          maxLength: 50,
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: widget.lastName,
-          maxLength: 50,
-          validator: (value) {
+          controller: widget.lname,
+          validator: (value){
             return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Last Name'
                 : null;
@@ -85,17 +87,34 @@ class _StepOneState extends State<StepOne> {
           controller: widget.mobileNo,
           type: "number",
           maxLength: 10,
-          validator: (value) {
-            if (widget.isSubmitted && (value == null || value.isEmpty)) {
+          validator: (value){
+            if(widget.isSubmitted && (value == null || value.isEmpty)){
               return 'Please enter Mobile No.';
-            } else if (value.toString().length < 10) {
+            }else if(value.toString().length < 10){
               return 'Minimum Length Should be 10';
-            } else if (value.toString().length > 10) {
+            }else if(value.toString().length > 10){
               return 'Maximum Length Should be 10';
             }
             return null;
           },
         ),
+        BranchInputTxt(
+          label: "Email Id",
+          textColor: Colors.black,
+          floatingLabelColor: preIconFillColor,
+          controller: widget.emailId,
+          type: "email",
+          validator: (value){
+            if(widget.isSubmitted && (value == null || value.isEmpty)){
+              return 'Please enter Email Id';
+            }else if(! EmailValidator(value ?? "")){
+              return "Enter Valid EmailId";
+            }else{
+              return null;
+            }
+          },
+        ),
+
         DropDown(
           preSelectedValue: selectedReference?.isNotEmpty == true
               ? selectedReference
@@ -111,6 +130,7 @@ class _StepOneState extends State<StepOne> {
             });
           },
         ),
+
         SizedBox(height: 8),
         if (selectedReference == "Global IT Partner")
           DropDown(
@@ -131,18 +151,20 @@ class _StepOneState extends State<StepOne> {
             status: true,
             lbl: "Select Partner",
           ),
+
         BranchInputTxt(
-          label: "Feedback History",
+          label: "Feedback",
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
           controller: widget.feedback,
-          maxLength: 50,
-          validator: (value) {
+          maxLines: 3,
+          validator: (value){
             return widget.isSubmitted && (value == null || value.isEmpty)
-                ? 'Please Enter Feedback History'
+                ? 'Please enter Designation'
                 : null;
           },
         ),
+
       ],
     );
   }

@@ -56,7 +56,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
   bool sendData = true;
   InquiryStatusModel? inquiryList;
   String selectedStatus = inquiry;
-  late String selectedCourseIdsString;
+  late String? selectedCourseIdsString;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay, _rangeStart, _rangeEnd;
@@ -68,6 +68,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
   void initState() {
     super.initState();
     cid = "Allcm";
+    selectedCourseIdsString = null;
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
@@ -114,43 +115,39 @@ class _TemplateScreenState extends State<TemplateScreen> {
     });
   }
 
-
   /// Add Inquiry Reference Dialog Box
   void showInquiryReferenceDialog(BuildContext context) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return InquiryReferenceDialog(
-            selectedReference: selectedReference,
-            onPressed: (String selectedName) async {
-          setState(() {
-            isLoading = true;
-          });
-          if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
-            callSnackBar(noStudent, "danger");
-          }
-          if (selectedName.isEmpty) {
-            callSnackBar(noReference, danger);
-            return;
-          }
-            InquiryModel? fetchedInquiryListData = await FilterInquiryData(
-                selectedCourseIdsString,
-                startDateString,
-                endDateString,
-                branch_id,
-                selectedStatus,
-                selectedName,
-                null,
-                context);
-            setState(() {
-              selectedReference = selectedName;
-              inquiryData = fetchedInquiryListData;
-              filterInquiryData = inquiryData?.inquiries;
-            });
-          setState(() {
-            isLoading = false;
-          });
-        });
+        context: context,
+        builder: (BuildContext context) {
+          return InquiryReferenceDialog(
+              selectedReference: selectedReference,
+              onPressed: (String selectedName) async {
+                setState(() {
+                  isLoading = true;
+                });
+                if (selectedName.isEmpty) {
+                  callSnackBar(noReference, danger);
+                  return;
+                }
+                InquiryModel? fetchedInquiryListData = await FilterInquiryData(
+                    selectedCourseIdsString,
+                    startDateString,
+                    endDateString,
+                    branch_id,
+                    selectedStatus,
+                    selectedName,
+                    null,
+                    context);
+                setState(() {
+                  selectedReference = selectedName;
+                  inquiryData = fetchedInquiryListData;
+                  filterInquiryData = inquiryData?.inquiries;
+                });
+                setState(() {
+                  isLoading = false;
+                });
+              });
         });
   }
 
@@ -217,10 +214,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
                   ),
                 ),
                 filterInquiriesByDate: () {
-                  if (studentFilteredBYCourse == null) {
-                    Navigator.pop(context);
-                    callSnackBar(noStudent, "danger");
-                  } else if (_rangeStart == null) {
+                  if (_rangeStart == null) {
                     callSnackBar("Please select date", "danger");
                   } else {
                     Navigator.pop(context);
@@ -228,30 +222,30 @@ class _TemplateScreenState extends State<TemplateScreen> {
                     setState(() {});
                   }
                 },
-                onCancel: () async{
+                onCancel: () async {
                   startDateString = null;
                   endDateString = null;
-                  _rangeStart=null;
-                  _rangeEnd=null;
+                  _rangeStart = null;
+                  _rangeEnd = null;
                   InquiryModel? filteredData = await FilterInquiryData(
                       selectedCourseIdsString,
                       startDateString,
                       endDateString,
                       branch_id,
-                      null,
+                      selectedStatus,
                       null,
                       null,
                       context);
                   setState(() {
                     studentFilteredBYCourse = filteredData;
-                    filterInquiryData=filteredData!.inquiries;
+                    filterInquiryData = filteredData!.inquiries;
                   });
                 },
               );
             },
           );
         },
-        onFilterTap: (){
+        onFilterTap: () {
           showInquiryStatusDialog(context, inquiryList);
         },
         onReferenceTap: () async {
@@ -261,7 +255,6 @@ class _TemplateScreenState extends State<TemplateScreen> {
         iconColor: white,
         iconSize: 25.0,
       ),
-
     );
   }
 
@@ -304,13 +297,6 @@ class _TemplateScreenState extends State<TemplateScreen> {
         );
 
         try {
-
-          if (filterInquiryData == null && filterInquiryData!.length <= 0) {
-            callSnackBar(noStudent, "danger");
-            // Close the progress dialog
-            Navigator.of(context).pop();
-            return;
-          }
 
           sendData = false;
           setState(() {});
@@ -404,16 +390,24 @@ class _TemplateScreenState extends State<TemplateScreen> {
                     .map((c) => int.parse(c.id ?? "0"))
                     .toList();
                 selectedCourseIdsString = selectedCourseIds.join(",");
-                InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branch_id, null, null, null,context);
+                InquiryModel? filteredData = await FilterInquiryData(
+                    selectedCourseIdsString,
+                    null,
+                    null,
+                    branch_id,
+                    selectedStatus,
+                    null,
+                    null,
+                    context);
                 setState(() {
                   studentFilteredBYCourse = filteredData;
-                  filterInquiryData=filteredData!.inquiries;
+                  filterInquiryData = filteredData!.inquiries;
                 });
               },
               standardData,
               () {
-                studentFilteredBYCourse=null;
-                filterInquiryData=null;
+                studentFilteredBYCourse = null;
+                filterInquiryData = null;
                 setState(() {});
               },
             );
@@ -572,27 +566,22 @@ class _TemplateScreenState extends State<TemplateScreen> {
   }
 
   Future<void> loadInquiryData(String? selectedName) async {
-    if (studentFilteredBYCourse == null || studentFilteredBYCourse!.inquiries!.isEmpty) {
-      callSnackBar(noStudent, "danger");
-    }
-    else{
-      InquiryModel? fetchedInquiryListData = await FilterInquiryData(
-          selectedCourseIdsString,
-          startDateString,
-          endDateString,
-          branch_id,
-          selectedStatus,
-          null,
-          null,
-          context);
-      setState(() {
-        inquiryData = fetchedInquiryListData;
-        filterInquiryData = inquiryData?.inquiries;
-        filterInquiryData = inquiryData!.inquiries!
-            .where((e) => e.status == selectedName)
-            .toList();
-      });
-    }
+    InquiryModel? fetchedInquiryListData = await FilterInquiryData(
+        selectedCourseIdsString,
+        startDateString,
+        endDateString,
+        branch_id,
+        selectedStatus,
+        null,
+        null,
+        context);
+    setState(() {
+      inquiryData = fetchedInquiryListData;
+      filterInquiryData = inquiryData?.inquiries;
+      filterInquiryData = inquiryData!.inquiries!
+          .where((e) => e.status == selectedName)
+          .toList();
+    });
   }
 
   /// Method for date Filter
@@ -602,20 +591,30 @@ class _TemplateScreenState extends State<TemplateScreen> {
     });
 
     InquiryModel? fetchedFilteredInquiryData;
-    if(endDateString!.isEmpty)
-    {
+    if (endDateString!.isEmpty) {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          selectedCourseIdsString, null, null, branch_id, null, null,startDateString,context);
-    }
-    else
-    {
+          selectedCourseIdsString,
+          null,
+          null,
+          branch_id,
+          selectedStatus,
+          null,
+          startDateString,
+          context);
+    } else {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          selectedCourseIdsString, startDateString, endDateString, branch_id, null, null,null,context);
-
+          selectedCourseIdsString,
+          startDateString,
+          endDateString,
+          branch_id,
+          selectedStatus,
+          null,
+          null,
+          context);
     }
     setState(() {
       studentFilteredBYCourse = fetchedFilteredInquiryData;
-      filterInquiryData=fetchedFilteredInquiryData!.inquiries;
+      filterInquiryData = fetchedFilteredInquiryData!.inquiries;
       isLoading = false;
     });
   }
@@ -760,7 +759,8 @@ class _TemplateScreenState extends State<TemplateScreen> {
   }
 
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
+  void showInquiryStatusDialog(
+      BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -768,7 +768,8 @@ class _TemplateScreenState extends State<TemplateScreen> {
             isInquiryReport: true,
             selectedStatus: selectedStatusValue,
             inquiryList: inquiryList,
-            onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
+            onPressed: (String selectedId, String selectedStatusId,
+                String selectedName) async {
               if (selectedId.isEmpty) {
                 callSnackBar(noStatus, danger);
                 return;
@@ -776,7 +777,7 @@ class _TemplateScreenState extends State<TemplateScreen> {
               setState(() {
                 isLoading = true;
                 selectedStatus = selectedName;
-                selectedStatusValue=selectedId;
+                selectedStatusValue = selectedId;
               });
               loadInquiryData(selectedName);
 
@@ -787,5 +788,4 @@ class _TemplateScreenState extends State<TemplateScreen> {
       },
     );
   }
-
 }

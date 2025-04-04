@@ -4,33 +4,75 @@ import 'package:inquirymanagement/components/InkWellInputField.dart';
 import 'package:inquirymanagement/components/dateField.dart';
 import 'package:inquirymanagement/components/dropDown.dart';
 import 'package:inquirymanagement/pages/course/models/CourseModel.dart';
+import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/pages/users/provider/BranchProvider.dart';
 
-class StepTwo extends StatelessWidget {
-  const StepTwo(
-      {super.key,
-      required this.course,
-      required this.coursesId,
-      required this.branch,
-      required this.inquiryDate,
-      required this.selectBranch,
-      required this.upcomingDate,
-      required this.smsType,
-      required this.branchProvider,
-      required this.courses,
-      required this.isSubmitted});
+class StepTwo extends StatefulWidget {
+  const StepTwo({
+    super.key,
+    required this.inquiry,
+    required this.courses,
+    required this.courseController,
+    required this.selectBranch,
+    required this.inquiryDate,
+    required this.upcomingInquiryDate,
+    required this.branchProvider,
+    required this.isSubmitted,
+    required this.onCourseSelectionChange,
+  });
 
-  final TextEditingController course,
-      coursesId,
-      branch,
-      inquiryDate,
+  final TextEditingController courseController,
       selectBranch,
-      upcomingDate,
-      smsType;
+      inquiryDate,
+      upcomingInquiryDate;
 
   final bool isSubmitted;
+  final Inquiries? inquiry;
   final CourseModel? courses;
   final BranchProvider branchProvider;
+  final Function(CourseModel) onCourseSelectionChange;
+
+  @override
+  State<StepTwo> createState() => _StepTwoState();
+}
+
+class _StepTwoState extends State<StepTwo> {
+  List<String> courseName = [];
+  List<String> courseIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.inquiry != null) {
+      widget.inquiry!.courses!.forEach((e) {
+        courseName.add(e.name.toString());
+        courseIds.add(e.id.toString());
+      });
+      widget.courseController.text = courseName.join(", ");
+    }
+
+    if (widget.courses != null &&
+        widget.courses?.courses != null &&
+        widget.courses!.courses!.isNotEmpty) {
+      final selectedCourseIds =
+          courseIds.map((e) => int.tryParse(e)).whereType<int>().toSet();
+
+      widget.courses!.courses!.forEach((course) {
+        course.isChecked =
+            selectedCourseIds.contains(int.tryParse(course.id.toString()));
+      });
+    }
+    setState(() {});
+  }
+
+  void _updateSelectedCourses(CourseModel updatedCourses) {
+    widget.courseController.text = updatedCourses.courses!
+        .where((c) => c.isChecked ?? false)
+        .map((c) => c.name.toString())
+        .join(", ");
+
+    widget.onCourseSelectionChange(updatedCourses);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,45 +81,35 @@ class StepTwo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWellInputField(
-          courses: courses,
+          courses: widget.courses,
           context: context,
           label: "Select Course",
           readOnly: true,
           textColor: Colors.black,
           floatingLabelColor: preIconFillColor,
-          controller: course,
+          controller: widget.courseController,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Select Course'
                 : null;
           },
-          onOkPressed: (CourseModel updatedCourses) {
-            List<String?> selectedCourses = updatedCourses.courses!
-                .where((course) => course.isChecked == true)
-                .map((course) => course.name)
-                .toList();
-
-            List<String?> selectedCoursesId = updatedCourses.courses!
-                .where((course) => course.isChecked == true)
-                .map((course) => course.id.toString())
-                .toList();
-
-            course.text = selectedCourses.join(", ");
-            coursesId.text = selectedCoursesId.join(",");
-          },
+          onOkPressed: _updateSelectedCourses,
         ),
-
         DropDown(
-          preSelectedValue: branchProvider.branch?.branches != null &&
-              branchProvider.branch!.branches!
-                  .any((b) => b.id.toString() == selectBranch.text)
-              ? selectBranch.text
-              : (branchProvider.branch != null &&
-              branchProvider.branch!.branches!.isNotEmpty
-              ? branchProvider.branch!.branches!.first.id.toString()
-              : null),
-          controller: selectBranch,
-          mapItems: branchProvider.branch?.branches!
+          preSelectedValue: widget.branchProvider.branch?.branches != null &&
+                  widget.branchProvider.branch!.branches!
+                      .any((b) => b.id.toString() == widget.selectBranch.text)
+              ? widget.branchProvider.branch!.branches!
+                  .firstWhere(
+                      (b) => b.id.toString() == widget.selectBranch.text)
+                  .id
+                  .toString()
+              : (widget.branchProvider.branch != null &&
+                      widget.branchProvider.branch!.branches!.isNotEmpty
+                  ? widget.branchProvider.branch!.branches!.first.id.toString()
+                  : null),
+          controller: widget.selectBranch,
+          mapItems: widget.branchProvider.branch?.branches!
               .map((b) => {"id": b.id.toString(), "value": b.name.toString()})
               .toSet() // Ensure uniqueness
               .toList(),
@@ -85,24 +117,24 @@ class StepTwo extends StatelessWidget {
           lbl: "Select Branch",
         ),
         DateField(
-          firstDate: DateTime(1980, 1, 1),
-          lastDate: DateTime.now(),
+          firstDate: DateTime.now().subtract(Duration(days: 7 * 365)),
+          lastDate: DateTime.now().add(Duration(days: 7 * 365)),
           label: "Inquiry Date",
-          controller: inquiryDate,
+          controller: widget.inquiryDate,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Inquiry Date'
                 : null;
           },
         ),
-
         DateField(
-          firstDate: DateTime.now().subtract(Duration(days: 5 * 365)), /// included 5 years before date from today
-          lastDate: DateTime.now().add(Duration(days: 5 * 365)), /// included 5 years in future date from today
+          preDefine: DateTime.now().add(Duration(days: 1)),
+          firstDate: DateTime.now().add(Duration(days: 1)),
+          lastDate: DateTime.now().add(Duration(days: 7 * 365)),
           label: "Upcoming Inquiry Date",
-          controller: upcomingDate,
+          controller: widget.upcomingInquiryDate,
           validator: (value) {
-            return isSubmitted && (value == null || value.isEmpty)
+            return widget.isSubmitted && (value == null || value.isEmpty)
                 ? 'Please Enter Upcoming Inquiry Date'
                 : null;
           },
@@ -110,6 +142,4 @@ class StepTwo extends StatelessWidget {
       ],
     );
   }
-
-
 }

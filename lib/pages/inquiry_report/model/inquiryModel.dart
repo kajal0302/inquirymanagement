@@ -33,6 +33,9 @@ class InquiryModel {
 class Inquiries {
   String? id;
   String? slug;
+  String? email;
+  String? reference;
+  String? feedback;
   bool? isChecked;
   String? smsContent;
   String? fname;
@@ -50,6 +53,9 @@ class Inquiries {
   Inquiries(
       {this.id,
         this.slug,
+        this.email,
+        this.reference,
+        this.feedback,
         this.isChecked = false,
         this.smsContent,
         this.fname,
@@ -67,6 +73,9 @@ class Inquiries {
   Inquiries.fromJson(Map<String, dynamic> json) {
     id = json['id'].toString();
     slug = json['slug'];
+    email = json['email'];
+    reference = json['reference'];
+    feedback = json['feedback'];
     smsContent = json['sms_content'];
     fname = json['fname'];
     lname = json['lname'];
@@ -90,6 +99,9 @@ class Inquiries {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['slug'] = this.slug;
+    data['email'] = this.email;
+    data['reference'] = this.reference;
+    data['feedback'] = this.feedback;
     data['sms_content'] = this.smsContent;
     data['fname'] = this.fname;
     data['lname'] = this.lname;

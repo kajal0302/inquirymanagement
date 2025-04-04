@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/components/appBar.dart';
 import 'package:inquirymanagement/components/dateRangeComponent.dart';
 import 'package:inquirymanagement/pages/dashboard/screen/dashboard.dart';
@@ -48,7 +49,7 @@ class _SmsPageState extends State<SmsPage> {
   bool isStatusLoading = false;
   String selectedReference = '';
   String selectedStatus = '';
-  String selectedCourseIdsString='';
+  String selectedCourseIdsString = '';
 
   TextEditingController messageController = TextEditingController();
 
@@ -78,16 +79,26 @@ class _SmsPageState extends State<SmsPage> {
     });
 
     InquiryModel? fetchedFilteredInquiryData;
-    if(endDateString!.isEmpty)
-    {
+    if (endDateString!.isEmpty) {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          selectedCourseIdsString, null, null, branchId, null, null,startDateString,context);
-    }
-    else
-    {
+          selectedCourseIdsString,
+          null,
+          null,
+          branchId,
+          selectedStatus,
+          selectedReference,
+          startDateString,
+          context);
+    } else {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          selectedCourseIdsString, startDateString, endDateString, branchId, null, null,null,context);
-
+          selectedCourseIdsString,
+          startDateString,
+          endDateString,
+          branchId,
+          selectedStatus,
+          selectedReference,
+          null,
+          context);
     }
     setState(() {
       studentFilteredBYCourse = fetchedFilteredInquiryData;
@@ -96,21 +107,21 @@ class _SmsPageState extends State<SmsPage> {
   }
 
   /// Method for Status Filter
-  void filterInquiriesByStatus(String selectedName) {
+  void filterInquiriesByStatus(String selectedName) async {
     setState(() {
       isStatusLoading = true;
     });
-    List<Inquiries> filteredData = studentFilteredBYCourse!.inquiries!
-        .where((student) => student.status == selectedName)
-        .toList();
-    Future.delayed(Duration(milliseconds: 500), () {
-      setState(() {
-        studentFilteredBYCourse = InquiryModel(inquiries: filteredData);
-        isStatusLoading = false;
-      });
-    });
-  }
+    InquiryModel? fetchedFilteredInquiryData =
+        await FilterInquiryData(selectedCourseIdsString, null, null,
+        branchId, selectedName,selectedReference , null, context);
 
+    setState(() {
+      selectedStatus = selectedName;
+      studentFilteredBYCourse = fetchedFilteredInquiryData;
+      isStatusLoading = false;
+    });
+    callSnackBar("Inquiry fetched successfully!", "success");
+  }
 
   /// Method for Day Selection
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -132,10 +143,9 @@ class _SmsPageState extends State<SmsPage> {
     });
   }
 
-
-
   /// Add Inquiry Status Dialog Box
-  void showInquiryStatusDialog(BuildContext context, InquiryStatusModel? inquiryList) {
+  void showInquiryStatusDialog(
+      BuildContext context, InquiryStatusModel? inquiryList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -143,27 +153,21 @@ class _SmsPageState extends State<SmsPage> {
             isInquiryReport: true,
             selectedStatus: selectedStatus,
             inquiryList: inquiryList,
-            onPressed: (String selectedId, String selectedStatusId, String selectedName) async {
-
-              if (studentFilteredBYCourse == null ||
-                  studentFilteredBYCourse!.inquiries!.isEmpty) {
-                callSnackBar(noStudent, "danger");
-              } else if (selectedId.isEmpty) {
+            onPressed: (String selectedId, String selectedStatusId,
+                String selectedName) async {
+              if (selectedId.isEmpty) {
                 callSnackBar(noStatus, "danger");
               } else {
                 setState(() {
-                  selectedStatus=selectedId;
+                  selectedStatus = selectedId;
                   isLoading = true;
                 });
                 filterInquiriesByStatus(selectedName);
-                callSnackBar("Inquiry fetched successfully!", "success");
               }
-
             });
       },
     );
   }
-
 
   /// Add Inquiry Reference Dialog Box
   void showInquiryReferenceDialog(BuildContext context) {
@@ -173,14 +177,12 @@ class _SmsPageState extends State<SmsPage> {
         return InquiryReferenceDialog(
             selectedReference: selectedReference,
             onPressed: (String selectedName) async {
-              if (studentFilteredBYCourse == null ||
-                  studentFilteredBYCourse!.inquiries!.isEmpty) {
-                callSnackBar(noStudent, "danger");
-              } else if (selectedName.isEmpty) {
+              if (selectedName.isEmpty) {
                 callSnackBar(noReference, "danger");
               } else {
-                InquiryModel? fetchedFilteredInquiryData = await FilterInquiryData(
-                    selectedCourseIdsString, null, null, branchId, null, selectedName, null, context);
+                InquiryModel? fetchedFilteredInquiryData =
+                    await FilterInquiryData(selectedCourseIdsString, null, null,
+                        branchId, null, selectedName, null, context);
 
                 setState(() {
                   selectedReference = selectedName;
@@ -188,19 +190,153 @@ class _SmsPageState extends State<SmsPage> {
                 });
                 callSnackBar("Inquiry fetched successfully!", "success");
               }
-            }
-        );
+            });
       },
     );
   }
 
+  void _showPopUpMenu(
+      Function(int) onMenuSelected, BuildContext context) async {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    await showMenu<int>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        overlay.size.width,
+        kToolbarHeight + 25,
+        0,
+        0,
+      ),
+      color: Colors.white,
+      items: <PopupMenuEntry<int>>[
+        PopupMenuItem(
+          value: 1,
+          child: Text(
+            "Find By Status",
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.normal, color: black),
+          ),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Text(
+            "Reference Filter",
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.normal, color: black),
+          ),
+        ),
+        PopupMenuItem(
+          value: 3,
+          child: Text(
+            "Date Filter",
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.normal, color: black),
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        onMenuSelected(value);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final courseProvider = context.watch<CourseProvider>();
     return Scaffold(
       backgroundColor: white,
-      appBar: customPageAppBar(context, "SMS", DashboardPage()),
+      appBar: customPageAppBar(context, "SMS", DashboardPage(), trailingIcons: [
+        IconButton(
+            onPressed: () => _showPopUpMenu((value) async{
+              if(value == 1){
+                showLoadingDialog(context);
+
+                /// load status list
+                await loadInquiryStatusListData();
+
+                /// Hide loading dialog when done
+                hideLoadingDialog(context);
+
+                /// Status Dialog
+                showInquiryStatusDialog(context, inquiryList);
+              }
+              if(value == 2){
+                /// Show loading dialog
+                showLoadingDialog(context);
+
+                /// load status list
+                await loadInquiryStatusListData();
+
+                /// Hide loading dialog when done
+                hideLoadingDialog(context);
+
+                /// Reference Dialog
+                showInquiryReferenceDialog(context);
+              }
+              if(value == 3){
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DateRangeDialog(
+                      widget: Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 600,
+                          height: 400,
+                          child: CustomCalendar(
+                            initialFormat: _calendarFormat,
+                            initialFocusedDay: _focusedDay,
+                            initialSelectedDay: _selectedDay,
+                            initialRangeStart: _rangeStart,
+                            initialRangeEnd: _rangeEnd,
+                            onDaySelected: _onDaySelected,
+                            onRangeSelected: _onRangeSelected,
+                          ),
+                        ),
+                      ),
+                      filterInquiriesByDate: () {
+                        if (studentFilteredBYCourse == null) {
+                          Navigator.pop(context);
+                          callSnackBar(noStudent, "danger");
+                        } else if (_rangeStart == null) {
+                          callSnackBar("Please select date", "danger");
+                        } else {
+                          Navigator.pop(context);
+                          filterInquiriesByDate();
+                          setState(() {});
+                        }
+                      },
+                      onCancel: () async {
+                        _rangeStart = null;
+                        _rangeEnd = null;
+                        if(selectedCourseIdsString == ""){
+                          studentFilteredBYCourse!.inquiries!.clear();
+                          setState(() {});
+                          return;
+                        }
+                        InquiryModel? filteredData = await FilterInquiryData(
+                            selectedCourseIdsString,
+                            null,
+                            null,
+                            branchId,
+                            null,
+                            null,
+                            null,
+                            context);
+                        setState(() {
+                          studentFilteredBYCourse = filteredData;
+                        });
+                      },
+                    );
+                  },
+                );
+              }
+              print(value);
+              // here
+            }, context),
+            icon: Icon(FontAwesomeIcons.ellipsisVertical))
+      ]),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -253,16 +389,23 @@ class _SmsPageState extends State<SmsPage> {
                             .where((c) => c.isChecked == true)
                             .map((c) => int.parse(c.id ?? "0"))
                             .toList();
-                         selectedCourseIdsString =
-                            selectedCourseIds.join(",");
-                        InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null, null,null, context);
+                        selectedCourseIdsString = selectedCourseIds.join(",");
+                        InquiryModel? filteredData = await FilterInquiryData(
+                            selectedCourseIdsString,
+                            null,
+                            null,
+                            branchId,
+                            null,
+                            null,
+                            null,
+                            context);
                         setState(() {
                           studentFilteredBYCourse = filteredData;
                         });
                       },
                       courseProvider.course,
                       () {
-                        studentFilteredBYCourse=null;
+                        studentFilteredBYCourse = null;
                         setState(() {});
                       },
                     );
@@ -289,7 +432,10 @@ class _SmsPageState extends State<SmsPage> {
                         return;
                       } else {
                         callSnackBar(data.message.toString(), "success");
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>DashboardPage()));
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DashboardPage()));
                       }
                     }
                   },
@@ -447,87 +593,6 @@ class _SmsPageState extends State<SmsPage> {
                 : DataNotAvailableWidget(message: dataNotAvailable)
           ]
         ],
-      ),
-      floatingActionButton: CustomSpeedDial(
-        isSms: true,
-        /// Date Filter
-        onCalendarTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return DateRangeDialog(
-                  widget: Align(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: 600,
-                      height: 400,
-                      child: CustomCalendar(
-                        initialFormat: _calendarFormat,
-                        initialFocusedDay: _focusedDay,
-                        initialSelectedDay: _selectedDay,
-                        initialRangeStart: _rangeStart,
-                        initialRangeEnd: _rangeEnd,
-                        onDaySelected: _onDaySelected,
-                        onRangeSelected: _onRangeSelected,
-                      ),
-                    ),
-                  ),
-                  filterInquiriesByDate: () {
-                    if (studentFilteredBYCourse == null) {
-                      Navigator.pop(context);
-                      callSnackBar(noStudent, "danger");
-                    } else if (_rangeStart == null) {
-                      callSnackBar("Please select date", "danger");
-                    } else {
-                      Navigator.pop(context);
-                      filterInquiriesByDate();
-                      setState(() {});
-                    }
-                  },
-                onCancel: () async{
-                  _rangeStart=null;
-                  _rangeEnd=null;
-                  InquiryModel? filteredData = await FilterInquiryData(selectedCourseIdsString, null, null, branchId, null, null,null, context);
-                  setState(() {
-                    studentFilteredBYCourse = filteredData;
-                  });
-                },
-              );
-            },
-          );
-        },
-        /// Status Filter
-        onFilterTap: () async {
-          /// Show loading dialog
-          showLoadingDialog(context);
-
-          /// load status list
-          await loadInquiryStatusListData();
-
-          /// Hide loading dialog when done
-          hideLoadingDialog(context);
-
-          /// Status Dialog
-          showInquiryStatusDialog(context, inquiryList);
-        },
-
-        /// Reference Filter
-        onReferenceTap: () async{
-          /// Show loading dialog
-          showLoadingDialog(context);
-
-          /// load status list
-          await loadInquiryStatusListData();
-
-          /// Hide loading dialog when done
-          hideLoadingDialog(context);
-
-          /// Reference Dialog
-          showInquiryReferenceDialog(context);
-        },
-        backgroundColor: preIconFillColor,
-        iconColor: black,
-        iconSize: 25.0,
       ),
     );
   }

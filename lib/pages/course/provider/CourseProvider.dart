@@ -15,6 +15,11 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSelectedCourses(CourseModel updatedCourses) {
+    course?.courses = updatedCourses.courses;
+    notifyListeners();
+  }
+
   void setCourse(CourseModel? course) {
     _course = course;
     notifyListeners();

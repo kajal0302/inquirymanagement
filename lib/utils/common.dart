@@ -1,4 +1,4 @@
-  import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:inquirymanagement/main.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';

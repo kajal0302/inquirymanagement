@@ -5,10 +5,9 @@ import 'package:inquirymanagement/common/text.dart';
 import 'package:inquirymanagement/pages/inquiry_report/model/inquiryModel.dart';
 import 'package:inquirymanagement/pages/whatsapp/components/StudentCheckedCard.dart';
 
-bool _isAllSelected = false;
-
 void showBottomSheetCom(
     BuildContext context, List<Inquiries>? inquiryListFilter) {
+  bool _isAllSelected = false;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

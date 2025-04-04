@@ -39,6 +39,7 @@ Future<UserModel?> fetchUsers(BuildContext context, String branchId) async {
 // postUser
 Future<SuccessResponse?> postUsers(
     BuildContext context,
+    File? profilePic,
     String name,
     String address,
     String mobile_no,
@@ -52,8 +53,7 @@ Future<SuccessResponse?> postUsers(
     String joining_date,
     String user_type,
     String created_by,
-    String slug,
-    File? file) async {
+    String slug) async {
   bool checkInternet = await checkConnection();
   if (!checkInternet) {
     callSnackBar(noInternetStr, "def");
@@ -65,7 +65,6 @@ Future<SuccessResponse?> postUsers(
 
   try {
     returnData = await apiService.postMedia<SuccessResponse>(
-        file: file,
         body: {
           "name": name,
           "address":address,
@@ -82,6 +81,8 @@ Future<SuccessResponse?> postUsers(
           "created_by":created_by,
           if(slug != "") "slug":slug,
         },
+        maxFileSizeMB: 5,
+        file: profilePic,
         endpoint: postUserUri,
         fromJson: (json) => SuccessResponse.fromJson(json));
   } on ApiException catch (e) {

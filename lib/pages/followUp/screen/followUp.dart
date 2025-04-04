@@ -42,6 +42,7 @@ class FollowUpPage extends StatefulWidget {
 class _FollowUpPageState extends State<FollowUpPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  String? selectedCourseIdsStringCommon = null;
   String branchId = userBox.get(branchIdStr).toString();
   String createdBy = userBox.get(idStr).toString();
   InquiryModel? inquiryData;
@@ -70,7 +71,7 @@ class _FollowUpPageState extends State<FollowUpPage>
   }
 
   void _onTabChanged() {
-    if (_tabController.indexIsChanging || _tabController.index != null) {
+    if (_tabController.indexIsChanging) {
       fetchUpcomingInquiryByTab(_tabController.index);
     }
   }
@@ -145,13 +146,12 @@ class _FollowUpPageState extends State<FollowUpPage>
     setState(() {
       isLoading = true;
     });
-
     InquiryModel? fetchedFilteredInquiryData;
-    if (endDateString!.isEmpty) {
+    if (endDateString != null && endDateString!.isEmpty) {
       fetchedFilteredInquiryData = await FilterInquiryData(
-          null, null, null, branchId, null, null, startDateString, context);
+          selectedCourseIdsStringCommon, null, null, branchId, null, null, startDateString, context);
     } else {
-      fetchedFilteredInquiryData = await FilterInquiryData(null,
+      fetchedFilteredInquiryData = await FilterInquiryData(selectedCourseIdsStringCommon,
           startDateString, endDateString, branchId, null, null, null, context);
     }
 
@@ -167,18 +167,24 @@ class _FollowUpPageState extends State<FollowUpPage>
     String? selectedTomorrow;
     String? selectedSevenDays;
 
-    if (tabType == 'today') {
-      selectedToday = "1";
-    } else if (tabType == 'tomorrow') {
-      selectedTomorrow = "1";
-    } else {
-      selectedSevenDays = "1";
-    }
     setState(() {
       inquiryData = null;
     });
 
+    if (tabType == 'today') {
+      selectedToday = "1";
+    } else if (tabType == 'tomorrow') {
+      selectedTomorrow = "1";
+    } else  if (tabType == 'sevenDays'){
+      selectedSevenDays = "1";
+    }else{
+      fetchFilteredInquiryData();
+      return;
+    }
+
+
     InquiryModel? fetchedInquiryData = await fetchUpcomingInquiryData(
+      "",
       selectedToday,
       selectedTomorrow,
       selectedSevenDays,
@@ -423,20 +429,44 @@ class _FollowUpPageState extends State<FollowUpPage>
                                     .where((c) => c.isChecked == true)
                                     .map((c) => int.parse(c.id ?? "0"))
                                     .toList();
-                                String selectedCourseIdsString =
-                                    selectedCourseIds.join(",");
-                                InquiryModel? filteredData =
-                                    await FilterInquiryData(
-                                        selectedCourseIdsString,
-                                        null,
-                                        null,
-                                        branchId,
-                                        null,
-                                        null,
-                                        null,
-                                        context);
+                                String selectedCourseIdsString = selectedCourseIds.join(",");
+
                                 setState(() {
-                                  inquiryData = filteredData;
+                                  selectedCourseIdsStringCommon = selectedCourseIdsString;
+                                });
+
+                                String? today,tomorrow,sevenDays;
+                                if(_tabController.index == 0){
+                                  today="1";
+                                }else if(_tabController.index == 1){
+                                  tomorrow="1";
+                                }else if(_tabController.index == 2){
+                                  sevenDays="1";
+                                }else{
+                                  fetchFilteredInquiryData();
+                                  return;
+                                }
+                                InquiryModel? fetchedInquiryData = await fetchUpcomingInquiryData(
+                                  selectedCourseIdsString,
+                                  today,
+                                  tomorrow,
+                                  sevenDays,
+                                  branchId,
+                                  context);
+
+                                // InquiryModel? filteredData =
+                                //     await FilterInquiryData(
+                                //         selectedCourseIdsString,
+                                //         null,
+                                //         null,
+                                //         branchId,
+                                //         null,
+                                //         null,
+                                //         null,
+                                //         context);
+                                //here
+                                setState(() {
+                                  inquiryData = fetchedInquiryData;
                                 });
                               },
                               courseProvider.course,
@@ -462,19 +492,40 @@ class _FollowUpPageState extends State<FollowUpPage>
                                 .where((c) => c.isChecked == true)
                                 .map((c) => int.parse(c.id ?? "0"))
                                 .toList();
+
                             String selectedCourseIdsString =
                                 selectedCourseIds.join(",");
-                            InquiryModel? filteredData = await FilterInquiryData(
+
+                            String? today,tomorrow,sevenDays;
+                            if(_tabController.index == 0){
+                              today="1";
+                            }else if(_tabController.index == 1){
+                              tomorrow="1";
+                            }else if(_tabController.index == 2){
+                              sevenDays="1";
+                            }else{
+                              fetchFilteredInquiryData();
+                              return;
+                            }
+                            InquiryModel? fetchedInquiryData = await fetchUpcomingInquiryData(
                                 selectedCourseIdsString,
-                                null,
-                                null,
+                                today,
+                                tomorrow,
+                                sevenDays,
                                 branchId,
-                                null,
-                                null,
-                                null,
                                 context);
+
+                            // InquiryModel? filteredData = await FilterInquiryData(
+                            //     selectedCourseIdsString,
+                            //     null,
+                            //     null,
+                            //     branchId,
+                            //     null,
+                            //     null,
+                            //     null,
+                            //     context);
                             setState(() {
-                              inquiryData = filteredData;
+                              inquiryData = fetchedInquiryData;
                             });
                           },
                           courseProvider.course,

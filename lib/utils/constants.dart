@@ -24,7 +24,6 @@ const loginUser = "loginemployee.php";
 
 const branchList = "branch_list.php";
 const addBranch = "post_branch.php";
-const upcomingInquiryFilter = "upcoming_inquiry_filter.php";
 
 const updateNotificationDay = "updatenotificationday.php";
 

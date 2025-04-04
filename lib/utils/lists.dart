@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:inquirymanagement/pages/branch/screen/branch.dart';
 import 'package:inquirymanagement/pages/followUp/screen/followUp.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
 import 'package:inquirymanagement/pages/inquiry_report/screen/inquiryReport.dart';
 import 'package:inquirymanagement/pages/sms/screen/sms.dart';
 import 'package:inquirymanagement/pages/users/screens/UserScreen.dart';
-import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage.dart';
+import 'package:inquirymanagement/pages/inquiry/screen/AddInquiryPage3.dart';
 import 'package:inquirymanagement/pages/whatsapp/screens/ContactList.dart';
 
 // List for dashboard Cards Icon and Title

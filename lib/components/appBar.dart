@@ -7,9 +7,10 @@ import 'package:inquirymanagement/pages/setting/screen/setting.dart';
 import '../common/color.dart';
 import '../common/size.dart';
 
-
 /// AppBar used in dashboard and followUp Page
-AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDashboard,{PreferredSizeWidget? bottom}) {
+AppBar widgetAppBar(
+    BuildContext context, String title, String count, bool? isDashboard,
+    {PreferredSizeWidget? bottom}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -27,8 +28,11 @@ AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDas
       IconButton(
         // padding: EdgeInsets.only(right: 10),
         onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => NotificationPage(isDashboard:isDashboard ?? false)));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      NotificationPage(isDashboard: isDashboard ?? false)));
         },
         icon: count != "0"
             ? Badge(
@@ -45,7 +49,7 @@ AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDas
                 color: white,
               ),
       ),
-      if(isDashboard == true && userBox.get(userTypeStr) == admin)
+      if (isDashboard == true && userBox.get(userTypeStr) == admin)
         IconButton(
           onPressed: () => _showPopUpMenu("Settings", (value) {
             if (value == 1) {
@@ -63,9 +67,10 @@ AppBar widgetAppBar(BuildContext context, String title, String count,bool? isDas
   );
 }
 
-
 /// AppBar used in almost all the Pages
-AppBar customPageAppBar(BuildContext context, String title, Widget destinationScreen, {List<Widget>? trailingIcons}) {
+AppBar customPageAppBar(
+    BuildContext context, String title, Widget destinationScreen,
+    {List<Widget>? trailingIcons}) {
   return AppBar(
     backgroundColor: bv_primaryColor,
     iconTheme: IconThemeData(color: white),
@@ -83,11 +88,11 @@ AppBar customPageAppBar(BuildContext context, String title, Widget destinationSc
     ),
     actions: trailingIcons != null
         ? trailingIcons
-        .map((icon) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: icon,
-    ))
-        .toList()
+            .map((icon) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: icon,
+                ))
+            .toList()
         : null,
   );
 }
@@ -100,7 +105,6 @@ AppBar buildAppBar(BuildContext context, String title, List<Widget> list) {
     actions: list,
   );
 }
-
 
 void _showPopUpMenu(
     String label, Function(int) onMenuSelected, BuildContext context) async {

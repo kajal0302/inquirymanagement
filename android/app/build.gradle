@@ -35,8 +35,8 @@ android {
         applicationId = "com.globalitinfosolution.inquirymanagementapplication"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 5
-        versionName = "2.1.0"
+        versionCode = 8
+        versionName = "2.1.3"
     }
 
     signingConfigs {

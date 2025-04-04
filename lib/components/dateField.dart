@@ -11,6 +11,7 @@ class DateField extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextEditingController controller;
   final bool showBottomBorder;
+  final DateTime? preDefine;
 
   const DateField({
     super.key,
@@ -21,6 +22,7 @@ class DateField extends StatefulWidget {
     this.isEnabled = true,
     this.validator,
     this.showBottomBorder = false,
+    this.preDefine
   });
 
   @override
@@ -30,10 +32,20 @@ class DateField extends StatefulWidget {
 class _DateFieldState extends State<DateField> {
   DateTime? _selectedDate;
 
+  @override
+  void initState() {
+    super.initState();
+    if(widget.preDefine != null){
+      _selectedDate = widget.preDefine;
+    }else{
+      _selectedDate = DateTime.now();
+    }
+  }
+
   void _selectDate(BuildContext context) async {
     DateTime? newSelectedDate = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _selectedDate,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
       builder: (BuildContext context, Widget? child) {

@@ -6,7 +6,7 @@ import '../../../utils/common.dart';
 import '../../../utils/constants.dart';
 
 
-Future<InquiryModel?> fetchUpcomingInquiryData(String? today, String? tomorrow, String? sevenDays,String branch_id, BuildContext context)async {
+Future<InquiryModel?> fetchUpcomingInquiryData(String? courses,String? today, String? tomorrow, String? sevenDays,String branch_id, BuildContext context)async {
   bool checkInternet = await checkConnection();
   if (!checkInternet) {
     callSnackBar(noInternetStr, "def");
@@ -22,6 +22,7 @@ Future<InquiryModel?> fetchUpcomingInquiryData(String? today, String? tomorrow, 
           if (today != null) "today": today,
           if (tomorrow != null) "tomorrow": tomorrow,
           if (sevenDays != null) "7days": sevenDays,
+          if(courses != null) "courses_id" :courses,
           "branch_id": branch_id,
         },
         fromApi: false,

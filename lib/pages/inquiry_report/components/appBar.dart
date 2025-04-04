@@ -10,7 +10,7 @@ AppBar widgetAppbarForInquiryReport(
   Function(String) onSearch,
   VoidCallback onCloseSearch, // Callback for search close
   ValueNotifier<bool> isSearching, // Pass ValueNotifier from the parent
-  TextEditingController searchController, // Pass controller from the parent
+  TextEditingController searchController // Pass controller from the parent
 ) {
   return AppBar(
     backgroundColor: bv_primaryColor,
@@ -80,11 +80,11 @@ AppBar widgetAppbarForInquiryReport(
         },
       ),
       IconButton(
-        onPressed: () => _showPopUpMenu("Find By Status", (value) {
-          if (value == 1) {
-            onMenuSelected(value);
-          }
-        }, context),
+        onPressed: () => _showPopUpMenu(
+            (value) {
+              onMenuSelected(value);
+            },
+        context),
         icon: Icon(
           Icons.more_vert,
           size: 22,
@@ -96,14 +96,14 @@ AppBar widgetAppbarForInquiryReport(
 }
 
 void _showPopUpMenu(
-    String label, Function(int) onMenuSelected, BuildContext context) async {
+    Function(int) onMenuSelected, BuildContext context) async {
   final RenderBox overlay =
       Overlay.of(context).context.findRenderObject() as RenderBox;
   await showMenu<int>(
     context: context,
     position: RelativeRect.fromLTRB(
-      overlay.size.width, // Adjust this value for horizontal positioning
-      kToolbarHeight + 25, // Position it below the AppBar
+      overlay.size.width,
+      kToolbarHeight + 25,
       0,
       0,
     ),
@@ -112,7 +112,31 @@ void _showPopUpMenu(
       PopupMenuItem(
         value: 1,
         child: Text(
-          label,
+          "Find By Status",
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.normal, color: black),
+        ),
+      ),
+      PopupMenuItem(
+        value: 2,
+        child: Text(
+          "Reference Filter",
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.normal, color: black),
+        ),
+      ),
+      PopupMenuItem(
+        value: 3,
+        child: Text(
+          "Course Filter",
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.normal, color: black),
+        ),
+      ),
+      PopupMenuItem(
+        value: 4,
+        child: Text(
+          "Date Filter",
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.normal, color: black),
         ),

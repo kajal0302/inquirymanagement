@@ -154,6 +154,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                         }
                         final data = await postUsers(
                             context,
+                            selectedFile,
                             fullName.text,
                             address.text,
                             mobileNo.text,
@@ -167,8 +168,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                             joiningDate.text,
                             userRole.text,
                             "1",
-                            slug ?? "",
-                            selectedFile);
+                            slug ?? "");
                         if (data == null) {
                           callSnackBar("Unknown Error Accrued", danger);
                           return;
