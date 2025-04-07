@@ -236,8 +236,9 @@ class _NotificationPageState extends State<NotificationPage> {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
+                                      print(">>>>>>>>>>>>>>${notification.upcomingConfirmDate}");
                                       return UpcomingDateDialog(
-                                        inquiryDate: notification.inquiryDate ?? "unknown",
+                                        inquiryDate: notification.upcomingConfirmDate ?? "unknown",
                                         inquiryId: notification.id.toString(),
                                         updateDate: (String inquiryId, String date, String branchId,
                                             String createdBy) async {

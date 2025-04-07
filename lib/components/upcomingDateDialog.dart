@@ -5,8 +5,6 @@ import '../common/size.dart';
 import '../common/text.dart';
 import '../main.dart';
 import '../utils/common.dart';
-import '../pages/branch/model/addBranchModel.dart';
-import '../pages/notification/apicall/updateUpcomingDate.dart';
 import 'customDialogBox.dart';
 
 class UpcomingDateDialog extends StatefulWidget {
@@ -37,8 +35,6 @@ class _UpcomingDateDialogState extends State<UpcomingDateDialog> {
     super.initState();
     DateFormat format = DateFormat("dd-MM-yyyy");
     selectedDate = format.parse(widget.inquiryDate);
-    print(">>>>>>>>>>>>>>>");
-    print(widget.inquiryDate);
   }
 
   /// Method to update upcoming date

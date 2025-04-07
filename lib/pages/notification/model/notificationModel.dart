@@ -41,6 +41,7 @@ class Inquiries {
   String? inquiryDate;
   String? status;
   String? notificationDay;
+  String? upcomingConfirmDate;
   int? branchId;
   String? branchName;
   List<Courses>? courses;
@@ -56,6 +57,7 @@ class Inquiries {
         this.inquiryDate,
         this.status,
         this.notificationDay,
+        this.upcomingConfirmDate,
         this.branchId,
         this.branchName,
         this.courses});
@@ -71,6 +73,7 @@ class Inquiries {
     inquiryDate = json['inquiry_date'];
     status = json['status'];
     notificationDay = json['notification_day'];
+    upcomingConfirmDate = json['upcoming_confirm_date'];
     branchId = json['branch_id'];
     branchName = json['branch_name'];
     if (json['courses'] != null) {
@@ -93,6 +96,7 @@ class Inquiries {
     data['inquiry_date'] = this.inquiryDate;
     data['status'] = this.status;
     data['notification_day'] = this.notificationDay;
+    data['upcoming_confirm_date'] = this.upcomingConfirmDate;
     data['branch_id'] = this.branchId;
     data['branch_name'] = this.branchName;
     if (this.courses != null) {
