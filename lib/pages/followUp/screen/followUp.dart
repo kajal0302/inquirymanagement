@@ -379,8 +379,8 @@ class _FollowUpPageState extends State<FollowUpPage>
                                   widget: Align(
                                     alignment: Alignment.center,
                                     child: SizedBox(
-                                      width: 600,
-                                      height: 400,
+                                      width: 650,
+                                      height: 340,
                                       child: CustomCalendar(
                                         initialFormat: _calendarFormat,
                                         initialFocusedDay: _focusedDay,

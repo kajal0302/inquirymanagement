@@ -20,7 +20,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.globalitinfosolution.inquirymanagementapplication"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "29.0.13113456"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -35,8 +35,8 @@ android {
         applicationId = "com.globalitinfosolution.inquirymanagementapplication"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 8
-        versionName = "2.1.3"
+        versionCode = 9
+        versionName = "2.1.4"
     }
 
     signingConfigs {

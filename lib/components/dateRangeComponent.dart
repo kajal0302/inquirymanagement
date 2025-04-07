@@ -17,9 +17,7 @@ class DateRangeDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
+      backgroundColor: white,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -37,45 +35,81 @@ class DateRangeDialog extends StatelessWidget {
             child: const Text(
               'Select Date Range',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: white,
               ),
             ),
           ),
           widget,
+          Divider(height: 1), // Minimal height to remove extra space
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              TextButton(
-                onPressed: () {
-                  onCancel();
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  "CANCEL",
-                  style: TextStyle(
-                    color: red,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              // CANCEL Button
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    onCancel();
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: red,
+                    foregroundColor: white,
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(2),
+                      ),
+                    ),
+                    elevation: 4,
+                    shadowColor: Colors.black45,
+                  ),
+                  child: const Text(
+                    "CANCEL",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  filterInquiriesByDate();
-                },
-                child: Text(
-                  "OK",
-                  style: TextStyle(
-                    color: black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+
+              // Vertical Divider between buttons
+              Container(
+                width: 1,
+                height: 48,
+                color: grey_300,
+              ),
+
+              // OK Button
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    filterInquiriesByDate();
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: white,
+                    foregroundColor: primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(2),
+                      ),
+                    ),
+                    elevation: 4,
+                    shadowColor: Colors.black45,
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
